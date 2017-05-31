@@ -290,6 +290,4 @@ __pycache__/
 *.js.map
 *.js
 *.d.ts
-!perks.polyfill/async-iterator.js
-!perks.polyfill/async-awaiter.js
-!perks.polyfill/bluebird-stacktraces.js
+!src/perks.polyfill/*-*.js

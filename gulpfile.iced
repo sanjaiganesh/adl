@@ -2,7 +2,7 @@
 global.basefolder = "#{__dirname}"
 
 # use our tweaked version of gulp with iced coffee.
-require './gulp/gulp.iced'
+require './.gulp/gulp.iced'
 semver = require 'semver'
 
 # tasks required for this build 
@@ -13,7 +13,7 @@ Import
   initialized: false
 
   typescriptProjectFolders: ()->
-    source ["./perks.console", "./perks.polyfill" ]
+    source ["./src/*" ]
 
   typescriptProjects: () -> 
     typescriptProjectFolders()
@@ -28,7 +28,7 @@ Import
   generatedFiles: () -> 
     typescriptProjectFolders()
       .pipe foreach (each,next,more)=>
-        source(["#{each.path}/**/*.js","#{each.path}/**/*.d.ts" ,"#{each.path}/**/*.js.map", "!**/node_modules/**","!**/*min.js"])
+        source(["#{each.path}/**/*.js","#{each.path}/**/*.d.ts" ,"#{each.path}/**/*.js.map", "!**/node_modules/**","!src/perks.polyfill/*-*.js"])
           .on 'end', -> 
             next null
           .pipe foreach (e,n)->

@@ -1,0 +1,40 @@
+{
+  "name": "dotnet-install",
+  "version": "1.0.0",
+  "description": "Platform Agnostic utility/library to install dotnet frameworks into a folder",
+  "main": "./index.js",
+  "typings": "./index.d.ts",
+  "bin": {
+    "autorest": "./app.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/perks.node.git"
+  },
+  "keywords": [
+    "perks",
+    "autorest",
+    "dotnet",
+    "dotnet-install",
+    "azure",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/perks.node/issues"
+  },
+  "homepage": "https://github.com/Azure/perks.node#readme",
+  
+  "devDependencies": {
+    "@types/node": "^7.0.5"
+  },
+  "dependencies": {
+    "request": "^2.81.0",
+    "source-map-support": "^0.4.15"
+  }  
+}
