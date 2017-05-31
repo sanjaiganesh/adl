@@ -1,0 +1,60 @@
+{
+  "name": "perks-build",
+  "version": "1.0.0",
+  "description": "Tools for AutoRest build processes",
+  "scripts": {
+    "test": "gulp test",
+    "install": "gulp npm-install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/perks.node.git"
+  },
+  "keywords": [
+    "perks",
+    "autorest",
+    "azure",
+    "node",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/perks.node/issues"
+  },
+  "homepage": "https://github.com/Azure/perks.node/readme.md",
+  "engines": {
+    "node": ">=6.9.5"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.5",
+    "@types/semver": "^5.3.30",
+    "@types/tmp": "0.0.32",
+    "chalk": "^1.1.2",
+    "coffee-script": "^1.11.1",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-dependencies-changed": "^1.0.2",
+    "gulp-eol": "^0.1.2",
+    "gulp-filter": "^5.0.0",
+    "gulp-github-release": "^1.2.1",
+    "gulp-line-ending-corrector": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-unzip": "^0.2.0",
+    "gulp-zip": "^4.0.0",
+    "iced-coffee-script": "*",
+    "marked": "^0.3.6",
+    "marked-terminal": "^2.0.0",
+    "moment": "^2.17.1",
+    "run-sequence": "*",
+    "shelljs": "^0.7.6",
+    "through2-parallel": "^0.1.3",
+    "typescript": "^2.3.3",
+    "vinyl-paths": "^2.1.0",
+    "vinyl-fs": "^2.4.4",
+    "yargs": "^6.6.0"
+  },
+  "dependencies": {
+  }
+}

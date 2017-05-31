@@ -286,3 +286,10 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+*.js.map
+*.js
+*.d.ts
+!perks.polyfill/async-iterator.js
+!perks.polyfill/async-awaiter.js
+!perks.polyfill/bluebird-stacktraces.js

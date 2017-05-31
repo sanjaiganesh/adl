@@ -1,0 +1,48 @@
+{
+  "name": "@microsoft.azure/perks.console",
+  "version": "1.0.0",
+  "description": "Common reusable libraries and tools that has been accumulating for Azure Open Source Projects",
+  "main": "./index.js",
+  "typings": "./index.d.ts",
+  "bin": {
+    "autorest": "./app.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/perks.node.git"
+  },
+  "keywords": [
+    "perks",
+    "autorest",
+    "azure",
+    "node",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/perks.node/issues"
+  },
+  "homepage": "https://github.com/Azure/perks.node#readme",
+  
+  "devDependencies": {
+    "@types/chalk": "*",
+    "@types/marked": "*",
+    "@types/node": "^7.0.5",
+    "@types/request": "0.0.43",
+    "@types/yargs": "^6.6.0"
+  },
+  "dependencies": {
+    "chalk": "^1.1.2",
+    "marked": "^0.3.6",
+    "marked-terminal": "^2.0.0",
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
+    "source-map-support": "^0.4.15",
+    "yargs": "^8.0.1"
+  }  
+}

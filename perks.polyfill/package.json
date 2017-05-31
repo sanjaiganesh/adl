@@ -1,0 +1,30 @@
+{
+  "name": "@microsoft.azure/perks.polyfill",
+  "version": "1.0.0",
+  "description": "Polyfill functions for Azure Open Source Projects",
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/perks.node.git"
+  },
+  "keywords": [
+    "perks",
+    "polyfill",
+    "autorest",
+    "azure",
+    "node",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/perks.node/issues"
+  },
+  "homepage": "https://github.com/Azure/perks.node#readme",
+  
+  "devDependencies": {
+  },
+  "dependencies": {
+  }  
+}
