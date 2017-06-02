@@ -25,21 +25,19 @@
     "url": "https://github.com/Azure/perks.node/issues"
   },
   "homepage": "https://github.com/Azure/perks.node#readme",
-  
   "devDependencies": {
     "@types/chalk": "*",
     "@types/marked": "*",
     "@types/node": "^7.0.5",
     "@types/request": "0.0.43",
-    "@types/yargs": "^6.6.0"
+    "@types/yargs": "^6.6.0",
+    "source-map-support": "^0.4.15"
   },
   "dependencies": {
     "chalk": "^1.1.2",
     "marked": "^0.3.6",
     "marked-terminal": "^2.0.0",
     "moment": "^2.18.1",
-    "request": "^2.81.0",
-    "source-map-support": "^0.4.15",
     "yargs": "^8.0.1"
-  }  
+  }
 }

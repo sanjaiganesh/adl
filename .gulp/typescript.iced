@@ -22,6 +22,7 @@ task 'test', 'typescript',['build/typescript'], (done)->
         next null
 
 task 'npm-install', 'typescript', (done)-> 
+  global.threshold =1
   count = 0
   typescriptProjectFolders()
     .pipe where (each ) -> 
@@ -29,6 +30,7 @@ task 'npm-install', 'typescript', (done)->
       return false
     .pipe foreach (each,next)-> 
       count++
+      unlink "#{each.path}/node_modules"
       execute "npm install", {cwd: each.path }, (code,stdout,stderr) ->
         count--
         if count is 0

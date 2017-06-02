@@ -22,10 +22,8 @@
     "url": "https://github.com/Azure/perks.node/issues"
   },
   "homepage": "https://github.com/Azure/perks.node#readme",
-  
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
-  "source-map-support": "^0.4.15"
-  }  
+    "source-map-support": "^0.4.15"
+  }
 }

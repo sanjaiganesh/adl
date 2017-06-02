@@ -55,6 +55,5 @@
     "vinyl-fs": "^2.4.4",
     "yargs": "^6.6.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

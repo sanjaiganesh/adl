@@ -48,6 +48,18 @@ module.exports =
   later: (fn) ->
     setTimeout fn, 10
 
+  mklink: (link,target) ->
+    unlink link
+    fs.symlinkSync target, link, "junction"
+
+  unlink: (link) ->
+    if test "-d", link 
+      fs.unlinkSync link
+
+  erase: (file) -> 
+    if test "-f", file
+      fs.unlinkSync file
+
   task: (name, description, deps, fn) ->
     throw "Invalid task name " if typeof name isnt 'string' 
     throw "Invalid task description #{name} " if typeof description isnt 'string' 
@@ -69,7 +81,7 @@ module.exports =
     
     # add the new task.
     # gulp.task name, deps, fn
-    if name isnt "init" and name isnt "npm-install" and name isnt "copy-dts-files" and ! name.startsWith "clean"
+    if name isnt "init" and name isnt "npm-install" and name isnt "copy-dts-files" and name isnt "init-deps" and ! name.startsWith "clean" 
       deps.unshift "init" 
 
     if fn.length # see if the task function has arguments (betcha never saw that before!)
@@ -143,6 +155,7 @@ module.exports =
 
 
   newer: (first,second) ->
+    return true if (!test "-d", second) and (!test "-f", second)
     f = fs.statSync(first).mtime
     s = fs.statSync(second).mtime
     return f > s 

@@ -46,7 +46,20 @@ Import
             more.push e
             n null
 
-task 'init', "" ,(done)->
+Dependencies = 
+  "dotnet-install" : ['perks.console', 'perks.polyfill', 'perks.unpack']
+  "perks.console" : [ 'perks.polyfill' ]
+  "perks.unpack" : [ 'perks.polyfill' ]
+
+
+task 'init-deps', "", (done)-> 
+  for each of Dependencies 
+    mkdir "-p", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure" if !test "-d", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure"
+    for item in Dependencies[each]
+      mklink "#{basefolder}/src/#{each}/node_modules/@microsoft.azure/#{item}" , "#{basefolder}/src/#{item}"
+  done()
+
+task 'init', "", ["init-deps"] ,(done)->
   Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
 
   execute "npm -v", (code,stdout,stderr) -> 
@@ -63,7 +76,9 @@ task 'init', "" ,(done)->
     typescriptProjectFolders()
       .on 'end', -> 
         if doit
-        
+          for pk of Dependencies 
+            erase "#{pk}/package-lock.json"  if isV5
+          
           echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
           exec "npm install",{silent:false},(c,o,e)->
             # after npm, hookup symlinks/junctions for dependent packages in projects
@@ -77,10 +92,10 @@ task 'init', "" ,(done)->
         # is any of the TS projects node_modules out of date?
         if isV5
           doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/package-lock.json")
+          
         else 
           doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/node_modules")
+        
         next null
     return null
   return null
-
-

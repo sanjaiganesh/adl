@@ -31,14 +31,19 @@
   "homepage": "https://github.com/Azure/perks.node#readme",
   "devDependencies": {
     "@types/node": "^7.0.5",
+    "@types/request": "^0.0.43",
     "@types/yargs": "^6.6.0",
-    "@types/request": "^0.0.43"
+    "buffer-peek-stream": "^1.0.1",
+    "chalk": "^1.1.2",
+    "marked": "^0.3.6",
+    "marked-terminal": "^2.0.0",
+    "moment": "^2.18.1",
+    "source-map-support": "^0.4.15",
+    "tar.gz2": "^1.0.0",
+    "unzipper": "^0.8.4",
+    "yargs": "^8.0.1"
   },
   "dependencies": {
-    "request": "^2.81.0",
-    "source-map-support": "^0.4.15",
-    "@microsoft.azure/perks.console":"*",
-    "@microsoft.azure/perks.unpack":"*",
-    "@microsoft.azure/perks.polyfill":"*"
+    "request": "^2.81.0"
   }
 }

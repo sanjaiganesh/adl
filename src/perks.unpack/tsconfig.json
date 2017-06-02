@@ -24,8 +24,12 @@
     "experimentalDecorators": true,
     "newLine": "LF"
   },
+  "files":[
+    "index.ts",
+    "test/test-unpack.ts"
+  ],
   "exclude": [
     "node_modules",
-    "index.d.ts"
+    "**/*.d.ts"
   ]
 }
