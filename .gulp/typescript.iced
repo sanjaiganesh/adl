@@ -36,19 +36,8 @@ task 'npm-install', 'typescript', (done)->
       next null
   return null
 
-task 'update-dependent-projects', '', (done)->
-  # this needs to run multiple times.
-  global.completed['update-dependent-projects'] = false
-  
-  # copy *.d.ts files 
-  #source ["#{basefolder}/src/autorest-core/**/*.d.ts","!#{basefolder}/src/autorest-core/node_modules/**","!#{basefolder}/src/autorest-core/test/**" ]
-  #  .pipe destination "#{basefolder}/src/autorest/lib/core"
-
 task 'build', 'typescript', (done)-> 
   count = 0
-  if watch 
-    watchFiles ["#{basefolder}/src/autorest-core/**/*.d.ts"], ["update-dependent-projects"]
-
   typescriptProjectFolders()
     .pipe where (each ) -> 
       return true if test "-f", "#{each.path}/tsconfig.json"
@@ -61,7 +50,8 @@ task 'build', 'typescript', (done)->
             echo "watching"
            , (d) -> echo d.replace(/^src\//mig, "#{basefolder}/src/")
         count--
-        if count is 0
-          done() 
+        later ()-> 
+          if count is 0 
+            done() 
       next null
   return null

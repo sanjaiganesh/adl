@@ -5,7 +5,7 @@
   "main": "./index.js",
   "typings": "./index.d.ts",
   "bin": {
-    "autorest": "./app.js"
+    "dotnet-install": "./app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -29,12 +29,16 @@
     "url": "https://github.com/Azure/perks.node/issues"
   },
   "homepage": "https://github.com/Azure/perks.node#readme",
-  
   "devDependencies": {
-    "@types/node": "^7.0.5"
+    "@types/node": "^7.0.5",
+    "@types/yargs": "^6.6.0",
+    "@types/request": "^0.0.43"
   },
   "dependencies": {
     "request": "^2.81.0",
-    "source-map-support": "^0.4.15"
-  }  
+    "source-map-support": "^0.4.15",
+    "@microsoft.azure/perks.console":"*",
+    "@microsoft.azure/perks.unpack":"*",
+    "@microsoft.azure/perks.polyfill":"*"
+  }
 }

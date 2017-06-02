@@ -45,6 +45,9 @@ module.exports =
   destination: (globs, options ) -> 
     gulp.dest( globs, options) 
 
+  later: (fn) ->
+    setTimeout fn, 10
+
   task: (name, description, deps, fn) ->
     throw "Invalid task name " if typeof name isnt 'string' 
     throw "Invalid task description #{name} " if typeof description isnt 'string' 

@@ -59,10 +59,11 @@ task 'init', "" ,(done)->
       doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/package-lock.json") 
     else 
       doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/node_modules") 
-      
+
     typescriptProjectFolders()
       .on 'end', -> 
         if doit
+        
           echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
           exec "npm install",{silent:false},(c,o,e)->
             # after npm, hookup symlinks/junctions for dependent packages in projects
@@ -81,3 +82,5 @@ task 'init', "" ,(done)->
         next null
     return null
   return null
+
+

@@ -6,26 +6,37 @@
 import * as marked from "marked";
 import * as chalk from "chalk";
 import * as moment from "moment";
-import { argv as cli } from "yargs";
+import * as yargs from 'yargs';
 
 const markedTerminal = require("marked-terminal");
 
 marked.setOptions({
   renderer: new markedTerminal({
     heading: chalk.green.bold,
-    firstHeading: chalk.green.bold,
+    firstHeading: chalk.green.bold.underline,
     showSectionPrefix: false,
     strong: chalk.bold.cyan,
     em: chalk.underline,
-    blockquote: chalk.dim.gray,
+    blockquote: chalk.reset.gray,
+    code: chalk.reset.cyan,
+    codespan: chalk.reset.bold.gray,
+    tableOptions: {
+      chars: {
+        'top': '', 'top-mid': '', 'top-left': '', 'top-right': ''
+        , 'bottom': '', 'bottom-mid': '', 'bottom-left': '', 'bottom-right': ''
+        , 'left': '', 'left-mid': '', 'mid': '', 'mid-mid': ''
+        , 'right': '', 'right-mid': '', 'middle': ''
+      }
+    },
     tab: 2
   })
 });
 
-(<any>global).enabled = false;
+(<any>global).console_monkeypatched = false;
 
 export function enable(): boolean {
-  if (!(<any>global).enabled) {
+
+  if (!(<any>global).console_monkeypatched) {
     const log = console.log;
     const error = console.error;
     const warn = console.warn;
@@ -33,41 +44,48 @@ export function enable(): boolean {
     const debug = console.debug;
     const trace = console.trace;
 
+    const _quiet = yargs.argv.quiet;
+    const _verbose = yargs.argv.verbose;
+    const _debug = yargs.argv.debug;
+
+
     console.log = (message?: any, ...optionalParams: any[]) => {
-      if (!cli.quiet) {
-        log(marked(`${message}`.trim()).trim());
+      if (!_quiet) {
+        process.stdout.write(marked(`${message}`.trim()).trim() + '\n');
       }
     };
 
     console.info = (message?: any, ...optionalParams: any[]) => {
-      if (cli.verbose) {
-        info(chalk.bold.magenta(`[${Timestamp}] `) + marked(`${message}`.trim()).trim());
+      if (_verbose) {
+        process.stdout.write(chalk.bold.magenta(`[${Timestamp}] `) + marked(`${message}`.trim()).trim() + '\n');
       }
     };
 
     console.debug = (message?: any, ...optionalParams: any[]) => {
-      if (cli.debug) {
-        debug(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim());
+      if (_debug) {
+        process.stdout.write(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim() + '\n');
       }
     };
 
     console.error = (message?: any, ...optionalParams: any[]) => {
-      error(chalk.bold.red(`${message}`.trim()).trim());
+      process.stderr.write(chalk.bold.red(`${message}`.trim()).trim() + '\n');
     };
 
     console.trace = (message?: any, ...optionalParams: any[]) => {
-      if (cli.debug) {
-        trace(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim());
+      if (_debug) {
+        process.stdout.write(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim() + '\n');
       }
     };
 
     console.warn = (message?: any, ...optionalParams: any[]) => {
-      if (!cli.quiet) {
-        warn(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim());
+      if (!_quiet) {
+        process.stdout.write(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim() + '\n');
       }
     }
 
-    (<any>global).enabled = true;
+    (<any>global).console_monkeypatched = true;
+
+
   }
   return true;
 }
@@ -82,3 +100,43 @@ export function Timestamp(): string {
 
   return chalk.red(`${chalk.gray(hh)}:${chalk.gray(mm)}:${chalk.gray(ss)}`);
 }
+
+export interface IYargs extends yargs.Argv {
+  app(name: string): IYargs;
+  title(text: string): IYargs;
+  copyright(text: string): IYargs;
+
+}
+
+let _copyright = "Copyright 2017.";
+let _title = "";
+let _name = "$0";
+
+export const cli: IYargs = <IYargs>yargs;
+
+cli.app = (name: string) => {
+  _name = name;
+  (<any>cli).$0 = name;
+  cli.usage(`# ${_title}\n${_copyright}\n## Usage: ${_name} <command> [options]`);
+  return cli;
+};
+
+cli.copyright = (text: string) => {
+  _copyright = text
+  cli.usage(`# ${_title}\n${_copyright}\n## Usage: ${_name} <command> [options]`);
+  return cli;
+};
+
+cli.title = (text: string) => {
+  _title = text
+  cli.usage(`# ${_title}\n${_copyright}\n## Usage: ${_name} <command> [options]`);
+  return cli;
+};
+
+cli
+  .wrap(0)
+  .help('help', "Show help")
+  .usage(`# ${_title}\n${_copyright}\n## Usage: ${_name} <command> [options]`);
+
+
+

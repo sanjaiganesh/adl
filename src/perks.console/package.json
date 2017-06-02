@@ -4,9 +4,6 @@
   "description": "Common reusable libraries and tools that has been accumulating for Azure Open Source Projects",
   "main": "./index.js",
   "typings": "./index.d.ts",
-  "bin": {
-    "autorest": "./app.js"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
