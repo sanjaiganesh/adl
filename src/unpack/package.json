@@ -2,8 +2,8 @@
   "name": "@microsoft.azure/unpack",
   "version": "1.0.0",
   "description": "Zip/GZ unpacking library/tools (for Azure Open Source Projects)",
-  "main": "./dist/not-index.js",
-  "typings": "./dist/not-index.d.ts",
+  "main": "./dist/main.js",
+  "typings": "./dist/main.d.ts",
   "scripts": {
     "test": "./node_modules/.bin/mocha test"
   },

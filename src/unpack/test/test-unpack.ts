@@ -2,7 +2,7 @@ import { suite, test, slow, timeout, skip, only } from "mocha-typescript";
 import * as polyfill from '@microsoft.azure/polyfill'
 import * as assert from "assert";
 import * as fs from 'fs'
-import * as up from '../not-index'
+import * as up from '../main'
 import * as os from 'os'
 import * as path from 'path'
 

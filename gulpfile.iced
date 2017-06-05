@@ -52,13 +52,15 @@ Import
     "console" : [ 'polyfill' ]
     "unpack" : [ 'polyfill' ]
 
-task 'init', "", (done)->
-  Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
-
+task 'init-deps', '',(done)->
   for each of Dependencies 
     mkdir "-p", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure" if !test "-d", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure"
     for item in Dependencies[each]
       mklink "#{basefolder}/src/#{each}/node_modules/@microsoft.azure/#{item}" , "#{basefolder}/src/#{item}"
+  done()
+
+task 'init',"",[ "init-deps" ], (done)->
+  Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
 
   execute "npm -v", (code,stdout,stderr) -> 
     isV5 = stdout.startsWith( "5" ) 
@@ -83,12 +85,13 @@ task 'init', "", (done)->
 
       .pipe foreach (each,next) -> 
         # is any of the TS projects node_modules out of date?
-        if isV5
-          doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/package-lock.json")
-          
-        else 
-          doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/node_modules")
-        
+        #if isV5
+        #  doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/package-lock.json")
+        #else 
+
+        # we are forcing npm4 for actual projects because npm5 is frustrating still.
+        doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/node_modules")
         next null
+
     return null
   return null

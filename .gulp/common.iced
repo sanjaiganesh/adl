@@ -82,7 +82,7 @@ module.exports =
     
     # add the new task.
     # gulp.task name, deps, fn
-    skip = (name.startsWith "init") or (name.startsWith "npm-install") or (name.startsWith "clean") or (name is "copy-dts-files")
+    skip = (name.startsWith "init") or (name.startsWith "npm-install") or (name.startsWith "clean") or (name is "copy-dts-files") or (name is "nuke")
     
     if !skip
       deps.unshift "init" 
@@ -249,8 +249,6 @@ module.exports =
         echo warning "retrying #{options.retry} #{options.cwd}/#{cmdline}"
         options.retry--
         return execute cmdline,options,callback,ondata
-
-    
 
       if code and !options.ignoreexitcode
         echo error "Exec Failed #{quiet_info options.cwd} :: #{info cmdline}"  

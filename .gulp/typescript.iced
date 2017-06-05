@@ -7,9 +7,13 @@ task 'clean' , 'typescript', (done)->
   typescriptProjectFolders()
     .pipe foreach (each,next)->
       rmdir "#{each.path}/dist/" , ->
-        rmdir "#{each.path}/node_modules/" , ->
-          erase "#{each.path}/package-lock.json" 
-          next null
+        next null
+
+task 'nuke' , '',['clean'], (done)->
+  typescriptProjectFolders()
+    .pipe foreach (each,next)->
+      rmdir "#{each.path}/node_modules/" , ->
+        next null
 
 task 'test', 'typescript',['build/typescript'], (done)->
   typescriptProjectFolders()
@@ -66,7 +70,7 @@ task 'npm-install', '', (done)->
       deps =  ("npm-install/#{d}" for d in (global.Dependencies[fn] || []) )
       
       task 'npm-install', fn,deps, (fin) ->
-        execute "npm install", {cwd: each.path, silent:false }, (code,stdout,stderr) ->
+        execute "#{basefolder}/node_modules/.bin/npm install", {cwd: each.path, silent:false }, (code,stdout,stderr) ->
           fin()
 
       next null

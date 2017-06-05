@@ -6,7 +6,7 @@
 import * as con from "@microsoft.azure/console"
 import * as os from 'os';
 import * as path from 'path'
-import * as dotnet from "./index"
+import * as dotnet from "./main"
 
 const printablePath = (path: string) => path.replace(/\\/g, "\\\\");
 
@@ -44,6 +44,7 @@ const args = con.cli
   .command('install', "**Install dotnet framework version**", {
     version: {
       alias: 'v',
+      type: 'string',
       describe: 'selected version of dotnet framework to install',
       choices: dotnet.getAllReleases(),
       default: dotnet.getVersions()[0]

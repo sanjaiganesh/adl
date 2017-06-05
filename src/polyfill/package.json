@@ -2,7 +2,8 @@
   "name": "@microsoft.azure/polyfill",
   "version": "1.0.0",
   "description": "Polyfill functions for Azure Open Source Projects",
-  "main": "./index.js",
+  "main": "./dist/main.js",
+  "typings": "./dist/main.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Azure/perks.node.git"
