@@ -1,11 +1,11 @@
 {
-  "name": "@microsoft.azure/perks.unpack",
+  "name": "@microsoft.azure/unpack",
   "version": "1.0.0",
   "description": "Zip/GZ unpacking library/tools (for Azure Open Source Projects)",
-  "main": "./index.js",
-  "typings": "./index.d.ts",
+  "main": "./dist/not-index.js",
+  "typings": "./dist/not-index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha test"
   },
   "repository": {
     "type": "git",

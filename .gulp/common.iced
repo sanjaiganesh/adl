@@ -1,4 +1,5 @@
 fs = require('fs')
+path = require('path')
 
 concurrency = 0 
 queue = []
@@ -81,7 +82,9 @@ module.exports =
     
     # add the new task.
     # gulp.task name, deps, fn
-    if name isnt "init" and name isnt "npm-install" and name isnt "copy-dts-files" and name isnt "init-deps" and ! name.startsWith "clean" 
+    skip = (name.startsWith "init") or (name.startsWith "npm-install") or (name.startsWith "clean") or (name is "copy-dts-files")
+    
+    if !skip
       deps.unshift "init" 
 
     if fn.length # see if the task function has arguments (betcha never saw that before!)
@@ -153,7 +156,6 @@ module.exports =
   exists: (path) ->
     return test '-f', path 
 
-
   newer: (first,second) ->
     return true if (!test "-d", second) and (!test "-f", second)
     f = fs.statSync(first).mtime
@@ -174,6 +176,40 @@ module.exports =
       return done null if each.path.match( match ) 
       done null, each
 
+
+  rmfile: (dir, file, callback) ->
+    p = path.join(dir, file)
+    fs.lstat p, (err, stat) ->
+      if err
+        callback.call null, err
+      else if stat.isDirectory()
+        rmdir p, callback
+      else
+        fs.unlink p, callback
+      return
+    return
+
+  rmdir: (dir, callback) ->
+    echo "RMDIR #{dir}"
+    fs.readdir dir, (err, files) ->
+      if err
+        callback.call null, err
+      else if files.length
+        i = undefined
+        j = undefined
+        i = j = files.length
+        while i--
+          rmfile dir, files[i], (err) ->
+            if err
+              callback.call null, err
+            else if --j == 0
+              fs.rmdir dir, callback
+            return
+      else
+        fs.rmdir dir, callback
+      return
+    return
+
   guid: ->
     x = -> Math.floor((1 + Math.random()) * 0x10000).toString(16).substring 1
     "#{x()}#{x()}-#{x()}-#{x()}-#{x()}-#{x()}#{x()}#{x()}"
@@ -193,6 +229,7 @@ module.exports =
 
     # if we're busy, schedule again...
     if concurrency >= threshold
+      echo "rescheduling #{cmdline}"
       queue.push(->
           execute cmdline, options, callback, ondata
       )
@@ -209,14 +246,11 @@ module.exports =
       concurrency--
 
       if code and (options.retry or 0) > 0
-        echo warning "retrying #{options.retry} #{cmdline}"
+        echo warning "retrying #{options.retry} #{options.cwd}/#{cmdline}"
         options.retry--
         return execute cmdline,options,callback,ondata
 
-      # run the next one in the queue
-      if queue.length
-        fn = (queue.shift())
-        fn() 
+    
 
       if code and !options.ignoreexitcode
         echo error "Exec Failed #{quiet_info options.cwd} :: #{info cmdline}"  
@@ -226,6 +260,11 @@ module.exports =
         if( stdout.length ) 
           echo warning "(stdout)" 
           echo warning stdout
+
+      # run the next one in the queue
+      if queue.length
+        fn = (queue.shift())
+        fn() 
 
         Fail "Execute Task failed, fast exit"
       callback(code,stdout,stderr)

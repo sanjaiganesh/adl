@@ -25,6 +25,7 @@
     "newLine": "LF"
   },
   "exclude": [
+    "dist",
     "node_modules"
   ]
 }

@@ -2,10 +2,10 @@
   "name": "dotnet-install",
   "version": "1.0.0",
   "description": "Platform Agnostic utility/library to install dotnet frameworks into a folder",
-  "main": "./index.js",
-  "typings": "./index.d.ts",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "bin": {
-    "dotnet-install": "./app.js"
+    "dotnet-install": "./dist/app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

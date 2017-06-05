@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as con from "@microsoft.azure/perks.console"
+import * as con from "@microsoft.azure/console"
 import * as os from 'os';
 import * as path from 'path'
 import * as dotnet from "./index"

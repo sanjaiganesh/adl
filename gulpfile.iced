@@ -14,6 +14,7 @@ Import
 
   typescriptProjectFolders: ()->
     source ["./src/*" ]
+    # source ['src/polyfill', 'src/console', 'src/unpack', 'src/dotnet-install']
 
   typescriptProjects: () -> 
     typescriptProjectFolders()
@@ -28,7 +29,7 @@ Import
   generatedFiles: () -> 
     typescriptProjectFolders()
       .pipe foreach (each,next,more)=>
-        source(["#{each.path}/**/*.js","#{each.path}/**/*.d.ts" ,"#{each.path}/**/*.js.map", "!**/node_modules/**","!src/perks.polyfill/*-*.js"])
+        source(["#{each.path}/**/*.js","#{each.path}/**/*.d.ts" ,"#{each.path}/**/*.js.map", "!**/node_modules/**","!src/polyfill/*-*.js"])
           .on 'end', -> 
             next null
           .pipe foreach (e,n)->
@@ -46,21 +47,18 @@ Import
             more.push e
             n null
 
-Dependencies = 
-  "dotnet-install" : ['perks.console', 'perks.polyfill', 'perks.unpack']
-  "perks.console" : [ 'perks.polyfill' ]
-  "perks.unpack" : [ 'perks.polyfill' ]
+  Dependencies:
+    "dotnet-install" : ['console', 'polyfill', 'unpack']
+    "console" : [ 'polyfill' ]
+    "unpack" : [ 'polyfill' ]
 
+task 'init', "", (done)->
+  Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
 
-task 'init-deps', "", (done)-> 
   for each of Dependencies 
     mkdir "-p", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure" if !test "-d", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure"
     for item in Dependencies[each]
       mklink "#{basefolder}/src/#{each}/node_modules/@microsoft.azure/#{item}" , "#{basefolder}/src/#{item}"
-  done()
-
-task 'init', "", ["init-deps"] ,(done)->
-  Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
 
   execute "npm -v", (code,stdout,stderr) -> 
     isV5 = stdout.startsWith( "5" ) 
@@ -76,14 +74,9 @@ task 'init', "", ["init-deps"] ,(done)->
     typescriptProjectFolders()
       .on 'end', -> 
         if doit
-          for pk of Dependencies 
-            erase "#{pk}/package-lock.json"  if isV5
-          
-          echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
-          exec "npm install",{silent:false},(c,o,e)->
-            # after npm, hookup symlinks/junctions for dependent packages in projects
-            echo warning "\n#{ info 'NOTE:' } it also seems prudent to do a 'gulp clean' at this point.\n"
-            exec "gulp clean", (c,o,e) -> 
+          run "clean", ->
+            echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
+            exec "npm install", {cwd:basefolder,silent:false},(c,o,e)->
               done null
         else 
           done null

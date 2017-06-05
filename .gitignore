@@ -290,4 +290,4 @@ __pycache__/
 *.js.map
 *.js
 *.d.ts
-!src/perks.polyfill/*-*.js
+!src/polyfill/*-*.js

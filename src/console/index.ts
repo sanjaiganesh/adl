@@ -5,7 +5,6 @@
 
 import * as con from "./lib/console"
 
-export { cli } from "./lib/console"
+export { cli, enabled } from "./lib/console"
 
 
-export const enabled = con.enabled

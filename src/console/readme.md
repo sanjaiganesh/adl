@@ -1,4 +1,4 @@
-# Project: @microsoft.azure/perks.polyfill
+# Project: @microsoft.azure/console
 
 This package contains common code for the developer tools for generating Azure SDKs.
 
@@ -7,7 +7,9 @@ Including:
 - dotnet-install
 
 ### Description
-Polyfill'd functions for AutoRest and related tools.
+Adds support to make consistent command line developer tools.
+- uses `yargs` for command line parsing
+- uses `markedTerminal` (and monkey-patches `console.*` functions to provide full console-rendered markdown support in tools)
 
 ----
 

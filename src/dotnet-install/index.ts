@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as con from "@microsoft.azure/perks.console"
-import * as polyfill from "@microsoft.azure/perks.polyfill"
+import * as con from "@microsoft.azure/console"
+import * as polyfill from "@microsoft.azure/polyfill"
 import * as os from 'os';
 import * as fs from 'fs';
 import { Exception, UnsupportedPlatformException, UnknownFramework } from "./exception"
 import * as req from 'request';
-import { unpack } from '@microsoft.azure/perks.unpack'
+import { unpack } from '@microsoft.azure/unpack'
 
 // ensure that we're polyfilled.
 polyfill.polyfilled;

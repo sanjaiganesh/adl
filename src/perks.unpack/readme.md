@@ -1,4 +1,4 @@
-# Project: @microsoft.azure/perks.console
+# Project: @microsoft.azure/console
 
 This package contains common code for the developer tools for generating Azure SDKs.
 

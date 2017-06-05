@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+        "outDir": "dist",
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": false,
     "module": "commonjs",
@@ -24,11 +25,8 @@
     "experimentalDecorators": true,
     "newLine": "LF"
   },
-  "files":[
-    "index.ts",
-    "test/test-unpack.ts"
-  ],
   "exclude": [
+    "dist",
     "node_modules",
     "**/*.d.ts"
   ]
