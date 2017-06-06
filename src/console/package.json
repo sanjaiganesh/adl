@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft.azure/perks.console",
+  "name": "@microsoft.azure/console",
   "version": "1.0.0",
   "description": "Common reusable libraries and tools that has been accumulating for Azure Open Source Projects",
   "main": "./dist/main.js",
@@ -35,11 +35,11 @@
     "@types/request": "0.0.43",
     "@types/yargs": "^6.6.0",
     "source-map-support": "^0.4.15",
-    "@microsoft.azure/polyfill":"../polyfill",
     "mocha-typescript": "^1.1.4",
     "mocha": "3.2.0"
   },
   "dependencies": {
+    "@microsoft.azure/polyfill" : "*",
     "chalk": "^1.1.2",
     "marked": "^0.3.6",
     "marked-terminal": "^2.0.0",

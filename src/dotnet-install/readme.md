@@ -1,15 +1,39 @@
-# Project: @microsoft.azure/console
+# Project: dotnet-install
 
-This package contains common code for the developer tools for generating Azure SDKs.
+This package provides a script for reliably installing the dotnet framework cross-platform.
 
-Including:
-- AutoRest
-- dotnet-install
+### Examples
 
-### Description
-Adds support to make consistent command line developer tools.
-- uses `yargs` for command line parsing
-- uses `markedTerminal` (and monkey-patches `console.*` functions to provide full console-rendered markdown support in tools)
+#### Show Help
+```
+> dotnet-install --help 
+
+DotNet Framework Installation Utility
+(C) 2017 Microsoft Corporation.
+
+Usage: dotnet-install <command> [options]
+
+Commands:
+  info     Show installed information
+  list     Show available dotnet framework versions
+  install  Install dotnet framework version
+  remove   Remove installed dotnet framework version
+
+Options:
+  --help  Show help  [boolean]
+```
+
+#### Install
+```
+> dotnet-install install --version 1.0
+Installing framework
+  Selected Framework: windows-1.0-x64
+  Installation folder: C:\Users\garrett\.dotnet
+
+  Downloading/Unpacking [-----] Done.
+```
+
+
 
 ----
 
