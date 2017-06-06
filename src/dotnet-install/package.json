@@ -44,6 +44,7 @@
     "yargs": "^8.0.1"
   },
   "dependencies": {
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "request-progress":"^3.0.0"
   }
 }

@@ -48,7 +48,6 @@ export function enable(): boolean {
     const _verbose = yargs.argv.verbose;
     const _debug = yargs.argv.debug;
 
-
     console.log = (message?: any, ...optionalParams: any[]) => {
       if (!_quiet) {
         process.stdout.write(marked(`${message}`.trim()).trim() + '\n');
@@ -68,7 +67,7 @@ export function enable(): boolean {
     };
 
     console.error = (message?: any, ...optionalParams: any[]) => {
-      process.stderr.write(chalk.bold.red(`${message}`.trim()).trim() + '\n');
+      process.stderr.write(chalk.bold.red(marked(`${message}`.trim()).trim()) + '\n');
     };
 
     console.trace = (message?: any, ...optionalParams: any[]) => {
@@ -82,10 +81,7 @@ export function enable(): boolean {
         process.stdout.write(chalk.bold.yellow(`[${Timestamp}] `) + marked(`${message}`.trim()).trim() + '\n');
       }
     }
-
     (<any>global).console_monkeypatched = true;
-
-
   }
   return true;
 }

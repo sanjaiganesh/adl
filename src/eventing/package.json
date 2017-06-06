@@ -1,7 +1,7 @@
 {
-  "name": "@microsoft.azure/unpack",
+  "name": "@microsoft.azure/eventing",
   "version": "1.0.0",
-  "description": "Zip/GZ unpacking library/tools (for Azure Open Source Projects)",
+  "description": "Typescript-based eventing framekwor (for Azure Open Source Projects)",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",
   "scripts": {
@@ -32,8 +32,5 @@
     "source-map-support": "^0.4.15"
   },
   "dependencies": {
-    "tar.gz2": "^1.0.0",
-    "unzipper": "^0.8.4",
-    "buffer-peek-stream": "^1.0.1"
   }
 }

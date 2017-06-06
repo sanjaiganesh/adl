@@ -18,29 +18,28 @@ task 'nuke' , '',['clean'], (done)->
 task 'test', 'typescript',['build/typescript'], (done)->
   typescriptProjectFolders()
     .pipe where (each) ->
-      return true if test "-d", "#{each.path}/test"
-      return false
+      return test "-d", "#{each.path}/test"
+
     .pipe foreach (each,next)->
-      if test "-f", "#{each.path}/node_modules/.bin/mocha"
-        execute "#{each.path}/node_modules/.bin/mocha test  --timeout 15000", {cwd: each.path}, (c,o,e) ->
-          next null
-      else
+      execute "#{basefolder}/node_modules/.bin/npm test", {cwd: each.path, silent:false }, (code,stdout,stderr) ->
         next null
+
+task "compile/typescript", '' , (done)->  
+  done()
 
 task 'build', 'typescript', (done)-> 
   typescriptProjectFolders()
     .on 'end', -> 
-      run 'build/typescript', ->
-        done()
+      run 'compile/typescript', done
 
     .pipe where (each ) -> 
       return test "-f", "#{each.path}/tsconfig.json"
       
     .pipe foreach (each,next ) ->
       fn = filename each.path
-      deps =  ("build/typescript/#{d}" for d in (global.Dependencies[fn] || []) )
+      deps =  ("compile/typescript/#{d}" for d in (global.Dependencies[fn] || []) )
       
-      task 'build/typescript', fn,deps, (fin) ->
+      task 'compile/typescript', fn,deps, (fin) ->
         execute "tsc --project #{each.path} ", {cwd: each.path }, (code,stdout,stderr) ->
           if watch 
             execute "#{basefolder}/node_modules/.bin/tsc --watch --project #{each.path}", (c,o,e)-> 
@@ -50,11 +49,7 @@ task 'build', 'typescript', (done)->
       next null
     return null
 
-task 'npm-install', '', (done)-> 
-  for each of Dependencies 
-    mkdir "-p", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure" if !test "-d", "#{basefolder}/src/#{each}/node_modules/@microsoft.azure"
-    for item in Dependencies[each]
-      mklink "#{basefolder}/src/#{each}/node_modules/@microsoft.azure/#{item}" , "#{basefolder}/src/#{item}"
+task 'npm-install', '', ['init-deps'], (done)-> 
 
   global.threshold =1
   typescriptProjectFolders()
@@ -70,7 +65,10 @@ task 'npm-install', '', (done)->
       deps =  ("npm-install/#{d}" for d in (global.Dependencies[fn] || []) )
       
       task 'npm-install', fn,deps, (fin) ->
+        echo "Running npm install for #{each.path}."
         execute "#{basefolder}/node_modules/.bin/npm install", {cwd: each.path, silent:false }, (code,stdout,stderr) ->
+          echo stderr
+          echo stdout
           fin()
 
       next null

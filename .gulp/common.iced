@@ -50,8 +50,9 @@ module.exports =
     setTimeout fn, 10
 
   mklink: (link,target) ->
-    unlink link
-    fs.symlinkSync target, link, "junction"
+    # unlink link
+    if ! test "-d", link 
+      fs.symlinkSync target, link, "junction"
 
   unlink: (link) ->
     if test "-d", link 
@@ -156,6 +157,12 @@ module.exports =
   exists: (path) ->
     return test '-f', path 
 
+  fileExists: (path) ->
+    return test '-f', path 
+
+  dirExists: (path) ->
+    return test '-d', path 
+
   newer: (first,second) ->
     return true if (!test "-d", second) and (!test "-f", second)
     f = fs.statSync(first).mtime
@@ -229,7 +236,6 @@ module.exports =
 
     # if we're busy, schedule again...
     if concurrency >= threshold
-      echo "rescheduling #{cmdline}"
       queue.push(->
           execute cmdline, options, callback, ondata
       )
@@ -250,6 +256,12 @@ module.exports =
         options.retry--
         return execute cmdline,options,callback,ondata
 
+
+      # run the next one in the queue
+      if queue.length
+        fn = (queue.shift())
+        fn() 
+
       if code and !options.ignoreexitcode
         echo error "Exec Failed #{quiet_info options.cwd} :: #{info cmdline}"  
         if( stderr.length )
@@ -259,12 +271,7 @@ module.exports =
           echo warning "(stdout)" 
           echo warning stdout
 
-      # run the next one in the queue
-      if queue.length
-        fn = (queue.shift())
-        fn() 
-
-        Fail "Execute Task failed, fast exit"
+        Fail "Execute Task () failed, fast exit"
       callback(code,stdout,stderr)
 
     proc.stdout.on 'data', ondata if ondata

@@ -1,7 +1,7 @@
 {
-  "name": "@microsoft.azure/unpack",
+  "name": "@microsoft.azure/async-io",
   "version": "1.0.0",
-  "description": "Zip/GZ unpacking library/tools (for Azure Open Source Projects)",
+  "description": "Promisify'd asnyc wrappers (for Azure Open Source Projects)",
   "main": "./dist/main.js",
   "typings": "./dist/main.d.ts",
   "scripts": {
@@ -13,6 +13,7 @@
   },
   "keywords": [
     "perks",
+    "async",
     "autorest",
     "azure",
     "node",
@@ -29,11 +30,10 @@
     "@types/node": "^7.0.5",
     "mocha-typescript": "^1.1.4",
     "mocha": "3.2.0",
-    "source-map-support": "^0.4.15"
+    "source-map-support": "^0.4.15",
+     "@types/pify": "0.0.28"
   },
   "dependencies": {
-    "tar.gz2": "^1.0.0",
-    "unzipper": "^0.8.4",
-    "buffer-peek-stream": "^1.0.1"
+      "pify": "^2.3.0"
   }
 }

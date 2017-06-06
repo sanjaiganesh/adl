@@ -11,29 +11,35 @@ polyfill.polyfilled;
 
 @suite class unpack {
   @test async "tgz"() {
-    const tmpFolder = fs.mkdtempSync("test-unpack");
+    const tmpFolder = fs.mkdtempSync(`${os.tmpdir()}/test-unpack`);
     try {
-      const stream = fs.createReadStream(`${__dirname}/license.tgz`);
+      const stream = fs.createReadStream(`${__dirname}/../../test/license.tgz`);
       assert.equal(true, await up.unpack(stream, tmpFolder));
 
       const license = fs.readFileSync(`${tmpFolder}/LICENSE`);
       assert.equal(license.length, 1183);
     } finally {
-      fs.unlinkSync(`${tmpFolder}/LICENSE`)
-      fs.rmdirSync(tmpFolder);
+      try {
+        fs.unlinkSync(`${tmpFolder}/LICENSE`)
+      } finally {
+        fs.rmdirSync(tmpFolder);
+      }
     }
   }
 
   @test async "zip"() {
-    const tmpFolder = fs.mkdtempSync("test-unpack");
+    const tmpFolder = fs.mkdtempSync(`${os.tmpdir()}/test-unpack`);
     try {
-      const stream = fs.createReadStream(`${__dirname}/license.zip`);
+      const stream = fs.createReadStream(`${__dirname}/../../test/license.zip`);
       assert.equal(true, await up.unpack(stream, tmpFolder));
       const license = fs.readFileSync(`${tmpFolder}/LICENSE.TXT`);
       assert.equal(license.length, 1183);
     } finally {
-      fs.unlinkSync(`${tmpFolder}/LICENSE.TXT`);
-      fs.rmdirSync(tmpFolder);
+      try {
+        fs.unlinkSync(`${tmpFolder}/LICENSE.TXT`);
+      } finally {
+        fs.rmdirSync(tmpFolder);
+      }
     }
   }
 }

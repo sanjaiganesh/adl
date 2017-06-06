@@ -48,9 +48,11 @@ Import
             n null
 
   Dependencies:
-    "dotnet-install" : ['console', 'polyfill', 'unpack']
+    "dotnet-install" : ['console', 'polyfill', 'unpack', 'eventing', "async-io"]
     "console" : [ 'polyfill' ]
     "unpack" : [ 'polyfill' ]
+    "eventing" : [ 'polyfill' ]
+    "async-io" : [ 'polyfill' ]
 
 task 'init-deps', '',(done)->
   for each of Dependencies 
@@ -61,37 +63,37 @@ task 'init-deps', '',(done)->
 
 task 'init',"",[ "init-deps" ], (done)->
   Fail "YOU MUST HAVE NODEJS VERSION GREATER THAN 6.9.5" if semver.lt( process.versions.node , "6.9.5" )
+  
+  return done() if initialized
+  global.initialized = true
+  # if the node_modules isn't created, do it.
+  if fileExists "#{basefolder}/package-lock.json" 
+    doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/package-lock.json") 
+  else 
+    doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/node_modules") 
 
-  execute "npm -v", (code,stdout,stderr) -> 
-    isV5 = stdout.startsWith( "5" ) 
-    
-    return done() if initialized
-    global.initialized = true
-    # if the node_modules isn't created, do it.
-    if isV5 
-      doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/package-lock.json") 
-    else 
-      doit = true if (newer "#{basefolder}/package.json",  "#{basefolder}/node_modules") 
+  
+  typescriptProjectFolders()
+    .on 'end', -> 
+      if doit
+          echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
+          exec "npm install", {cwd:basefolder,silent:true},(c,o,e)->
+            done null
+      else 
+        done null
 
-    typescriptProjectFolders()
-      .on 'end', -> 
-        if doit
-          run "clean", ->
-            echo warning "\n#{ info 'NOTE:' } 'node_modules' may be out of date - running 'npm install' for you.\n"
-            exec "npm install", {cwd:basefolder,silent:false},(c,o,e)->
-              done null
-        else 
-          done null
+    .pipe foreach (each,next) -> 
+      # is any of the TS projects node_modules out of date?
+      #if isV5
+      #  doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/package-lock.json")
+      #else 
 
-      .pipe foreach (each,next) -> 
-        # is any of the TS projects node_modules out of date?
-        #if isV5
-        #  doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/package-lock.json")
-        #else 
+      # we are forcing npm4 for actual projects because npm5 is frustrating still.
+      if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/node_modules")
+        echo "node_modules in #{each.path} may be out of date."
+        doit = true
 
-        # we are forcing npm4 for actual projects because npm5 is frustrating still.
-        doit = true if (! test "-d", "#{each.path}/node_modules") or (newer "#{each.path}/package.json",  "#{each.path}/node_modules")
-        next null
+      next null
 
-    return null
   return null
+return null
