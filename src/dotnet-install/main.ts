@@ -310,13 +310,10 @@ export async function removeAllFrameworks(folder: string): Promise<void> {
 
 export async function removeInstalledFramework(folder: string, release: string): Promise<void> {
   if (await exists(folder)) {
-    console.log(`looking in ${folder}  `)
     const fwks = await listInstalledFrameworkRevisions(folder);
     if (fwks.length) {
       for (const fwk of fwks) {
-        console.log(`${fwk} == ${release} `)
         if (fwk == release) {
-          console.log("found")
           await rmdir(path.join(folder, "shared", "Microsoft.NETCore.App", fwk));
           break;
         }
