@@ -197,7 +197,7 @@ module.exports =
     return
 
   rmdir: (dir, callback) ->
-    echo "RMDIR #{dir}"
+    #echo "RMDIR #{dir}"
     fs.readdir dir, (err, files) ->
       if err
         callback.call null, err
