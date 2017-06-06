@@ -291,3 +291,5 @@ __pycache__/
 *.js
 *.d.ts
 !src/polyfill/*-*.js
+package-lock.json
+**/package-lock.json
