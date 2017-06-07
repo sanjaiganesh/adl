@@ -1,0 +1,28 @@
+# Test against the latest version of this Node.js version
+environment:
+  nodejs_version: "7"
+
+version: 1.0.{build}
+image: Visual Studio 2017
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install -g gulp 
+  - npm install
+  - gulp init
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # run tests
+  - gulp test
+
+# Don't actually build.
+build: 
+  - gulp build
+
