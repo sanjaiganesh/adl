@@ -40,7 +40,7 @@ task 'build', 'typescript', (done)->
       deps =  ("compile/typescript/#{d}" for d in (global.Dependencies[fn] || []) )
       
       task 'compile/typescript', fn,deps, (fin) ->
-        execute "tsc --project #{each.path} ", {cwd: each.path }, (code,stdout,stderr) ->
+        execute "#{basefolder}/node_modules/.bin/tsc --project #{each.path} ", {cwd: each.path }, (code,stdout,stderr) ->
           if watch 
             execute "#{basefolder}/node_modules/.bin/tsc --watch --project #{each.path}", (c,o,e)-> 
              echo "watching #{fn}"
@@ -50,7 +50,6 @@ task 'build', 'typescript', (done)->
     return null
 
 task 'npm-install', '', ['init-deps'], (done)-> 
-
   global.threshold =1
   typescriptProjectFolders()
     .on 'end', -> 
