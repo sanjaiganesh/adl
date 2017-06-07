@@ -23,6 +23,6 @@ test_script:
   - gulp test
 
 # Don't actually build.
-build: 
+build_script: 
   - gulp build
 
