@@ -9,16 +9,17 @@ image: Visual Studio 2017
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
+  # Output useful info for debugging.
+  - npm --version
+  - node --version
+
   # install modules
   - npm install -g gulp 
   - npm install
-  - gulp init
+  - gulp init --threshold=1
 
 # Post-install test scripts.
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
   # run tests
   - gulp test
 
