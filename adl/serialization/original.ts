@@ -133,7 +133,7 @@ class AdlGenerator {
 
       for (const schema of values(this.model.components.schemas).linq
         .select(schema => dereference(this.model, schema).instance)
-        //.linq.where(schema => schema.type === JsonType.Object || !!schema.properties)
+        //.where(schema => schema.type === JsonType.Object || !!schema.properties)
       ) {
         this.acquireTypeForSchema(schema);
         // this.generateSchema(schema)
@@ -167,11 +167,11 @@ class AdlGenerator {
     if (schema.properties) {
       for (const { key: propertyName, value: propertySchema } of items(schema.properties)) {
         const pSchema = <OpenAPI.Schema>dereference(this.model, propertySchema).instance;
-        const type = this.addImportFor(file, this.acquireTypeForSchema(pSchema));
+        const type = this.addImportFor<TypeReference>(file, this.acquireTypeForSchema(pSchema));
         const property = iface.addProperty({
           name: quoteForIdentifier(propertyName),
           type: type.getName(),
-          hasQuestionToken: !(values(schema.required).linq.any(each => each === propertyName)),
+          hasQuestionToken: !(values(schema.required).any(each => each === propertyName)),
           docs: docDescription(propertySchema.description || pSchema.description),
           isReadonly: pSchema.readOnly
         });
@@ -230,9 +230,9 @@ class AdlGenerator {
     const typeAlias = this.createTypeAlias(schema);
     const file = this.createFile(schema);
 
-    const allOf = this.deref(schema.allOf).linq.select(a => this.addImportFor(file, this.acquireTypeForSchema(a))).linq.toArray().joinWith(each => each.getName(), '&');
-    const oneOf = this.deref(schema.oneOf).linq.select(a => this.addImportFor(file, this.acquireTypeForSchema(a))).linq.toArray().joinWith(each => each.getName(), '|');
-    const anyOfCombinations = combinations(this.deref(schema.anyOf).linq.select(a => this.addImportFor(file, this.acquireTypeForSchema(a))).linq.toArray());
+    const allOf = this.deref(schema.allOf).select(a => this.addImportFor<TypeReference>(file, this.acquireTypeForSchema(a))).toArray().joinWith(each => each.getName(), '&');
+    const oneOf = this.deref(schema.oneOf).select(a => this.addImportFor<TypeReference>(file, this.acquireTypeForSchema(a))).toArray().joinWith(each => each.getName(), '|');
+    const anyOfCombinations = combinations(this.deref(schema.anyOf).select(a => this.addImportFor<TypeReference>(file, this.acquireTypeForSchema(a))).toArray());
     const anyOf = anyOfCombinations.map(s => s.joinWith(each => each.getName(), '&')).join('|');
     let set = allOf;
     if (oneOf) {
@@ -269,7 +269,7 @@ class AdlGenerator {
     if (schema.additionalProperties) {
       // this is some kind of additional properties model
 
-      if (values(schema.properties).linq.any()) {
+      if (values(schema.properties).any()) {
         // it has some declared properties too.
         // create the interface as internal, and 
         // add an alias
@@ -407,7 +407,7 @@ class AdlGenerator {
 
 
     // parameters:
-    const [required, optional] = this.deref(operation.parameters).linq.bifurcate(each => !!each.required);
+    const [required, optional] = this.deref(operation.parameters).bifurcate(each => !!each.required);
 
     // find path parameters, order them in the order they are in the path
     const p = new Array<string>();
@@ -427,7 +427,7 @@ class AdlGenerator {
         return '';
       }
 
-      const t = this.addImportFor(oc.getSourceFile(), this.acquireTypeForSchema(dereference(this.model, parameter.schema).instance)).getName();
+      const t = this.addImportFor<TypeReference>(oc.getSourceFile(), this.acquireTypeForSchema(dereference(this.model, parameter.schema).instance)).getName();
       let p = camelCase(parameter.name);
       if (p === 'default') {
         p = '$default';
@@ -461,11 +461,11 @@ class AdlGenerator {
 
     if (operation.requestBody) {
       const rb = dereference(this.model, operation.requestBody).instance;
-      const tt = items(rb.content).linq.first();
+      const tt = items(rb.content).first();
       if (tt) {
         if (tt.value.schema) {
           const schema = dereference(this.model, tt.value.schema).instance;
-          const t = this.addImportFor(oc.getSourceFile(), this.acquireTypeForSchema(schema)).getName();
+          const t = this.addImportFor<TypeReference>(oc.getSourceFile(), this.acquireTypeForSchema(schema)).getName();
           params.push(`${rb['x-ms-requestBody-name'] || 'body'}: Body<${t},'${tt.key}'>`);
           m.addJsDoc({ description: `@parameter ${rb['x-ms-requestBody-name'] || 'body'} - ${schema.description}` });
         } else {
@@ -482,7 +482,7 @@ class AdlGenerator {
       if (responses.content) {
         for (const { key: mediatype, value: schema } of this.derefD(responses.content)) {
           if (schema.schema) {
-            r.push(`Response<${code},${this.addImportFor(oc.getSourceFile(), this.acquireTypeForSchema(dereference(this.model, schema.schema).instance)).getName()},'${mediatype}'>`);
+            r.push(`Response<${code},${this.addImportFor<TypeReference>(oc.getSourceFile(), this.acquireTypeForSchema(dereference(this.model, schema.schema).instance)).getName()},'${mediatype}'>`);
           } else {
             r.push(`Response<${code},none,'${mediatype}'>`);
           }
@@ -550,11 +550,11 @@ class AdlGenerator {
 
 
   deref<T>(source?: Array<OpenAPI.Refable<T>>) {
-    return values(source).linq.select(each => dereference(this.model, each).instance);
+    return values(source).select(each => dereference(this.model, each).instance);
   }
 
   derefD<T>(source?: Dictionary<OpenAPI.Refable<T>>) {
-    return items(source).linq.select(each => ({
+    return items(source).select(each => ({
       key: each.key,
       value: dereference(this.model, each.value).instance
     }));
@@ -590,7 +590,7 @@ function fn<T>(active: Array<T>, remaining: Array<T>, result: Array<Array<T>>): 
 function and(...items: Array<string>) {
   return items.filter(each => each).join(' & ');
 }
-function combinations<T>(elements: Array<T>) {
+function combinations<T>(elements: Array<T>): Array<Array<T>> {
   return fn([], elements, []);
 }
 function format(f?: string): string {
