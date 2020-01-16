@@ -3,13 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as assert from "assert";
+import * as assert from 'assert';
 import * as OpenAPI from '@azure-tools/openapi';
 
-import { suite, test } from "mocha-typescript";
-import { loadADL } from "../serialization/adl";
-import { loadOpenApi } from "../serialization/openapi";
+import { suite, test } from 'mocha-typescript';
+import { loadADL } from '../serialization/adl';
+import { loadOpenApi } from '../serialization/openapi';
 import { readFile, writeFile, readdir, mkdir, exists } from '@azure-tools/async-io';
+
+require('source-map-support').install();
 
 @suite class OpenAPIConversion {
   @test async 'converts a folder of specs to usable TypeScript'() {
@@ -27,7 +29,7 @@ import { readFile, writeFile, readdir, mkdir, exists } from '@azure-tools/async-
       }
 
       // Load the OpenAPI spec and conver it to ADL
-      const openApiSpec = <OpenAPI.Model> JSON.parse(await readFile(`${specsDir}/${folder}/openapi-document.json`));
+      const openApiSpec = <OpenAPI.Model>JSON.parse(await readFile(`${specsDir}/${folder}/openapi-document.json`));
       const adlApi = loadOpenApi(openApiSpec);
 
       // Create the output directory if it doesn't exist yet

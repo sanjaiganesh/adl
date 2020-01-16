@@ -1,6 +1,9 @@
 import { Project, ClassDeclaration, JSDocStructure, SourceFile, InterfaceDeclaration, EnumDeclaration, Type, VariableDeclarationKind, IndentationText, QuoteKind } from 'ts-morph';
 import { intersect } from '@azure-tools/codegen';
-import { writeFile } from '@azure-tools/async-io';
+import { writeFile, mkdir } from '@azure-tools/async-io';
+import { dirname } from 'path';
+
+export type TypeReference = { getName: () => string; getSourceFile?: (() => SourceFile); applyImport?: (file: SourceFile) => void };
 
 export interface OperationGroup {
 }
@@ -67,7 +70,7 @@ export class Api {
   *getFiles() {
     for (const each of this.project.getSourceFiles()) {
       yield {
-        path: each,
+        path: each.getFilePath().toString(),
         content: each.print().
           // replace(/(import .* from )"(.*?)"\;/g, `$1'$2';`).
           replace(/ {4}/g, '  ').  // two space indent!
@@ -80,6 +83,7 @@ export class Api {
 
   async save(path: string) {
     for (const each of this.getFiles()) {
+      await mkdir(dirname(`${path}/${each.path}`));
       await writeFile(`${path}/${each.path}`, each.content);
     }
   }
@@ -104,7 +108,9 @@ export class ModelFunctions {
   addMember(name: string, properties: Member) {
 
   }
-} export class EnumFunctions {
+}
+
+export class EnumFunctions {
   /*@internal*/
   constructor(private declaraton: EnumDeclaration) {
   }
