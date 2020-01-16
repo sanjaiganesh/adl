@@ -1,0 +1,40 @@
+{
+  "name": "@azure-tools/adl.types",
+  "version": "1.0.0",
+  "description": "ADL Type Definitions for HTTP APIs",
+  "types": "index",
+  "directories": {
+    "doc": "docs"
+  },
+  "engines": {
+    "node": ">=10.12.0"
+  },
+  "scripts": {
+    "eslint-fix": "eslint  . --fix --ext .ts",
+    "eslint": "eslint  . --ext .ts",
+    "build": "echo done.",
+    "watch": "echo none thanks.",
+    "prepare": "npm run build",
+    "test": "npm run build && mocha dist/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure/adl.git"
+  },
+  "keywords": [
+    "adl"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure/adl/issues"
+  },
+  "homepage": "https://github.com/Azure/adl#readme",
+  "readme": "https://github.com/Azure/adl/blob/master/readme.md",
+  "devDependencies": {
+    "typescript": "~3.7.4",
+    "@typescript-eslint/eslint-plugin": "~2.16.0",
+    "@typescript-eslint/parser": "~2.16.0",
+    "eslint": "~6.8.0"
+  }
+}
