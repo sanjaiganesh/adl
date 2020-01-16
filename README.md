@@ -1,5 +1,10 @@
 # ADL - An Api Description Language using TypeScript
 
+## Goals today:
+ - parse and persist an ADL model
+ - convert from/to OpenAPI (as much as we can)
+ - some docs that illustrate the ideas 
+
 ## Aspiration
 
 An alternative to [OpenAPI, Swagger] means of descrbing an API surface, that facilitates describing multiple API versions of an API.
