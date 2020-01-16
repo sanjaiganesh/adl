@@ -11,6 +11,8 @@ import { RedisForceRebootResponse } from '../models/RedisForceRebootResponse';
 import { ImportRdbParameters } from '../models/ImportRdbParameters';
 import { ExportRdbParameters } from '../models/ExportRdbParameters';
 
+export type Myresponse = JsonResponse<201>;
+
 export class Redis {
   /**
    * Checks that the redis cache name is valid and is not already in use.
@@ -20,7 +22,7 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/providers/Microsoft.Cache/CheckNameAvailability')
-  CheckNameAvailability: (subscriptionId: string, apiVersion: Query<string, 'api-version'>, parameters: Body<CheckNameAvailabilityParameters, 'application/json'>) => 
+  CheckNameAvailability: (subscriptionId: string, apiVersion: Query<string, 'api-version'>, parameters: Body<CheckNameAvailabilityParameters, 'application/json'>) =>
     Response<200>;
 
   /**
@@ -33,7 +35,7 @@ export class Redis {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/listUpgradeNotifications')
-  ListUpgradeNotifications: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, history: Query<number & Format<'double'>>) => 
+  ListUpgradeNotifications: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, history: Query<number & Format<'double'>>) =>
     Response<200, NotificationListResponse, 'application/json'>;
 
   /**
@@ -46,9 +48,21 @@ export class Redis {
    */
   @HttpPut
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}')
-  Create: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisCreateParameters, 'application/json'>) => 
+  Create: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisCreateParameters, 'application/json'>) =>
     Response<200, RedisResource, 'application/json'> |
-    Response<201, RedisResource, 'application/json'>;
+    LongRunningResponse<201, RedisResource, 'application/json', LRO.Location> |
+    LongRunningResponse<201, RedisResource, 'application/json', LRO.OriginalUri> |
+    LongRunningResponse<201, RedisResource, 'application/json', LRO.AzureAsyncOperation> |
+
+    Myresponse &
+    JsonResponse<201> & LRO<RedisResource, Location> & MyHeaderCollection |
+    Response<201, 'application/json'> & RedisResource & OriginalUri |
+    Response<201, 'application/json'> & RedisResource & AzureAsyncOperation |
+
+
+
+    Exception<Http4XX>
+
 
   /**
    * Update an existing Redis cache.
@@ -60,7 +74,7 @@ export class Redis {
    */
   @HttpPatch
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}')
-  Update: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisUpdateParameters, 'application/json'>) => 
+  Update: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisUpdateParameters, 'application/json'>) =>
     Response<200, RedisResource, 'application/json'>;
 
   /**
@@ -72,7 +86,7 @@ export class Redis {
    */
   @HttpDelete
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}')
-  Delete: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) => 
+  Delete: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200> |
     Response<202> |
     Response<204>;
@@ -86,7 +100,7 @@ export class Redis {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}')
-  Get: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) => 
+  Get: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisResource, 'application/json'>;
 
   /**
@@ -97,7 +111,7 @@ export class Redis {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis')
-  ListByResourceGroup: (subscriptionId: string, resourceGroupName: string, apiVersion: Query<string, 'api-version'>) => 
+  ListByResourceGroup: (subscriptionId: string, resourceGroupName: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisListResult, 'application/json'>;
 
   /**
@@ -107,7 +121,7 @@ export class Redis {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/providers/Microsoft.Cache/Redis')
-  List: (subscriptionId: string, apiVersion: Query<string, 'api-version'>) => 
+  List: (subscriptionId: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisListResult, 'application/json'>;
 
   /**
@@ -119,7 +133,7 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/listKeys')
-  ListKeys: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) => 
+  ListKeys: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisAccessKeys, 'application/json'>;
 
   /**
@@ -132,7 +146,7 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/regenerateKey')
-  RegenerateKey: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisRegenerateKeyParameters, 'application/json'>) => 
+  RegenerateKey: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisRegenerateKeyParameters, 'application/json'>) =>
     Response<200, RedisAccessKeys, 'application/json'>;
 
   /**
@@ -145,9 +159,9 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/forceReboot')
-  ForceReboot: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisRebootParameters, 'application/json'>) => 
-    Response<200, RedisForceRebootResponse, 'application/json'|'text/json'>;
-    
+  ForceReboot: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisRebootParameters, 'application/json'>) =>
+    Response<200, RedisForceRebootResponse, 'application/json' | 'text/json'>;
+
 
   /**
    * Import data into Redis cache.
@@ -159,7 +173,7 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/import')
-  ImportData: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<ImportRdbParameters, 'application/json'>) => 
+  ImportData: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<ImportRdbParameters, 'application/json'>) =>
     Response<200> |
     Response<202> |
     Response<204>;
@@ -174,7 +188,7 @@ export class Redis {
    */
   @HttpPost
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/export')
-  ExportData: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<ExportRdbParameters, 'application/json'>) => 
+  ExportData: (subscriptionId: string, resourceGroupName: string, name: string, apiVersion: Query<string, 'api-version'>, parameters: Body<ExportRdbParameters, 'application/json'>) =>
     Response<200> |
     Response<202> |
     Response<204>;

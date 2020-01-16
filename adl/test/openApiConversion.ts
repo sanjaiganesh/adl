@@ -9,7 +9,7 @@ import * as OpenAPI from '@azure-tools/openapi';
 import { suite, test } from 'mocha-typescript';
 import { loadADL } from '../serialization/adl';
 import { loadOpenApi } from '../serialization/openapi';
-import { readFile, writeFile, readdir, mkdir, exists } from '@azure-tools/async-io';
+import { readFile, writeFile, readdir, mkdir, exists, rmdir } from '@azure-tools/async-io';
 
 require('source-map-support').install();
 
@@ -34,6 +34,9 @@ require('source-map-support').install();
 
       // Create the output directory if it doesn't exist yet
       const outputDir = `${specsDir}/${folder}/output/`;
+
+      await rmdir(outputDir);
+
       if (!await exists(outputDir)) {
         await mkdir(outputDir);
       }

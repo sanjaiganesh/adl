@@ -1,7 +1,7 @@
 import * as OpenAPI from '@azure-tools/openapi';
 import { dereference, JsonType, isReference } from '@azure-tools/openapi';
 import { Api, TypeReference } from '../model/api';
-import { values } from '@azure-tools/linq';
+import { values, Dictionary, items } from '@azure-tools/linq';
 import { pascalCase } from '@azure-tools/codegen';
 
 
@@ -73,6 +73,19 @@ class OpenApiConverter {
 
   }
 
+
+  deref<T>(source?: Array<OpenAPI.Refable<T>>) {
+    return values(source).select(each => dereference(this.model, each).instance);
+  }
+
+  derefD<T>(source?: Dictionary<OpenAPI.Refable<T>>) {
+    return items(source).select(each => ({
+      key: each.key,
+      value: dereference(this.model, each.value).instance
+    }));
+  }
+
+
   createFile(schema: OpenAPI.Schema) {
     const modelName: string = pascalCase(schema['x-ms-metadata'].name);
     if (schema.enum) {
@@ -107,6 +120,10 @@ class OpenApiConverter {
     return typeAlias;
   }
   */
+
+  createInterface(schema: OpenAPI.Schema) {
+    //as
+  }
 
   createEnum(schema: OpenAPI.Schema) {
     if (schema.enum) {
@@ -191,11 +208,13 @@ class OpenApiConverter {
         };
       }
     }
+*/
+
 
     if (schema.properties || schema.type === JsonType.Object) {
       return this.createInterface(schema);
     }
-
+    /*
     switch (schema.type) {
       case JsonType.Number:
         return { getName: () => and('number', format(schema.format), maximum(schema.maximum, schema.exclusiveMaximum), minimum(schema.minimum, schema.exclusiveMaximum)) };
