@@ -13,6 +13,7 @@
   ],
   "exclude": [
     "dist",
+    "test/scenarios/**",
     "resources",
     "node_modules",
     "**/*.d.ts"
