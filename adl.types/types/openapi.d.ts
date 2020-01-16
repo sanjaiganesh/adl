@@ -1,6 +1,6 @@
 
 
-declare class Constant<value extends (string|number)>{}
+declare class Constant<value extends (string | number)>{ }
 
 
 
@@ -20,29 +20,29 @@ declare function mutability(...p: Array<any>);
 /* Parameter Declarations */
 
 /** Indicates a Request Body for an HTTP call */
-declare type Body<ParameterType,MediaType extends string  = 'any'> = Parameter<'body',ParameterType,MediaType>; 
+declare type Body<ParameterType, MediaType extends string = 'any'> = Parameter<'body', ParameterType, MediaType>;
 
 /** Indicates a Path parameter for an HTTP call. The parameter may not be optional. */
-declare type Path<ParameterType, serializedName extends string = undefined> = Parameter<'path',ParameterType,serializedName>; 
+declare type Path<ParameterType, serializedName extends string = undefined> = Parameter<'path', ParameterType, serializedName>;
 
 /** Indicates a Query parameter for an HTTP call */
-declare type Query<ParameterType, serializedName extends string = undefined> = Parameter<'query',ParameterType,serializedName>; 
+declare type Query<ParameterType, serializedName extends string = undefined> = Parameter<'query', ParameterType, serializedName>;
 
 /** Indicates a Header parameter for an HTTP call */
-declare type Header<ParameterType,serializedName extends string = undefined> = Parameter<'header',ParameterType,serializedName>; 
+declare type Header<ParameterType, serializedName extends string = undefined> = Parameter<'header', ParameterType, serializedName>;
 
 /** Indicates a Cookie parameter for an HTTP call */
-declare type Cookie<ParameterType,serializedName extends string = undefined> = Parameter<'cookie',ParameterType,serializedName>; 
+declare type Cookie<ParameterType, serializedName extends string = undefined> = Parameter<'cookie', ParameterType, serializedName>;
 
 /** Parameter Locations */
-type ParameterLocation = 'query'|'path'|'cookie'|'header'|'body';
+type ParameterLocation = 'query' | 'path' | 'cookie' | 'header' | 'body';
 
 
 // declare type OneOf<T,T2 = void ,T3 = void ,T4 = void,T5 = void,T6 = void,T7 = void, T8=void, T9 = void, T10 = void> = T | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9 | T10;
 
-  
 
-  
+
+
 
 /** A parameter for an HTTP call
  * @argument Location - Location where the parameter is sent. Must be one of type @see ParameterLocation
@@ -67,12 +67,13 @@ declare type none = undefined;
  * @argument Type - the body response type
  * @argument MediaType - the media type returned in the 'Content-Type' HTTP Header
  */
-declare class Response<Status extends HttpStatusCode,Type = undefined,MediaType = any> {
+declare class Response<Status extends HttpStatusCode, Type = undefined, MediaType = any> {
   status: Status;
   type: Type;
   mediaType: MediaType;
 }
 
+declare type JsonResponse<Status extends HttpStatusCode> = Response<Status, 'application/json'>;
 
 declare class Format<T> {
 }
@@ -98,17 +99,17 @@ declare class MinItems<N extends number> {
 }
 declare type ByteArray = 'ByteArray'
 
-declare type  Stream = 'stream' | 'Stream'
-declare type  Char = 'char' | 'Char'
-declare type  Date = 'date' | 'Date'
-declare type  DateTime = 'date-time' | 'datetime' | 'DateTime'
-declare type  Duration = 'duration' | 'Duration'
-declare type  UUID = 'uuid' | 'guid'
-declare type  Url = 'url' | 'URL' | 'Url'
-declare type  Password = 'password' | 'Password'
-declare type  Int32 = 'int32' | 'Int32' | 'Integer' | 'integer' | 'int' | 'Int'
-declare type  Int64 = 'int64' | 'Int64' 
-declare type  Byte = 'int8' | 'Byte' | 'byte'
+declare type Stream = 'stream' | 'Stream'
+declare type Char = 'char' | 'Char'
+declare type Date = 'date' | 'Date'
+declare type DateTime = 'date-time' | 'datetime' | 'DateTime'
+declare type Duration = 'duration' | 'Duration'
+declare type UUID = 'uuid' | 'guid'
+declare type Url = 'url' | 'URL' | 'Url'
+declare type Password = 'password' | 'Password'
+declare type Int32 = 'int32' | 'Int32' | 'Integer' | 'integer' | 'int' | 'Int'
+declare type Int64 = 'int64' | 'Int64'
+declare type Byte = 'int8' | 'Byte' | 'byte'
 
 declare namespace MediaType {
   type ApplicationJson = 'application/json';

@@ -109,6 +109,10 @@ class AdlGenerator {
     return this;
   }
 
+  /**
+   * @parameter foo - fasodas
+   * 
+   */
   async generateMain() {
     const title = this.model.info.title || 'Service';
     const file = this.project.createSourceFile(`${title}.ts`);

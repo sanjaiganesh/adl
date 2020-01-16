@@ -1,6 +1,14 @@
 import { RedisFirewallRuleListResult } from '../models/RedisFirewallRuleListResult';
 import { RedisFirewallRuleCreateParameters } from '../models/RedisFirewallRuleCreateParameters';
 import { RedisFirewallRule } from '../models/RedisFirewallRule';
+
+
+@Resource('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}')
+export class FirewallRules extends TypicalResource<RedisCache, RedisFirewallRule> {
+  CheckAvailbleName: (...) =>
+    Response<200> & Boolean
+}
+
 export class FirewallRules {
   /**
    * Gets all firewall rules in the specified redis cache.
@@ -11,7 +19,7 @@ export class FirewallRules {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}/firewallRules')
-  ListByRedisResource: (subscriptionId: string, resourceGroupName: string, cacheName: string, apiVersion: Query<string, 'api-version'>) => 
+  ListByRedisResource: (subscriptionId: string, resourceGroupName: string, cacheName: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisFirewallRuleListResult, 'application/json'>;
 
   /**
@@ -25,7 +33,7 @@ export class FirewallRules {
    */
   @HttpPut
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}/firewallRules/{ruleName}')
-  CreateOrUpdate: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisFirewallRuleCreateParameters, 'application/json'>) => 
+  CreateOrUpdate: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>, parameters: Body<RedisFirewallRuleCreateParameters, 'application/json'>) =>
     Response<200, RedisFirewallRule, 'application/json'> |
     Response<201, RedisFirewallRule, 'application/json'>;
 
@@ -39,7 +47,7 @@ export class FirewallRules {
    */
   @HttpGet
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}/firewallRules/{ruleName}')
-  Get: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>) => 
+  Get: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200, RedisFirewallRule, 'application/json'>;
 
   /**
@@ -52,7 +60,7 @@ export class FirewallRules {
    */
   @HttpDelete
   @Path('/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}/firewallRules/{ruleName}')
-  Delete: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>) => 
+  Delete: (subscriptionId: string, resourceGroupName: string, cacheName: string, ruleName: string, apiVersion: Query<string, 'api-version'>) =>
     Response<200> |
     Response<204>;
 
