@@ -32,6 +32,14 @@ export class Api {
     // 
   }
 
+  /** @internal 
+   * use ts-morph to load the files off the disk and into the project
+   * 
+  */
+  load(path: string) {
+    // shh
+  }
+
   addOperationGroup(name: string, properties?: OperationGroup) {
     const filename = `${name}.ts`;
     const file = this.operations.getSourceFile(filename) || this.operations.createSourceFile(filename);
@@ -65,7 +73,7 @@ export class Api {
           replace(/ {4}/g, '  ').  // two space indent!
           replace(/\*\/\s*\/\*\*\s*/g, ''). // combine doccomments 
           replace(/(\w*): (\(.*?\) => )(.*)/g, '$1: $2\n    $3\n'). // lf/indent responses
-          replace(/ \| Response/g, ' |\n    Response');
+          replace(/ \| Response/g, ' |\n    Response')
       };
     }
   }
@@ -80,10 +88,11 @@ export class Api {
 export class OperationGroupFunctions {
   /*@internal*/
   constructor(private declaraton: ClassDeclaration) {
+    //shh
   }
 
   addOperation(name: string, properties: Operation) {
-
+    //shh
   }
 }
 
@@ -101,6 +110,6 @@ export class ModelFunctions {
   }
 
   addEnum(name: string, properties: EnumMember) {
-
+    //shh
   }
 }
