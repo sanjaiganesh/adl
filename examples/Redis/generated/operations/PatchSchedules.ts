@@ -62,9 +62,9 @@ export class PatchSchedules {
    * @parameter apiVersion - Client Api Version.
    * @parameter parameters - Response to put/get patch schedules for Redis cache
    * 
-   * @version 2019-01-01+
+   * @added 2019-01-01
    * @deprecated 2019-06-06 
-   * @deleted 2020-01-01+
+   * @deleted 2020-01-01
    * 
    */
   @HttpPut('application/json', '')

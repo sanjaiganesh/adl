@@ -1,5 +1,6 @@
 import { Project, ClassDeclaration, JSDocStructure, SourceFile, InterfaceDeclaration, EnumDeclaration, Type, VariableDeclarationKind, IndentationText, QuoteKind } from 'ts-morph';
 import { intersect } from '@azure-tools/codegen';
+import { writeFile } from '@azure-tools/async-io';
 
 export interface OperationGroup {
 }
@@ -55,6 +56,25 @@ export class Api {
     return intersect(og, new EnumFunctions(og));
   }
 
+  *getFiles() {
+    for (const each of this.project.getSourceFiles()) {
+      yield {
+        path: each,
+        content: each.print().
+          // replace(/(import .* from )"(.*?)"\;/g, `$1'$2';`).
+          replace(/ {4}/g, '  ').  // two space indent!
+          replace(/\*\/\s*\/\*\*\s*/g, ''). // combine doccomments 
+          replace(/(\w*): (\(.*?\) => )(.*)/g, '$1: $2\n    $3\n'). // lf/indent responses
+          replace(/ \| Response/g, ' |\n    Response');
+      };
+    }
+  }
+
+  async save(path: string) {
+    for (const each of this.getFiles()) {
+      await writeFile(`${path}/${each.path}`, each.content);
+    }
+  }
 }
 
 export class OperationGroupFunctions {
