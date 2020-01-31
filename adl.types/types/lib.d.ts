@@ -1,7 +1,7 @@
 interface Object {
 }
 
-interface Boolean {}
+interface Boolean { }
 /**
  * Make all properties in T optional
  */
@@ -82,6 +82,9 @@ type InstanceType<T extends new (...args: any) => any> = T extends new (...args:
 */
 interface ThisType<T> { }
 
+interface Iterable<T> {
+
+}
 
 interface TypedPropertyDescriptor<T> {
   enumerable?: boolean;
@@ -131,9 +134,9 @@ interface Number {
   valueOf(): number;
 }
 
-interface RegExp {}
+interface RegExp { }
 
-interface String {}
+interface String { }
 
 interface Symbol {
   /** Returns a string representation of an object. */

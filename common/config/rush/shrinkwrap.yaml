@@ -1,10 +1,11 @@
 dependencies:
   '@azure-tools/async-io': 3.0.209
+  '@azure-tools/codegen': 2.1.230
   '@azure-tools/linq': 3.1.215
   '@azure-tools/openapi': 3.0.216
-  '@microsoft.azure/autorest.testserver': 2.10.7
   '@rush-temp/adl': 'file:projects/adl.tgz'
   '@rush-temp/adl.types': 'file:projects/adl.types.tgz'
+  '@rush-temp/prototype': 'file:projects/prototype.tgz'
   '@rush-temp/redis': 'file:projects/redis.tgz'
   '@types/js-yaml': 3.12.1
   '@types/mocha': 5.2.5
@@ -28,6 +29,15 @@ packages:
       node: '>=10.12.0'
     resolution:
       integrity: sha512-V2dVusfROqUXzsZ4ckhduaSFenioydQ/aM0FrovpU2WhuprXtOaBlo2m15i3+Wt7aH09BpTKKHqvVxbKzYsqeQ==
+  /@azure-tools/async-io/3.0.211:
+    dependencies:
+      '@azure-tools/tasks': 3.0.211
+      proper-lockfile: 2.0.1
+    dev: false
+    engines:
+      node: '>=10.12.0'
+    resolution:
+      integrity: sha512-jZzNKwN6KhDdCCZdH0NjaA9lAUk7WbiVfcbNvmPiJDqgIM0zM0BHoFQO/cT/e3jUqO8zd31jV4ajYg3wPq1rlA==
   /@azure-tools/autorest-extension-base/3.1.213:
     dependencies:
       '@azure-tools/codegen': 2.1.227
@@ -46,6 +56,16 @@ packages:
     dev: false
     resolution:
       integrity: sha512-aBT1NDNY+Ka0NK2axs45idJEoLq2Z4dBi7VAgqEl47AD7wQt632M6C2R5oPQss/qpy0O+xbMIGwk+DkaL3VrTA==
+  /@azure-tools/codegen/2.1.230:
+    dependencies:
+      '@azure-tools/async-io': 3.0.211
+      '@azure-tools/linq': 3.1.217
+      js-yaml: 3.13.1
+      safe-eval: 0.3.0
+      semver: 5.7.1
+    dev: false
+    resolution:
+      integrity: sha512-OU6pintBAQeIEjpQt1pXDdcqjzVlvt54XNYDLMiAR5tUOhfx3m4EoOoLBZG+NBI57BiPNMtrF1SsLG5SiGeymw==
   /@azure-tools/codemodel/3.0.259:
     dependencies:
       '@azure-tools/autorest-extension-base': 3.1.213
@@ -60,6 +80,12 @@ packages:
       node: '>=10.12.0'
     resolution:
       integrity: sha512-yL0npfbv9lpQCy8ZNVL6cyH3CzRJ+hybLwnqpA0g4V2eyic/Q9JEq3mhESxO+dxJe0GyNPfVwjURxKXaRKx7cw==
+  /@azure-tools/linq/3.1.217:
+    dev: false
+    engines:
+      node: '>=10.12.0'
+    resolution:
+      integrity: sha512-rtq5fB4M4xWKC476yedl+wkqWFRQg5pnIYraTE44kqtUGt/9WE2zGyen8Hg+5TxB3KseicJnk7EZqv12GHngzw==
   /@azure-tools/openapi/3.0.216:
     dependencies:
       '@azure-tools/linq': 3.1.215
@@ -74,6 +100,12 @@ packages:
       node: '>=10.12.0'
     resolution:
       integrity: sha512-WzWVeBj5epVRAw5++PkPFQY+v39yiKiNCNsEyqNZlkPcpZDsKR/3BzbK50G16kYYpwbr+GtHHVNQLQtrLNu60A==
+  /@azure-tools/tasks/3.0.211:
+    dev: false
+    engines:
+      node: '>=10.12.0'
+    resolution:
+      integrity: sha512-yMnHXbPbulIwltSPi8uCcmGvghvFAeRJ836GyVan3bnZGUELNSfEWeCgM+1zJTeL06kDfII3y/LTBCj8ZaoyVQ==
   /@babel/code-frame/7.8.3:
     dependencies:
       '@babel/highlight': 7.8.3
@@ -227,11 +259,15 @@ packages:
       eslint: ^5.0.0 || ^6.0.0
     resolution:
       integrity: sha512-TKWbeFAKRPrvKiR9GNxErQ8sELKqg1ZvXi6uho07mcKShBnCnqNpDQWP01FEvWKf0bxM2g7uQEI5MNjSNqvUpQ==
-  /@typescript-eslint/eslint-plugin/2.16.0/@typescript-eslint!parser@2.16.0:
+  /@typescript-eslint/eslint-plugin/2.16.0/894af94b56f455770564ef7826675546:
     dependencies:
-      '@typescript-eslint/experimental-utils': 2.16.0
-      '@typescript-eslint/parser': 2.16.0
-      tsutils: 3.17.1
+      '@typescript-eslint/experimental-utils': /@typescript-eslint/experimental-utils/2.16.0/eslint@6.8.0
+      '@typescript-eslint/parser': /@typescript-eslint/parser/2.16.0/eslint@6.8.0
+      eslint: 6.8.0
+      eslint-utils: 1.4.3
+      functional-red-black-tree: 1.0.1
+      regexpp: 3.0.0
+      tsutils: /tsutils/3.17.1/typescript@3.7.5
     dev: false
     engines:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
@@ -3044,6 +3080,18 @@ packages:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     resolution:
       integrity: sha512-kzeQ5B8H3w60nFY2g8cJIuH7JDpsALXySGtwGJ0p2LSjLgay3NdIpqq5SoOBe46bKDW2iq25irHCr8wjomUS2g==
+  /tsutils/3.17.1/typescript@3.7.5:
+    dependencies:
+      tslib: 1.10.0
+      typescript: 3.7.5
+    dev: false
+    engines:
+      node: '>= 6'
+    id: registry.npmjs.org/tsutils/3.17.1
+    peerDependencies:
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+    resolution:
+      integrity: sha512-kzeQ5B8H3w60nFY2g8cJIuH7JDpsALXySGtwGJ0p2LSjLgay3NdIpqq5SoOBe46bKDW2iq25irHCr8wjomUS2g==
   /tunnel-agent/0.6.0:
     dependencies:
       safe-buffer: 5.2.0
@@ -3084,6 +3132,13 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-A25xv5XCtarLwXpcDNZzCGvW2D1S3/bACratYBx2sax8PefsFhlYmkQicKHvpYflFS8if4zne5zT5kpJ7pzuvw==
+  /typescript/3.7.5:
+    dev: false
+    engines:
+      node: '>=4.2.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
   /uglify-js/2.8.29:
     dependencies:
       source-map: 0.5.7
@@ -3363,13 +3418,13 @@ packages:
     dev: false
     name: '@rush-temp/adl'
     resolution:
-      integrity: sha512-lA6QLqO7qX60muPNGlo/LoPs2Q+OcRx1stRl5/50o6IWHbv+C/YSqpzGYQNqAqfOT0NO8P3NZiJO0kuow45RXw==
+      integrity: sha512-EzjNPte0lU6+q0OhFMf09uAKW0lmXICmUrWbxyELTfRKYTR48NUp3q2CtnuSm+GeLYO+eKNoPxWLBGwkytR1EQ==
       tarball: 'file:projects/adl.tgz'
     version: 0.0.0
   'file:projects/adl.types.tgz':
     dependencies:
-      '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/@typescript-eslint!parser@2.16.0
-      '@typescript-eslint/parser': 2.16.0
+      '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/390724488d9e190e865ac1f369446694
+      '@typescript-eslint/parser': /@typescript-eslint/parser/2.16.0/eslint@6.8.0
       eslint: 6.8.0
       typescript: 3.7.4
     dev: false
@@ -3378,10 +3433,22 @@ packages:
       integrity: sha512-GIR85m51yfuV8xJYI6e79xQMkBZ1wY3RJfjAmPNLpkF3AHYph9Wkwep/ugQeD6Bspxgh4THdaVRYSyZ3SKwvdg==
       tarball: 'file:projects/adl.types.tgz'
     version: 0.0.0
+  'file:projects/prototype.tgz':
+    dependencies:
+      '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/894af94b56f455770564ef7826675546
+      '@typescript-eslint/parser': /@typescript-eslint/parser/2.16.0/eslint@6.8.0
+      eslint: 6.8.0
+      typescript: 3.7.5
+    dev: false
+    name: '@rush-temp/prototype'
+    resolution:
+      integrity: sha512-8wZ5ejgX7eZ8hWh0PamqOFxbs4WI3LhXAm9E8Tv0qnW2gWKJHkBRJAaqh7/YoUAsdLRqQOFqALvYQfP9WkTdjg==
+      tarball: 'file:projects/prototype.tgz'
+    version: 0.0.0
   'file:projects/redis.tgz':
     dependencies:
-      '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/@typescript-eslint!parser@2.16.0
-      '@typescript-eslint/parser': 2.16.0
+      '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/390724488d9e190e865ac1f369446694
+      '@typescript-eslint/parser': /@typescript-eslint/parser/2.16.0/eslint@6.8.0
       eslint: 6.8.0
       typescript: 3.7.4
     dev: false
@@ -3395,11 +3462,12 @@ shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
   '@azure-tools/async-io': ~3.0.0
+  '@azure-tools/codegen': ~2.1.0
   '@azure-tools/linq': ~3.1.0
   '@azure-tools/openapi': ~3.0.0
-  '@microsoft.azure/autorest.testserver': 2.10.7
   '@rush-temp/adl': 'file:./projects/adl.tgz'
   '@rush-temp/adl.types': 'file:./projects/adl.types.tgz'
+  '@rush-temp/prototype': 'file:./projects/prototype.tgz'
   '@rush-temp/redis': 'file:./projects/redis.tgz'
   '@types/js-yaml': 3.12.1
   '@types/mocha': 5.2.5

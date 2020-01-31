@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "target": "es2020",
+    "noLib": true,
+    "noEmit": true,
+    "typeRoots": [
+      "../"
+    ],
+    "types": [
+      "adl.types"
+    ]
+  }
+}

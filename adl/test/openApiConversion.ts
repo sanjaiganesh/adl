@@ -14,7 +14,7 @@ import { readFile, writeFile, readdir, mkdir, exists, rmdir } from '@azure-tools
 require('source-map-support').install();
 
 @suite class OpenAPIConversion {
-  @test async 'converts a folder of specs to usable TypeScript'() {
+  /* @test */ async 'converts a folder of specs to usable TypeScript'() {
     const specsDir = `${__dirname}/../../test/scenarios/`;
 
     // Traverse the example specs path to test each

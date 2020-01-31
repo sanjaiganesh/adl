@@ -1,0 +1,21 @@
+- validation of the models as we go.
+- version deltas
+
+- no operations Required
+
+
+Need:
+- Required Resource Patterns   (ARM Resource, ProxyResource, etc...)
+- patterns: 
+ - property validation
+ - default values
+ 
+// 
+- complex validation specification?
+ 
+Next Steps:
+- models, enums
+- api to load and enumerate the above.
+- get the validation information for a given api
+
+- output swagger for resource 

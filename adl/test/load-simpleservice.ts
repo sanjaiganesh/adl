@@ -6,24 +6,21 @@
 import { suite, test, describe, it } from 'mocha-typescript';
 import * as assert from 'assert';
 import { readFile, writeFile, readdir, mkdir } from '@azure-tools/async-io';
+import { Api } from '../model/api';
 
-@suite class SampleTest {
-  /* @test */ async 'test something'() {
-    assert.equal(1, 1, 'works for me kids!');
-    /*
-    const folders = await readdir(`${__dirname}/../../test/scenarios/`);
-    for (const each of folders) {
-      if ([
-        'body-formdata',
-        'body-formdata-urlencoded',
-      ].indexOf(each) > -1) {
-        console.log(`Skipping: ${each}`);
-        continue;
-      }
+const $example = `${__dirname}/../../../examples/prototype`;
 
-      console.log(`Processing: ${each}`);
+@suite class TestAPI {
+  @test async 'Load Prototype ADL'() {
+    const api = await new Api().load($example);
+    await api.save('c:/tmp/sample1');
 
+    console.log(api.ServiceName);
+    console.log([...api.ApiVersions]);
+    for (const resource of api.Resources) {
+      console.log(`Resource Name: ${resource.Name}`);
+      console.log(`Resource Type: ${resource.ResourceType}`);
     }
-    */
+
   }
 }
