@@ -16,27 +16,29 @@ import * as adltypes from '@azure-tools/adl.types'
 import * as armtypes from '@azure-tools/arm.adl'
 
 
-export interface VirtualMachine{
-	vmId : string;
-	hardwareProfile: HWProfile;
-	storageProfile: ImageReference;
-	dataDisks: DataDisk[];
-	v1Prop: number;
-	coreCount: number & adltypes.MapTo<'totalCores'>;
+export interface VirtualMachineProps{
+    vmId : string;
+    hardwareProfile: HWProfile;
+    storageProfile: ImageReference;
+    dataDisks: DataDisk[];
+    v1Prop: number;
+    coreCount: number & adltypes.MapTo<'totalCores'>;
 }
 
 export interface HWProfile {
-	vmSize: string & adltypes.MapTo<'virtualMachineSize'>;
+    vmSize: string & adltypes.MapTo<'virtualMachineSize'>;
 }
 
 export interface ImageReference{
-	publisher: string;
-	offer:string;
-	sku: string;
-	version: string;
+    publisher: string;
+    offer:string;
+    sku: string;
+    version: string;
 }
 
 export interface DataDisk {
-	diskId: armtypes.ArmResourceId;
+    diskId: armtypes.ArmResourceId;
 }
 
+// for this resource we want to envelop it in ARM. so we are doing this:
+export type VirtualMachine20200909 = armtypes.ArmVersionedResource<VirtualMachineProps>;
