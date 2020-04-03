@@ -8,6 +8,7 @@ dependencies:
   '@rush-temp/arm.adl': 'file:projects/arm.adl.tgz'
   '@rush-temp/cli': 'file:projects/cli.tgz'
   '@rush-temp/sample_rp': 'file:projects/sample_rp.tgz'
+  '@rush-temp/compute_rp': 'file:projects/compute_rp.tgz'
   '@types/js-yaml': 3.12.1
   '@typescript-eslint/eslint-plugin': 2.16.0
   '@typescript-eslint/parser': 2.16.0
@@ -1762,6 +1763,14 @@ packages:
       integrity: sha512-/3A28/GrcHoobFTg7YCCjmN0bmeTkxZnu/JoilUgXBom6O1u9TA9HFUPcP6UgJ0f8uy2zcloSCFpDvolSZ8Z4w==
       tarball: 'file:projects/sample_rp.tgz'
     version: 0.0.0
+  'file:projects/compute_rp.tgz':
+    dependencies:
+      '@microsoft/ts-command-line': 4.3.10
+    dev: false
+    name: '@rush-temp/compute_rp'
+    resolution:
+      tarball: 'file:projects/compute_rp.tgz'
+    version: 0.0.0
 registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
@@ -1775,6 +1784,7 @@ specifiers:
   '@rush-temp/arm.adl': 'file:./projects/arm.adl.tgz'
   '@rush-temp/cli': 'file:./projects/cli.tgz'
   '@rush-temp/sample_rp': 'file:./projects/sample_rp.tgz'
+  '@rush-temp/compute_rp': 'file:./projects/compute_rp.tgz'
   '@types/js-yaml': 3.12.1
   '@typescript-eslint/eslint-plugin': ~2.16.0
   '@typescript-eslint/parser': ~2.16.0
