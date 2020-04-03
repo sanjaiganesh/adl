@@ -73,11 +73,144 @@ export enum PropertyDataTypeKind{
     ComplexArray = "ComplexArray",
     ScalarArray  = "ScalarArray",
     Scalar       = "Scalar",
+    Map          = "Map",
+    ComplexMap   = "ComplexMap",
+}
+
+// models a property data type
+// all property data type specific functions and properties on PropertyTypeMode
+// will migrate to these interfaces TODO
+export interface PropertyDataType{
+    // kind of the data type (scalar, complex, array, complex array, map, complex map)
+    readonly DataTypeKind:PropertyDataTypeKind;
+    readonly Constraints: Array<ConstraintModel>;
+    readonly AliasDataTypeName: string;
+    readonly EnumValues: any[];
+    readonly DefaultingConstraints: Array<ConstraintModel>;
+    readonly ValidationConstraints: Array<ConstraintModel>;
+    readonly ConversionConstraints: Array<ConstraintModel>;
+
+    hasRemovedConstraint(): boolean
+    hasNoAutoConvertConstraint():boolean;
+    hasAliasDataTypeConstraint(): boolean;
+    hasEnumConstraint(): boolean;
+    hasConstraint(name:string):boolean;
+}
+// scalar data type
+export interface PropertyScalarDataType extends PropertyDataType{
+    readonly DataTypeName: string;
+}
+// complex data type (but not map)
+export interface PropertyComplexDataType extends PropertyDataType{
+    readonly ComplexDataTypeName: string;
+    readonly ComplexDataTypeModel: ApiTypeModel;
+}
+// array data type
+export interface PropertyArrayDataType extends PropertyDataType{
+    readonly ElementValidationConstraints:Array<ConstraintModel>;
+    readonly ElementAliasDataTypeName: string;
+    readonly ElementEnumValues: any[];
+    readonly ElementConstraints:Array<ConstraintModel>;
+    hasElementAliasDataTypeConstraint(): boolean;
+    hasElementEnumConstraint(): boolean;
+}
+export interface PropertySimpleArrayDataType extends PropertyArrayDataType{
+    readonly ElementDataTypeName: string;
+}
+
+// array of complex objects
+export interface PropertyComplexArrayDataType extends PropertyArrayDataType{
+    readonly ElementComplexDataTypeName: string;
+    readonly ElementComplexDataTypeModel: ApiTypeModel;
+}
+
+// map
+export interface PropertyMapDataType extends PropertyDataType{
+    readonly KeyDataTypeName: string;
+    readonly KeyConstraints: Array<ConstraintModel>;
+    readonly KeyValidationConstraints:Array<ConstraintModel>;
+    readonly KeyAliasDataTypeName: string;
+    readonly KeyEnumValues: any[];
+    hasKeyAliasDataTypeConstraint(): boolean;
+    hasKeyEnumConstraint(): boolean;
+}
+
+// simple map
+export interface PropertySimpleMapDataType extends PropertyMapDataType{
+    readonly ValueDataTypeName: string;
+    readonly ValueAliasDataTypeName: string;
+    readonly ValueEnumValues: any[];
+    readonly ValueConstraints: Array<ConstraintModel>;
+    readonly ValueValidationConstraints: Array<ConstraintModel>;
+
+    hasValueAliasDataTypeConstraint(): boolean;
+    hasValueEnumConstraint(): boolean;
+}
+
+// map of complex objects
+export interface PropertyComplexMapDataType extends PropertyMapDataType{
+    readonly ValueConstraints: Array<ConstraintModel>;
+    readonly ValueValidationConstraints: Array<ConstraintModel>;
+    readonly ValueComplexDataTypeName: string;
+    readonly ValueComplexDataTypeModel: ApiTypeModel;
 }
 
 
+// typeguards
+export type AnyAdlPropertyDataTypeModel = PropertyDataType |
+                                          PropertyScalarDataType |
+                                          PropertyComplexDataType |
+                                          PropertySimpleArrayDataType |
+                                          PropertyComplexArrayDataType |
+                                          PropertySimpleMapDataType |
+                                          PropertyComplexMapDataType;
+
+export function isPropertyDataType(model: AnyAdlPropertyDataTypeModel): model is PropertyDataType {
+    return !isPropertyScalarDataType(model) &&
+            !isPropertyComplexDataType(model) &&
+            !isPropertySimpleArrayDataType(model) &&
+            !isPropertyComplexArrayDataType(model) &&
+            !isPropertSimpleMapDataType(model) &&
+            !isPropertyComplexMapDataType(model) &&
+            (model as PropertyDataType).hasRemovedConstraint !== undefined;
+}
+
+export function isPropertyScalarDataType(model: AnyAdlPropertyDataTypeModel): model is PropertyScalarDataType {
+    return !isPropertyComplexDataType(model) && (model as PropertyScalarDataType).DataTypeName !== undefined;
+}
+
+export function isPropertyComplexDataType(model: AnyAdlPropertyDataTypeModel): model is PropertyComplexDataType {
+    return (model as PropertyComplexDataType).ComplexDataTypeModel !== undefined;
+}
+
+export function isPropertySimpleArrayDataType(model: AnyAdlPropertyDataTypeModel): model is PropertySimpleArrayDataType {
+    return !isPropertyComplexArrayDataType(model) && (model as PropertySimpleArrayDataType).ElementDataTypeName !== undefined;
+}
+
+export function isPropertyComplexArrayDataType(model: AnyAdlPropertyDataTypeModel): model is PropertyComplexArrayDataType {
+    return (model as PropertyComplexArrayDataType).ElementComplexDataTypeModel !== undefined;
+}
+
+export function isPropertSimpleMapDataType(model: AnyAdlPropertyDataTypeModel): model is PropertySimpleMapDataType {
+    return !isPropertyComplexMapDataType(model) && (model as PropertySimpleMapDataType).ValueAliasDataTypeName !== undefined;
+}
+
+export function isPropertyComplexMapDataType(model: AnyAdlPropertyDataTypeModel): model is PropertyComplexMapDataType {
+    return (model as PropertyComplexMapDataType).ValueComplexDataTypeName !== undefined;
+}
+
+
+// TODO is to represet PropertyDataType as model
+// each mode reflects enum, complex, array etc.this will make
+// it alot easier to model and operate on it
 export interface ApiTypePropertyModel extends loadableObject{
+    // property name
     readonly Name: string;
+
+    // model represents the data type
+    // the model is surfaced to property via the rest of the function
+    readonly DataTypeModel: AnyAdlPropertyDataTypeModel;
+
     // primitive data type name or complex type name
     // eg
     // `name: string` // will report string
@@ -97,7 +230,6 @@ export interface ApiTypePropertyModel extends loadableObject{
     // property is optional
     readonly isOptional: boolean;
     // returns the complex data type for property if available;
-    readonly ComplexDataType: ApiTypeModel;
     // don't run auto conversion on type
     readonly isManaullyConverted: boolean;
     // returns true if the type is aliased via DataType<Name>;
@@ -110,13 +242,21 @@ export interface ApiTypePropertyModel extends loadableObject{
     // empty if it is not of type enum;
     readonly EnumValues: any[];
 
+    readonly MapKeyConstraints: Array<ConstraintModel>;
+    readonly MapValueConstraints: Array<ConstraintModel>;
+
+    getMapKeyDataTypeNameOrThrow(): string;
+    getMapValueDataTypeNameOrThrow():string;
+
     getDefaultingConstraints(): Array<ConstraintModel>;
     getValidationConstraints(): Array<ConstraintModel>;
     getConversionConstraints(): Array<ConstraintModel>;
+    getComplexDataTypeOrThrow(): ApiTypeModel;
 
     getArrayElementValidationConstraints():Array<ConstraintModel>;
 
     isArray(): boolean;
+    isMap(): boolean;
 }
 
 
@@ -264,7 +404,7 @@ class apiProcessingConsoleLogger implements apiProcessingLogger{
     }
     private log(target_level: apiProcessingLogLevel, s:string):void{
         if(target_level <= this.l)
-            console.log("",`${this.levelNamePrefix}: ${s}`);
+            console.error(`${this.levelNamePrefix}: ${s}`);
     }
     info(s: string): void { this.log(apiProcessingLogLevel.info, s);}
     wrn(s:string): void{ this.log(apiProcessingLogLevel.warn, s);}
@@ -276,7 +416,7 @@ class apiProcessingConsoleLogger implements apiProcessingLogger{
 // settings used in processing (validation, loading etc).
 export class apiProcessingOptions{
         // default log level none
-        private _logLevel: apiProcessingLogLevel = apiProcessingLogLevel.info;
+        private _logLevel: apiProcessingLogLevel = apiProcessingLogLevel.err;
         private _logger: apiProcessingLogger;
 
         constructor()

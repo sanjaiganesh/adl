@@ -18,6 +18,8 @@ interface VirtualMachineProps{
 
     v2Prop?: string &
              adltypes.DefaultValue<'defaulted  declartively'>;
+
+    networkCards?: adltypes.AdlMap<string, NetworkCard>;
 }
 
 interface ImageReference{
@@ -36,6 +38,11 @@ interface ImageReference{
 
 interface DataDisk {
     diskId: armtypes.ArmResourceId; // note: custom type
+    diskSize?: number & adltypes.DefaultValue<160>;
+    //defaulted boolean
+    isUltra?: boolean & adltypes.DefaultValue<true>;
+    // undefauled boolean
+    isSSD: boolean;
 }
 
 interface HWProfile {
@@ -43,5 +50,9 @@ interface HWProfile {
                         adltypes.DefaultValue<'ds_v2'>;
 }
 
+interface NetworkCard{
+    networkCardId: armtypes.ArmResourceId;
+    networkName?: string & adltypes.DefaultValue<'my_net_name'>;
+}
 // we have defined this resource, but we want arm core properties, so we envelop it
 export type VirtualMachineNormalized = armtypes.ArmNormalizedResource<VirtualMachineProps>;

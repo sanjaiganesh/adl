@@ -33,12 +33,31 @@ export class showStoreAction extends CommandLineAction {
     private printApiTypeModel(prefix: string, model:adlruntime.ApiTypeModel): void{
         // properties
         for(const prop  of model.Properties){
-            if(!prop.isRemoved){
-                console.log(`${prefix} Property:${prop.Name}(${prop.DataTypeName}/${prop.AliasDataTypeName}) ${this.getPropertiesConstraintsAsText(prop)}`);
-             }
-             if(prop.DataTypeKind == adlruntime.PropertyDataTypeKind.Complex){
-                    this.printApiTypeModel(prefix + " ", prop.ComplexDataType)
-             }
+            if(prop.isRemoved) return;
+            console.log(`${prefix} Property:${prop.Name}(${prop.DataTypeName}/${prop.AliasDataTypeName}) ${this.getPropertiesConstraintsAsText(prop)}`);
+            if(prop.DataTypeKind == adlruntime.PropertyDataTypeKind.Complex ||
+                prop.DataTypeKind == adlruntime.PropertyDataTypeKind.ComplexArray ||
+                prop.DataTypeKind == adlruntime.PropertyDataTypeKind.ComplexMap){
+                    console.log(prefix + " "+ "++" + prop.DataTypeName)
+                    this.printApiTypeModel(prefix + " ", prop.getComplexDataTypeOrThrow())
+            }
+
+            if(prop.isMap()){
+                let constraintAsText = ""
+                for(const c of prop.MapKeyConstraints){
+                    constraintAsText = constraintAsText + `${c.Name}(` + c.Arguments.join(",") +") | ";
+                }
+
+                if(constraintAsText.length > 0)
+                    console.log(`${prefix} * KeyConstraints: ${constraintAsText}`);
+
+                constraintAsText = ""
+                for(const c of prop.MapValueConstraints){
+                    constraintAsText = constraintAsText + `${c.Name}(` + c.Arguments.join(",") +") | ";
+                }
+                if(constraintAsText.length > 0)
+                    console.log(`${prefix} * ValueConstraints: ${constraintAsText}`);
+            }
         }
     }
     private printNormalizedTypes(scope:string, normalizedTypes: Iterable<adlruntime.NormalizedApiTypeModel>): void{
