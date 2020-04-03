@@ -11,10 +11,10 @@ export interface VirtualMachineScaleSetProperties {
 	upgradePolicy?: UpgradePolicy;
 	virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
 	readonly provisioningState?: string;
-	overprovision?: boolean;
+	overprovision?: Boolean;
 	readonly uniqueId?: string;
-	singlePlacementGroup?: boolean;
-	zoneBalance?: boolean;
+	singlePlacementGroup?: Boolean;
+	zoneBalance?: Boolean;
 	platformFaultDomainCount?: number;
 	proximityPlacementGroup?: SubResource;
 	identity?: VirtualMachineScaleSetIdentity;
@@ -50,7 +50,7 @@ export interface UpgradePolicy {
 	 */
 	mode?: UpgradeMode;
 	rollingUpgradePolicy?: RollingUpgradePolicy;
-	automaticOSUpgrade?: boolean;
+	automaticOSUpgrade?: Boolean; // [TODO-bug] Boolean support
 	autoOSUpgradePolicy?: AutoOSUpgradePolicy;
 }
 
@@ -75,8 +75,11 @@ export interface RollingUpgradePolicy {
 }
 
 export interface AutoOSUpgradePolicy {
-	disableAutoRollback?: boolean;
+	disableAutoRollback?: Boolean; // [TODO-bug] : Boolean support
 }
+
+export type Boolean = string &
+	adltypes.OneOf<["True", "False"]>;
 
 export interface VirtualMachineScaleSetVMProfile {
 	osProfile?: VirtualMachineScaleSetOSProfile;
@@ -92,29 +95,24 @@ export interface VirtualMachineScaleSetVMProfile {
 }
 
 export interface VirtualMachineScaleSetOSProfile {
-	/**
-	 * Specifies the computer name prefix for all of the virtual machines in the scale set. Computer
-	 * name prefixes must be 1 to 15 characters long.
-	 * >>> [sanjai] min/max not specified in the spec <<
-	 */
-	computerNamePrefix?: string;
+	computerNamePrefix?: string &
+  		adltypes.MinLength<1> &
+		adltypes.MaxLength<15>;
+		  
 	/**
 	 * Specifies the name of the administrator account. <br><br> **Windows-only restriction:** Cannot
 	 * end in "." <br><br> **Disallowed values:** "administrator", "admin", "user", "user1", "test",
 	 * "user2", "test1", "user3", "admin1", "1", "123", "a", "actuser", "adm", "admin2", "aspnet",
 	 * "backup", "console", "david", "guest", "john", "owner", "root", "server", "sql", "support",
-	 * "support_388945a0", "sys", "test2", "test3", "user4", "user5". <br><br> **Minimum-length
-	 * (Linux):** 1  character <br><br> **Max-length (Linux):** 64 characters <br><br> **Max-length
-	 * (Windows):** 20 characters  <br><br><li> For root access to the Linux VM, see [Using root
-	 * privileges on Linux virtual machines in
-	 * Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-linux-use-root-privileges?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json)<br><li>
-	 * For a list of built-in system users on Linux that should not be used in this field, see
-	 * [Selecting User Names for Linux on
-	 * Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-linux-usernames?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json)
-	 * >>> [sanjai] Max length 64 (linux), max length 20 (windows). Allowed values differ. <<
+	 * "support_388945a0", "sys", "test2", "test3", "user4", "user5". 
+	 * >>> [sanjai] Linux  1-64, Windows 1-20. <<
 	 */
-	adminUsername?: string;
+	adminUsername?: string &
+  		adltypes.MinLength<1> &
+		adltypes.MaxLength<64>;
+
 	/**
+	 * Windows 8-123. Linux 6-72.
 	 * Specifies the password of the administrator account. <br><br> **Minimum-length (Windows):** 8
 	 * characters <br><br> **Minimum-length (Linux):** 6 characters <br><br> **Max-length
 	 * (Windows):** 123 characters <br><br> **Max-length (Linux):** 72 characters <br><br>
@@ -129,7 +127,10 @@ export interface VirtualMachineScaleSetOSProfile {
 	 * Azure Linux VMs using the VMAccess
 	 * Extension](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-linux-using-vmaccess-extension?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json#reset-root-password)
 	 */
-	adminPassword?: string;
+	adminPassword?: string &
+  		adltypes.MinLength<6> &
+		adltypes.MaxLength<123>;
+
 	/**
 	 * >>> [sanjai] base-64 encoded. Max length of bianry array is 65535  <<
 	 */
@@ -151,8 +152,8 @@ export interface WindowsConfiguration {
 	/**
 	 * >>> [sanjai]  default true <<
 	 */
-	provisionVMAgent?: boolean;
-	enableAutomaticUpdates?: boolean;
+	provisionVMAgent?: Boolean;
+	enableAutomaticUpdates?: Boolean;
 	/**
 	 * Specifies the time zone of the virtual machine. e.g. "Pacific Standard Time"
 	 * >>> [sanjai] Validate timezone ?  <<
@@ -193,12 +194,14 @@ export interface AdditionalUnattendContent {
 /**
  * @enum ModelAsString=false
  */
-export type PassNames = "OobeSystem";
+export type PassNames = string &
+	adltypes.OneOf<["OobeSystem"]>;
 
 /**
  * @enum ModelAsString=false
  */
-export type ComponentNames = "Microsoft-Windows-Shell-Setup";
+export type ComponentNames = string &
+	adltypes.OneOf<["Microsoft-Windows-Shell-Setup"]>;
 
 /**
  * @enum ModelAsString=false
@@ -241,13 +244,13 @@ export type ProtocolTypes = string & adltypes.OneOf<["Http", "Https"]>;
  * Specifies the Linux operating system settings on the virtual machine. <br><br>For a list of
  */
 export interface LinuxConfiguration {
-	disablePasswordAuthentication?: boolean;
+	disablePasswordAuthentication?: Boolean;
 	ssh?: SshConfiguration;
 	/**
 	 * >>> [sanjai]  default true <<
 	 * Indicates whether VM agent should be provisioned so that extensions can be added
 	 */
-	provisionVMAgent?: boolean;
+	provisionVMAgent?: Boolean;
 }
 
 /**
@@ -333,7 +336,7 @@ export interface VirtualMachineScaleSetOSDisk {
 	 *  Premium storage => ReadOnly
 	 */
 	caching?: CachingTypes;
-	writeAcceleratorEnabled?: boolean;
+	writeAcceleratorEnabled?: Boolean;
 	/**
 	 * [sanjai]modelAsString = true. Allowed values 'FromImage', 'Empty', 'Attach'
 	 */
@@ -385,7 +388,8 @@ export interface DiffDiskSettings {
 }
 
 // ENum modelasstring=true;
-export type DiffDiskOptions = "Local";
+export type DiffDiskOptions = string &
+	adltypes.OneOf<["Local"]>;
 
 // ENum modelasstring=false;
 export type OperatingSystemTypes = string &
@@ -428,7 +432,7 @@ export interface VirtualMachineScaleSetDataDisk {
 	 *  Premium storage => ReadOnly
 	 */
 	caching?: CachingTypes;
-	writeAcceleratorEnabled?: boolean;
+	writeAcceleratorEnabled?: Boolean;
 	/**
 	 * [sanjai]modelAsString = true. Allowed values 'FromImage', 'Empty', 'Attach'
 	 */
@@ -444,7 +448,7 @@ export interface VirtualMachineScaleSetDataDisk {
  * Enables or disables a capability on the virtual machine or virtual machine scale set.
  */
 export interface AdditionalCapabilities {
-	ultraSSDEnabled?: boolean;
+	ultraSSDEnabled?: Boolean;
 }
 
 /**
@@ -458,14 +462,16 @@ export interface VirtualMachineScaleSetIdentity {
 	 * 'None'
 	 */
 	type?: ResourceIdentityType;
+	
 	/**
+	 * [TODO-feature] Add the property. adltypes.Dictionary<string> and also additional constraint on the armtypes.ArmResourceId
 	 * The list of user identities associated with the virtual machine scale set. The user identity
 	 * dictionary key references will be ARM resource ids in the form:
 	 * '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'.
 	 */
-	userAssignedIdentities?: {
-		[propertyName: string]: VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue;
-	};
+	// userAssignedIdentities?: {
+	// 	[propertyName: string]: VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue;
+	// };
 }
 
 // [sanjai] Model as string false
