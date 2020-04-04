@@ -4,7 +4,7 @@ import * as armtypes from "@azure-tools/arm.adl";
 /**
  * Describes a Virtual Machine Scale Set.
  */
-export interface VirtualMachineScaleSetProperties {
+export interface VirtualMachineScaleSetNormalizedProperties {
 	sku?: Sku;
 	plan?: Plan;
 	upgradePolicy?: UpgradePolicy;
@@ -494,4 +494,4 @@ export interface VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue {
 }
 
 // Wrap in ARM envelope to make it an ARM resource
-export type VirtualMachineScaleSetNormalized = armtypes.ArmNormalizedResource<VirtualMachineScaleSetProperties>;
+export type VirtualMachineScaleSetNormalized = armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>;
