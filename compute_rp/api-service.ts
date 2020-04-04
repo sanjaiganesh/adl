@@ -14,3 +14,9 @@ export type apiVersion_20180601 = adltypes.ApiVersion<
   "fancy-display-name"
 > &
   adltypes.ModuleName<"20180601">;
+
+  export type apiVersion_20181001 = adltypes.ApiVersion<
+  "2018-10-01",
+  "fancy-display-name"
+> &
+  adltypes.ModuleName<"20181001">;
