@@ -36,11 +36,15 @@ export class ResourceFour{
     prop6: string;
 }
 
+// [sanjai-?] Why this is NOT wrapped in ArmVersioner, but it is done for resource two.
 export class ResourceFourVersioner_20200909 implements adltypes.Versioner<normalized.ResourceFourProps, ResourceFour>{
     Normalize(versioned: ResourceFour, normalized: normalized.ResourceFourProps, errors: adltypes.errorList){
+        // [sanjai-?] Why not use 'normalized' ?
         var n : normalized.ResourceFourProps = {} as  normalized.ResourceFourProps;
 
         n.prop6[0] = versioned.prop6; // set first field
+
+        // [sanjai-?] Both Normalize/Convert are void funcs. Also, in ResourceTwoVersioner, we don't return the value.
         return n;
     }
 
