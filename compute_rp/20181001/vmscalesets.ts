@@ -14,7 +14,7 @@ export interface VirtualMachineScaleSet20181001Properties extends version2018060
   upgradePolicy?: UpgradePolicy; // Schema changed in this version
 
   automaticRepairsPolicy?: AutomaticRepairsPolicy; // New property
-  doNotRunExtensionsOnOverprovisionedVMs?: normalized.Boolean; // New property
+  doNotRunExtensionsOnOverprovisionedVMs?: boolean; // New property
 }
 
 export interface UpgradePolicy {
@@ -24,15 +24,15 @@ export interface UpgradePolicy {
 }
 
 export interface AutomaticOSUpgradePolicy {
-  enableAutomaticOSUpgrade?: normalized.Boolean &
+  enableAutomaticOSUpgrade?: boolean &
     adltypes.DefaultValue<"False">;
 
-  disableAutomaticRollback?: normalized.Boolean &
+  disableAutomaticRollback?: boolean &
     adltypes.DefaultValue<"False">;
 }
 
 export interface AutomaticRepairsPolicy {
-  enabled?: normalized.Boolean &
+  enabled?: boolean &
     adltypes.DefaultValue<"True">;
 
   /**
@@ -51,13 +51,11 @@ export class VirtualMachineScaleSet20181001VersionerImpl implements
 		Normalize(versioned: VirtualMachineScaleSet20181001Properties,
 			normalized: normalized.VirtualMachineScaleSetNormalizedProperties,
 			errors: adltypes.errorList): void{
-				if (normalized.upgradePolicy != undefined && normalized.upgradePolicy.automaticOSUpgrade != undefined &&
-					versioned.upgradePolicy != undefined && versioned.upgradePolicy.automaticOSUpgradePolicy != undefined &&
-					versioned.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade != undefined)
+				if (normalized.upgradePolicy != undefined &&
+					versioned.upgradePolicy != undefined && versioned.upgradePolicy.automaticOSUpgradePolicy != undefined)
 					{
 						normalized.upgradePolicy.automaticOSUpgrade = versioned.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
 					}
-        
     }
 
 		Convert(normalized: normalized.VirtualMachineScaleSetNormalizedProperties,
