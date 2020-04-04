@@ -10,10 +10,10 @@ export interface VirtualMachineScaleSetNormalizedProperties {
 	upgradePolicy?: UpgradePolicy;
 	virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
 	readonly provisioningState?: string;
-	overprovision?: Boolean;
+	overprovision?: boolean;
 	readonly uniqueId?: string;
-	singlePlacementGroup?: Boolean;
-	zoneBalance?: Boolean;
+	singlePlacementGroup?: boolean;
+	zoneBalance?: boolean;
 	platformFaultDomainCount?: number;
 	proximityPlacementGroup?: SubResource;
 	identity?: VirtualMachineScaleSetIdentity;
@@ -49,7 +49,7 @@ export interface UpgradePolicy {
 	 */
 	mode?: UpgradeMode;
 	rollingUpgradePolicy?: RollingUpgradePolicy;
-	automaticOSUpgrade?: Boolean; // [TODO-bug] Boolean support
+	automaticOSUpgrade?: boolean; // [TODO-bug] Boolean support
 	autoOSUpgradePolicy?: AutoOSUpgradePolicy;
 }
 
@@ -75,11 +75,8 @@ export interface RollingUpgradePolicy {
 }
 
 export interface AutoOSUpgradePolicy {
-	disableAutoRollback?: Boolean; // [TODO-bug] : Boolean support
+	disableAutoRollback?: boolean; // [TODO-bug] : boolean support
 }
-
-export type Boolean = string &
-	adltypes.OneOf<["True", "False"]>;
 
 export interface VirtualMachineScaleSetVMProfile {
 	osProfile?: VirtualMachineScaleSetOSProfile;
@@ -157,8 +154,8 @@ export interface WindowsConfiguration {
 	/**
 	 * >>> [sanjai]  default true <<
 	 */
-	provisionVMAgent?: Boolean;
-	enableAutomaticUpdates?: Boolean;
+	provisionVMAgent?: boolean;
+	enableAutomaticUpdates?: boolean;
 	/**
 	 * Specifies the time zone of the virtual machine. e.g. "Pacific Standard Time"
 	 * >>> [sanjai] Validate timezone ?  <<
@@ -249,13 +246,13 @@ export type ProtocolTypes = string & adltypes.OneOf<["Http", "Https"]>;
  * Specifies the Linux operating system settings on the virtual machine. <br><br>For a list of
  */
 export interface LinuxConfiguration {
-	disablePasswordAuthentication?: Boolean;
+	disablePasswordAuthentication?: boolean;
 	ssh?: SshConfiguration;
 	/**
 	 * >>> [sanjai]  default true <<
 	 * Indicates whether VM agent should be provisioned so that extensions can be added
 	 */
-	provisionVMAgent?: Boolean;
+	provisionVMAgent?: boolean;
 }
 
 /**
@@ -341,7 +338,7 @@ export interface VirtualMachineScaleSetOSDisk {
 	 *  Premium storage => ReadOnly
 	 */
 	caching?: CachingTypes;
-	writeAcceleratorEnabled?: Boolean;
+	writeAcceleratorEnabled?: boolean;
 	/**
 	 * [sanjai]modelAsString = true. Allowed values 'FromImage', 'Empty', 'Attach'
 	 */
@@ -437,7 +434,7 @@ export interface VirtualMachineScaleSetDataDisk {
 	 *  Premium storage => ReadOnly
 	 */
 	caching?: CachingTypes;
-	writeAcceleratorEnabled?: Boolean;
+	writeAcceleratorEnabled?: boolean;
 	/**
 	 * [sanjai]modelAsString = true. Allowed values 'FromImage', 'Empty', 'Attach'
 	 */
@@ -453,7 +450,7 @@ export interface VirtualMachineScaleSetDataDisk {
  * Enables or disables a capability on the virtual machine or virtual machine scale set.
  */
 export interface AdditionalCapabilities {
-	ultraSSDEnabled?: Boolean;
+	ultraSSDEnabled?: boolean;
 }
 
 /**

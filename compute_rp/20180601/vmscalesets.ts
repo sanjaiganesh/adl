@@ -12,10 +12,10 @@ export interface VirtualMachineScaleSetBaseProperties {
 	plan?: normalized.Plan;
 	virtualMachineProfile?: normalized.VirtualMachineScaleSetVMProfile;
 	readonly provisioningState?: string;
-	overprovision?: Boolean;
+	overprovision?: boolean;
 	readonly uniqueId?: string;
-	singlePlacementGroup?: Boolean;
-	zoneBalance?: Boolean;
+	singlePlacementGroup?: boolean;
+	zoneBalance?: boolean;
 	platformFaultDomainCount?: number;
 	proximityPlacementGroup?: normalized.SubResource;
 	identity?: normalized.VirtualMachineScaleSetIdentity;
