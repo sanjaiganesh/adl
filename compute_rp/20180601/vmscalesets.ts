@@ -2,13 +2,14 @@ import * as adltypes from "@azure-tools/adl.types";
 import * as armtypes from "@azure-tools/arm.adl";
 import * as normalized from "../normalized/module";
 
-/**
- * Describes a Virtual Machine Scale Set.
- */
-export interface VirtualMachineScaleSetProperties {
+export interface VirtualMachineScaleSetProperties extends
+  VirtualMachineScaleSetBaseProperties,
+  VirtualMachineScaleSet20180601Properties {
+}
+  
+export interface VirtualMachineScaleSetBaseProperties {
 	sku?: normalized.Sku;
 	plan?: normalized.Plan;
-	upgradePolicy?: normalized.UpgradePolicy;
 	virtualMachineProfile?: normalized.VirtualMachineScaleSetVMProfile;
 	readonly provisioningState?: string;
 	overprovision?: Boolean;
@@ -19,6 +20,10 @@ export interface VirtualMachineScaleSetProperties {
 	proximityPlacementGroup?: normalized.SubResource;
 	identity?: normalized.VirtualMachineScaleSetIdentity;
 	zones?: string[];
+}
+
+export interface VirtualMachineScaleSet20180601Properties {
+	upgradePolicy?: normalized.UpgradePolicy;
 }
 
 // Wrap in ARM envelope to make it an ARM resource
