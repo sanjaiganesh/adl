@@ -116,9 +116,9 @@ export class adlCliParser extends CommandLineParser {
             // in a typical scneario, user will connect to rpaas
             // endpoint to load the data.
             ctx.opts.logger.info(`auto loading sample_rp apis`);
-            // await ctx.store.addApi(ctx.opts,
-            //                     "sample_rp",
-            //                     "sample_rp");
+            await ctx.store.addApi(ctx.opts,
+                                 "sample_rp",
+                                 "sample_rp");
             await ctx.store.addApi(ctx.opts,
                                 "computeapi",
                                 "compute_rp");
