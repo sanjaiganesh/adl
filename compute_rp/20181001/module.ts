@@ -27,5 +27,4 @@ export type vmscaleset_resource_20181001 = adltypes.CustomApiType<
 >;
 
 // any imperative code needs to be exported at the package level
-export { VirtualMachineScaleSet20181001 } from './vmscalesets'
-export { VirtualMachineScaleSet20181001Versioner } from './vmscalesets'
+export { VirtualMachineScaleSet20181001, VirtualMachineScaleSet20181001Versioner } from './vmscalesets'

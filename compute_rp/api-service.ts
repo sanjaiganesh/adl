@@ -8,6 +8,7 @@ import * as adltypes from "@azure-tools/adl.types";
 //these are all the types involved in this service definition
 export * from "./normalized/module";
 export * from "./20180601/module";
+export * from "./20181001/module";
 
 export type apiVersion_20180601 = adltypes.ApiVersion<
   "2018-06-01",
