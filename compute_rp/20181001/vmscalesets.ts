@@ -1,6 +1,6 @@
 import * as adltypes from "@azure-tools/adl.types";
 import * as armtypes from "@azure-tools/arm.adl";
-import * as normalized from "../normalized/module";
+import * as normalizedModule from "../normalized/module";
 import * as version20180601 from '../20180601/vmscalesets'
 
 /**
@@ -9,7 +9,7 @@ import * as version20180601 from '../20180601/vmscalesets'
 export interface VirtualMachineScaleSet20181001Properties extends version20180601.VirtualMachineScaleSetBaseProperties {
 
   // [sanjai-feature] I couldn't use adltypes.Removed, because the new version also has the property with the same name, but schema updated
-  // upgradePolicy?: normalized.UpgradePolicy &
+  // upgradePolicy?: normalizedModule.UpgradePolicy &
   //   adltypes.Removed;
   upgradePolicy?: UpgradePolicy; // Schema changed in this version
 
@@ -18,22 +18,28 @@ export interface VirtualMachineScaleSet20181001Properties extends version2018060
 }
 
 export interface UpgradePolicy {
-  mode?: normalized.UpgradeMode;
-  rollingUpgradePolicy?: normalized.RollingUpgradePolicy;
+  mode?: normalizedModule.UpgradeMode;
+  rollingUpgradePolicy?: normalizedModule.RollingUpgradePolicy;
   automaticOSUpgradePolicy?: AutomaticOSUpgradePolicy;
 }
 
+// [sanjai-?] Any better alternative ?
+class UpgradePolicyImpl implements UpgradePolicy{}
+
 export interface AutomaticOSUpgradePolicy {
   enableAutomaticOSUpgrade?: boolean &
-    adltypes.DefaultValue<"False">;
+    adltypes.DefaultValue<false>;
 
   disableAutomaticRollback?: boolean &
-    adltypes.DefaultValue<"False">;
+    adltypes.DefaultValue<false>;
 }
+
+// [sanjai-?] Any better alternative ?
+class AutomaticOSUpgradePolicyImpl implements AutomaticOSUpgradePolicy{}
 
 export interface AutomaticRepairsPolicy {
   enabled?: boolean &
-    adltypes.DefaultValue<"True">;
+    adltypes.DefaultValue<true>;
 
   /**
    * Duration in ISO 8601 format. Minimum & default is 30 minutes (PT30M).
@@ -45,23 +51,62 @@ export interface AutomaticRepairsPolicy {
 }
 
 // Versioner implementation
-export class VirtualMachineScaleSet20181001VersionerImpl implements
-	adltypes.Versioner<normalized.VirtualMachineScaleSetNormalizedProperties, VirtualMachineScaleSet20181001Properties>{
+export class VirtualMachineScaleSet20181001Versioner implements
+  adltypes.Versioner<
+    armtypes.ArmNormalizedResource<normalizedModule.VirtualMachineScaleSetNormalizedProperties>,
+    armtypes.ArmVersionedResource<VirtualMachineScaleSet20181001Properties>>{
 
-		Normalize(versioned: VirtualMachineScaleSet20181001Properties,
-			normalized: normalized.VirtualMachineScaleSetNormalizedProperties,
+		Normalize(versioned: armtypes.ArmVersionedResource<VirtualMachineScaleSet20181001Properties>,
+			normalized: armtypes.ArmNormalizedResource<normalizedModule.VirtualMachineScaleSetNormalizedProperties>,
 			errors: adltypes.errorList): void{
-				if (normalized.upgradePolicy != undefined &&
-					versioned.upgradePolicy != undefined && versioned.upgradePolicy.automaticOSUpgradePolicy != undefined)
-					{
-						normalized.upgradePolicy.automaticOSUpgrade = versioned.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
-					}
+
+        // call arm versioner, since we expect it to also work on its envelop
+        const armVersioner = new armtypes.ArmVersioner<normalizedModule.VirtualMachineScaleSetNormalizedProperties, VirtualMachineScaleSet20181001Properties>();
+        armVersioner.Normalize(versioned, normalized, errors);
+        if(errors.length >0) return;
+
+        // Automatic OS upgrade policy conversion
+        if (versioned.properties.upgradePolicy && versioned.properties.upgradePolicy.automaticOSUpgradePolicy)
+        {
+          normalized.properties.upgradePolicy = normalized.properties.upgradePolicy || new normalizedModule.Normalized_UpgradePolicyImpl();    
+          normalized.properties.upgradePolicy.automaticOSUpgrade = versioned.properties.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
+
+          // Disable rollback conversion
+          if (versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback)
+          {
+            normalized.properties.upgradePolicy.autoOSUpgradePolicy = new normalizedModule.AutoOSUpgradePolicyImpl();
+            normalized.properties.upgradePolicy.autoOSUpgradePolicy.disableAutoRollback = versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback;
+          }
+        }
     }
 
-		Convert(normalized: normalized.VirtualMachineScaleSetNormalizedProperties,
-			versioned:VirtualMachineScaleSet20181001Properties,
+		Convert(normalized: armtypes.ArmNormalizedResource<normalizedModule.VirtualMachineScaleSetNormalizedProperties>,
+			versioned: armtypes.ArmVersionedResource<VirtualMachineScaleSet20181001Properties>,
 			errors: adltypes.errorList):void {
         
+        // call arm versioner, since we expect it to also work on its envelop
+        const armVersioner = new armtypes.ArmVersioner<normalizedModule.VirtualMachineScaleSetNormalizedProperties, VirtualMachineScaleSet20181001Properties>();
+        armVersioner.Normalize(versioned, normalized, errors);
+        if(errors.length >0) return;
+
+        if (normalized.properties.upgradePolicy)
+        {
+          const  automaticOSUpgrade = normalized.properties.upgradePolicy.automaticOSUpgrade;
+          const autoOSUpgradePolicy = normalized.properties.upgradePolicy.autoOSUpgradePolicy;
+          if (automaticOSUpgrade || autoOSUpgradePolicy)
+          {
+            // sanjai-? why two constructors required ?
+            versioned.properties.upgradePolicy = versioned.properties.upgradePolicy || new UpgradePolicyImpl();
+            versioned.properties.upgradePolicy.automaticOSUpgradePolicy = new AutomaticOSUpgradePolicyImpl();
+          
+            versioned.properties.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade = automaticOSUpgrade;
+
+            if (autoOSUpgradePolicy)
+            {
+              versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback = autoOSUpgradePolicy.disableAutoRollback;
+            }
+          }
+        }
     }
 }
 
@@ -69,12 +114,3 @@ export class VirtualMachineScaleSet20181001VersionerImpl implements
 export type VirtualMachineScaleSet20181001 = armtypes.ArmVersionedResource<
 	VirtualMachineScaleSet20181001Properties
 >;
-
-// ARM Versioner used by the runtime for normalization and conversion
-// [sanjai-?] Even after exporting this, i get error E: VersionedApiTye: 2018-10-01/vmscaleset20181001 reference a non-exported versioner:ArmVersioner. versioner must be exported at package level
-//  should we export VirtualMachineScaleSet20181001VersionerImpl instead. ? (adlType.Versioner<>)
-export type VirtualMachineScaleSet20181001Versioner =
-	armtypes.ArmVersioner<
-		normalized.VirtualMachineScaleSetNormalizedProperties,
-		VirtualMachineScaleSet20181001Properties,
-		VirtualMachineScaleSet20181001VersionerImpl>

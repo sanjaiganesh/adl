@@ -53,6 +53,9 @@ export interface UpgradePolicy {
 	autoOSUpgradePolicy?: AutoOSUpgradePolicy;
 }
 
+// [sanjai-?] Any better alternative ?
+export class Normalized_UpgradePolicyImpl implements UpgradePolicy{}
+
 export type UpgradeMode = string &
 	adltypes.OneOf<["Automatic", "Manual", "Rolling"]>;
 
@@ -77,6 +80,9 @@ export interface RollingUpgradePolicy {
 export interface AutoOSUpgradePolicy {
 	disableAutoRollback?: boolean; // [TODO-bug] : boolean support
 }
+
+// [sanjai-?] Any better alternative ?
+export class AutoOSUpgradePolicyImpl implements AutoOSUpgradePolicy{}
 
 export interface VirtualMachineScaleSetVMProfile {
 	osProfile?: VirtualMachineScaleSetOSProfile;
