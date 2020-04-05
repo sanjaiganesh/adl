@@ -12,7 +12,7 @@ import * as armtypes from "@azure-tools/arm.adl"; // arm extentions to adl
 // As an rp owner, these are my stuff
 
 // Importing my version-ed types
-import { VirtualMachineScaleSet20181001, VirtualMachineScaleSet20181001Versioner, VirtualMachineScaleSet20181001VersionerImpl } from "./vmscalesets";
+import { VirtualMachineScaleSet20181001, VirtualMachineScaleSet20181001Versioner } from "./vmscalesets";
 
 // importing my normalized types
 import * as core from "../normalized/module";
@@ -28,4 +28,4 @@ export type vmscaleset_resource_20181001 = adltypes.CustomApiType<
 
 // any imperative code needs to be exported at the package level
 export { VirtualMachineScaleSet20181001 } from './vmscalesets'
-export { VirtualMachineScaleSet20181001Versioner, VirtualMachineScaleSet20181001VersionerImpl } from './vmscalesets'
+export { VirtualMachineScaleSet20181001Versioner } from './vmscalesets'
