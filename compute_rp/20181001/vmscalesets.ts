@@ -23,9 +23,6 @@ export interface UpgradePolicy {
   automaticOSUpgradePolicy?: AutomaticOSUpgradePolicy;
 }
 
-// [sanjai-?] Any better alternative ?
-class UpgradePolicyImpl implements UpgradePolicy{}
-
 export interface AutomaticOSUpgradePolicy {
   enableAutomaticOSUpgrade?: boolean &
     adltypes.DefaultValue<false>;
@@ -33,9 +30,6 @@ export interface AutomaticOSUpgradePolicy {
   disableAutomaticRollback?: boolean &
     adltypes.DefaultValue<false>;
 }
-
-// [sanjai-?] Any better alternative ?
-class AutomaticOSUpgradePolicyImpl implements AutomaticOSUpgradePolicy{}
 
 export interface AutomaticRepairsPolicy {
   enabled?: boolean &
@@ -66,17 +60,17 @@ export class VirtualMachineScaleSet20181001Versioner implements
         if(errors.length >0) return;
 
         // Automatic OS upgrade policy conversion
-        if (versioned.properties.upgradePolicy && versioned.properties.upgradePolicy.automaticOSUpgradePolicy)
+        const versionedUpgradePolicy = versioned.properties.upgradePolicy;
+        if (versionedUpgradePolicy && versionedUpgradePolicy.automaticOSUpgradePolicy)
         {
-          normalized.properties.upgradePolicy = normalized.properties.upgradePolicy || new normalizedModule.Normalized_UpgradePolicyImpl();    
-          normalized.properties.upgradePolicy.automaticOSUpgrade = versioned.properties.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
+          const upgradePolicy = {} as normalizedModule.UpgradePolicy;    
+          upgradePolicy.automaticOSUpgrade = versionedUpgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
 
           // Disable rollback conversion
-          if (versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback)
-          {
-            normalized.properties.upgradePolicy.autoOSUpgradePolicy = new normalizedModule.AutoOSUpgradePolicyImpl();
-            normalized.properties.upgradePolicy.autoOSUpgradePolicy.disableAutoRollback = versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback;
-          }
+          upgradePolicy.autoOSUpgradePolicy = {} as normalizedModule.AutoOSUpgradePolicy;
+          upgradePolicy.autoOSUpgradePolicy.disableAutoRollback = versionedUpgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback;
+
+          normalized.properties.upgradePolicy = upgradePolicy;
         }
     }
 
@@ -87,25 +81,33 @@ export class VirtualMachineScaleSet20181001Versioner implements
         // call arm versioner, since we expect it to also work on its envelop
         const armVersioner = new armtypes.ArmVersioner<normalizedModule.VirtualMachineScaleSetNormalizedProperties, VirtualMachineScaleSet20181001Properties>();
         armVersioner.Normalize(versioned, normalized, errors);
-        if(errors.length >0) return;
+        if (errors.length >0) return;
 
-        if (normalized.properties.upgradePolicy)
+        const upgradePolicy = normalized.properties.upgradePolicy;
+        if (upgradePolicy)
         {
-          const  automaticOSUpgrade = normalized.properties.upgradePolicy.automaticOSUpgrade;
-          const autoOSUpgradePolicy = normalized.properties.upgradePolicy.autoOSUpgradePolicy;
-          if (automaticOSUpgrade || autoOSUpgradePolicy)
-          {
-            // sanjai-? why two constructors required ?
-            versioned.properties.upgradePolicy = versioned.properties.upgradePolicy || new UpgradePolicyImpl();
-            versioned.properties.upgradePolicy.automaticOSUpgradePolicy = new AutomaticOSUpgradePolicyImpl();
-          
-            versioned.properties.upgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade = automaticOSUpgrade;
+          const versionedUpgradePolicy = versioned.properties.upgradePolicy || {} as UpgradePolicy;
 
-            if (autoOSUpgradePolicy)
-            {
-              versioned.properties.upgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback = autoOSUpgradePolicy.disableAutoRollback;
-            }
+          // [sanjai-bug]: Can't do this because, if the normalized schema doesn't have automaticOSUpgradePolicy (set to {}),
+          //  runtime is initializing it and setting both booleans to true. So, initialize it only if required.
+          // versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
+
+          // For boolean values, explicitly check for undefined
+          if (upgradePolicy.automaticOSUpgrade != undefined)
+          {
+						// Ensure to use versionedUpgradePolicy.automaticOSUpgradePolicy if it is defaulted. if the versioned is defaulte
+						versionedUpgradePolicy.automaticOSUpgradePolicy = {} as AutomaticOSUpgradePolicy;
+            versionedUpgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade = upgradePolicy.automaticOSUpgrade;
           }
+
+          if (upgradePolicy.autoOSUpgradePolicy)
+          {
+						// Use versionedUpgradePolicy.automaticOSUpgradePolicy if it is initialized previously in this method.
+						versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
+            versionedUpgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback = upgradePolicy.autoOSUpgradePolicy.disableAutoRollback;
+          }
+
+          versioned.properties.upgradePolicy = versionedUpgradePolicy;
         }
     }
 }

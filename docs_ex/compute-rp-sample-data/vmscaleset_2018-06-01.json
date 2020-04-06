@@ -1,0 +1,234 @@
+{
+  "name": "",
+  "id": "",
+  "resourceGroup": "",
+  "location": "",
+  "type": "",
+  "etag": "",
+  "properties": {
+    "sku": {
+      "name": "",
+      "tier": "",
+      "capacity": 0
+    },
+    "plan": {
+      "name": "",
+      "publisher": "",
+      "product": "",
+      "promotionCode": ""
+    },
+    "upgradePolicy": {
+      "mode": "",
+      "rollingUpgradePolicy": {
+        "maxBatchInstancePercent": 20,
+        "maxUnhealthyInstancePercent": 20,
+        "maxUnhealthyUpgradedInstancePercent": 20,
+        "pauseTimeBetweenBatches": "PT0S"
+      },
+      "autoOSUpgradePolicy": {}
+    },
+    "virtualMachineProfile": {
+      "osProfile": {
+        "computerNamePrefix": "",
+        "adminUsername": "",
+        "adminPassword": "",
+        "customData": "",
+        "windowsConfiguration": {
+          "timeZone": "",
+          "additionalUnattendContent": [
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            },
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            },
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            }
+          ],
+          "winRM": {
+            "listeners": [
+              {
+                "protocol": "",
+                "certificateUrl": ""
+              },
+              {
+                "protocol": "",
+                "certificateUrl": ""
+              },
+              {
+                "protocol": "",
+                "certificateUrl": ""
+              }
+            ]
+          }
+        },
+        "linuxConfiguration": {
+          "ssh": {
+            "publicKeys": [
+              {
+                "path": "",
+                "keyData": ""
+              },
+              {
+                "path": "",
+                "keyData": ""
+              },
+              {
+                "path": "",
+                "keyData": ""
+              }
+            ]
+          }
+        },
+        "secrets": [
+          {
+            "sourceVault": {
+              "id": ""
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              }
+            ]
+          },
+          {
+            "sourceVault": {
+              "id": ""
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              }
+            ]
+          },
+          {
+            "sourceVault": {
+              "id": ""
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              },
+              {
+                "certificateUrl": "",
+                "certificateStore": ""
+              }
+            ]
+          }
+        ]
+      },
+      "storageProfile": {
+        "imageReference": {
+          "id": "",
+          "publisher": "",
+          "offer": "",
+          "sku": "",
+          "version": ""
+        },
+        "osDisk": {
+          "name": "",
+          "caching": "",
+          "createOption": "",
+          "diffDiskSettings": {
+            "option": ""
+          },
+          "diskSizeGB": 0,
+          "osType": "",
+          "image": {
+            "uri": ""
+          },
+          "vhdContainers": [
+            "",
+            "",
+            ""
+          ],
+          "managedDisk": {
+            "storageAccountType": ""
+          }
+        },
+        "dataDisks": [
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          },
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          },
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          }
+        ]
+      },
+      "additionalCapabilities": {}
+    },
+    "provisioningState": "",
+    "uniqueId": "",
+    "platformFaultDomainCount": 0,
+    "proximityPlacementGroup": {
+      "id": ""
+    },
+    "identity": {
+      "principalId": "",
+      "tenantId": "",
+      "type": ""
+    },
+    "zones": [
+      "",
+      "",
+      ""
+    ]
+  }
+}
