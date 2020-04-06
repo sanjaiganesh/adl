@@ -21,8 +21,9 @@ export class machineryLoadableRuntime{
     // validation constraints implementation
     readonly validationImplementations: Map<string, ValidationConstraintImpl> = new Map<string, ValidationConstraintImpl>();
 
-    // concersion constraints implementation
+    // conversion constraints implementation
     readonly conversionImplementations: Map<string, ConversionConstraintImpl> = new Map<string, ConversionConstraintImpl>();
+
     constructor(private _name: string){}
 }
 
@@ -43,7 +44,7 @@ export function isRuntimeCreator(sometype: any): sometype is RuntimeCreator{
 // generators can be provided as part of runtime or build in in adl
 export interface Generator{
     readonly description: string; // description of what this thing can do
-    generate(apiManager:modeltypes.ApiManager, opts: modeltypes.apiProcessingOptions, config: any|undefined): void;
+    generate(apiManager:ApiManager, opts: modeltypes.apiProcessingOptions, config: any|undefined): void;
 }
 
 // --- CONFORMANCE TYPES ---- //
@@ -107,7 +108,7 @@ export interface ConformanceRule<T extends modeltypes.AnyAdlModel>{
 // Constraints Types
 export interface ConstraintExecContext{
         // allows for chaining constraints
-        machinery: Machinery;
+        machinery: ApiMachinery;
         // logging, log level etc
         opts: modeltypes.apiProcessingOptions;
         // name of the constraint
@@ -123,7 +124,7 @@ export interface ConstraintExecContext{
 }
 
 export function createConstraintExecCtx(
-        machinery: Machinery,
+        machinery: ApiMachinery,
         opts: modeltypes.apiProcessingOptions,
         ConstraintName:string,
         ConstraintArgs: Array<any>,
@@ -233,12 +234,9 @@ export function createValidationError(message: string, fieldPath: adltypes.field
     return e;
 }
 
-export interface Machinery{
-    getDefaultingConstraintImplementation(name: string): DefaultingConstraintImpl;
-    getValidationConstraintImplementation(name: string): ValidationConstraintImpl;
-    getConversionConstraintImplementation(name:string): ConversionConstraintImpl;
-}
 
+// runtime that interacts with a api model
+// runs conversion, validation, defaulting etc..
 export interface ApiRuntime{
     // runs defaults for a normalized type
     default_normalized(payload: string | any,
@@ -308,4 +306,35 @@ export interface ApiRuntime{
         versionName:string,
         parent_field: adltypes.fieldDesc,
         errors:  adltypes.errorList): void;
+}
+
+// api manager is a store that manages multiple apis
+export interface ApiManager {
+    readonly ApiModels: Iterable<modeltypes.ApiModel>;
+    hasApiInfo(name: string): boolean;
+    getApiInfo(name: string): modeltypes.ApiModel | undefined;
+    addApi(options:modeltypes.apiProcessingOptions, apiName: string, projectDirectory: string): Promise<adltypes.errorList>;
+    loadApi(options: modeltypes.apiProcessingOptions, errors:adltypes.errorList, apiName: string, projectDirectory: string): Promise<modeltypes.ApiModel | undefined>;
+}
+
+// entry point for the entire machinery
+export interface ApiMachinery{
+    // creates a new api manager (store)
+    createApiManager(): ApiManager;
+    getDefaultingConstraintImplementation(name: string): DefaultingConstraintImpl;
+    getValidationConstraintImplementation(name: string): ValidationConstraintImpl;
+    getConversionConstraintImplementation(name:string): ConversionConstraintImpl;
+
+    getGenerators(): Map<string, Generator>;
+    hasGenerator(name: string): boolean;
+    runGeneratorFor(apiManager: ApiManager, name:string, config: any | undefined):void;
+
+    // runs conformance rules
+    runConformance(model: modeltypes.AnyAdlModel, scope: ConformanceRuleScope /* todo other filering args*/): adltypes.errorList;
+
+    // loads a runtime
+    loadRuntime(runtimePath: string, config:any | undefined, runtimeCreatorTypeName:string):Promise<void>;
+
+    // creates a runtime instance for store
+    createRuntime(store: ApiManager): ApiRuntime;
 }

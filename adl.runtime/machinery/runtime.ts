@@ -40,7 +40,7 @@ export class InvalidApiTypeModel extends Error {
 }
 
 export class apiRuntime implements machinerytypes.ApiRuntime{
-    constructor(private store: modeltypes.ApiManager, private machinery: machinerytypes.Machinery, private opts: modeltypes.apiProcessingOptions){}
+    constructor(private store: machinerytypes.ApiManager, private machinery: machinerytypes.ApiMachinery, private opts: modeltypes.apiProcessingOptions){}
 
 
     private run_convertion_constraints_versioned_normalized(
@@ -332,9 +332,8 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
         // run the imperative versioner
         if(versionedTypeModel.VersionerName == adltypes.AUTO_VERSIONER_NAME) return;
 
-        this.opts.logger.verbose(`custom versioner:${versionedTypeModel.VersionerName} is normalizing ${apiModel.Name}/${versionName}/${versionedTypeModel.Name} => ${normalizedApiTypeModel.Name}`);
-        const imperative_versioner = apiModel.createSpecInstance(versionedTypeModel.VersionerName) as adltypes.Versioner<adltypes.Normalized, adltypes.Versioned>;
-
+        this.opts.logger.info(`spec versioner:${versionedTypeModel.VersionerName} normalize ${apiModel.Name}/${versionName}/${versionedTypeModel.Name} => ${normalizedApiTypeModel.Name}`);
+        const imperative_versioner  = apiModel.createSpecInstance(versionedTypeModel.VersionerName) as adltypes.Versioner<adltypes.Normalized, adltypes.Versioned>;
         // run it == TODO: metric collection here
         imperative_versioner.Normalize(versioned as adltypes.Versioned, normalized as adltypes.Versioned, errors);
     }
@@ -606,10 +605,9 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
         // auto  already ran
         if(versionedTypeModel.VersionerName == adltypes.AUTO_VERSIONER_NAME) return;
 
-        //TODO add version name to versioned for logging purposes
-        this.opts.logger.verbose(`custom versioner:${versionedTypeModel.VersionerName} is versioning ${normalizedApiTypeModel.Name} => ${apiModel.Name}/${versionName}/${versionedTypeModel.Name}`);
+       this.opts.logger.verbose(`spec versioner:${versionedTypeModel.VersionerName} version ${normalizedApiTypeModel.Name} => ${apiModel.Name}/${versionName}/${versionedTypeModel.Name}`);
+        const imperative_versioner= apiModel.createSpecInstance(versionedTypeModel.VersionerName) as adltypes.Versioner<adltypes.Normalized, adltypes.Versioned>;
 
-        const imperative_versioner = apiModel.createSpecInstance(versionedTypeModel.VersionerName) as adltypes.Versioner<adltypes.Normalized, adltypes.Versioned>;
         // run it == TODO: metric collection here
         imperative_versioner.Convert(normalized as adltypes.Versioned, versioned as adltypes.Versioned, errors);
 
@@ -866,9 +864,9 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
         if(normalizedApiTypeModel.NormalizerName == adltypes.AUTO_NORMALIZER_NAME)
             return;
 
-        this.opts.logger.verbose(`custom normalizer:${normalizedApiTypeModel.NormalizerName} is defaulting ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
-
+        this.opts.logger.verbose(`spec normalizer:${normalizedApiTypeModel.NormalizerName} is defaulting ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
         const imperative_normalizer = apiModel.createSpecInstance(normalizedApiTypeModel.NormalizerName) as adltypes.Normalizer<adltypes.Normalized>;
+
         // run it == TODO: metric collection here
         imperative_normalizer.Default(normalizedTyped, errors);
     }
@@ -1086,14 +1084,11 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
         const existingNormalizedTyped = adltypes.isComplex(existingPayload) ? existingPayload : JSON.parse(existingPayload);
         const rootField = adltypes.getRootFieldDesc();
 
+        if(normalizedApiTypeModel.NormalizerName== adltypes.AUTO_NORMALIZER_NAME) return;
 
-        if(normalizedApiTypeModel.NormalizerName != adltypes.AUTO_NORMALIZER_NAME){
-            this.opts.logger.verbose(`custom normalizer:${normalizedApiTypeModel.NormalizerName} is validating ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
-            const imperative_normalizer = apiModel.createSpecInstance(normalizedApiTypeModel.NormalizerName) as adltypes.Normalizer<adltypes.Normalized>;
-            imperative_normalizer.Validate(undefined, normalizedTyped, errors);
-        }
-
-        this.validate(normalizedTyped, normalizedTyped, existingNormalizedTyped, existingNormalizedTyped, normalizedApiTypeModel, normalizedApiTypeModel, rootField, errors);
+        this.opts.logger.verbose(`spec normalizer:${normalizedApiTypeModel.NormalizerName} is validating ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
+        const imperative_normalizer = apiModel.createSpecInstance(normalizedApiTypeModel.NormalizerName) as adltypes.Normalizer<adltypes.Normalized>;
+        imperative_normalizer.Validate(existingPayload, normalizedTyped, errors);
     }
 
     validate_normalized_oncreate(payload: string | any, apiName: string, normalizedApiTypeName: string, errors: adltypes.errorList):void{
@@ -1106,13 +1101,11 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
         const normalizedTyped = adltypes.isComplex(payload) ? payload : JSON.parse(payload);
         const rootField = adltypes.getRootFieldDesc();
 
-        if(normalizedApiTypeModel.NormalizerName != adltypes.AUTO_NORMALIZER_NAME){
-            this.opts.logger.verbose(`custom normalizer:${normalizedApiTypeModel.NormalizerName} is validating ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
-            const imperative_normalizer = apiModel.createSpecInstance(normalizedApiTypeModel.NormalizerName) as adltypes.Normalizer<adltypes.Normalized>;
-            imperative_normalizer.Validate(undefined, normalizedTyped, errors);
-        }
+        if(normalizedApiTypeModel.NormalizerName== adltypes.AUTO_NORMALIZER_NAME) return;
 
-        this.validate(normalizedTyped, normalizedTyped, undefined /* on create we won't have existing*/, undefined, normalizedApiTypeModel, normalizedApiTypeModel, rootField, errors);
+        this.opts.logger.verbose(`custom normalizer:${normalizedApiTypeModel.NormalizerName} is validating ${apiModel.Name}/${normalizedApiTypeModel.Name}`);
+        const imperative_normalizer = apiModel.createSpecInstance(normalizedApiTypeModel.NormalizerName) as adltypes.Normalizer<adltypes.Normalized>;
+        imperative_normalizer.Validate(undefined, normalizedTyped, errors);
     }
 
     // normalize: normalizes payload as the following:
@@ -1136,10 +1129,27 @@ export class apiRuntime implements machinerytypes.ApiRuntime{
 
         // api won't load if the reference by name does not exist.
         const normalizedTypeModel = apiModel.getNormalizedApiType(versionedTypeModel.NormalizedApiTypeName) as modeltypes.NormalizedApiTypeModel;
-
         const versionedTyped =  adltypes.isComplex(payload) ? payload : JSON.parse(payload);
-
         const rootField = adltypes.getRootFieldDesc();
+
+        /* TODO: @khenidak optimize
+         * we currently walk the object graph too many time
+         * walk for missing keys
+         * walk for extra keys
+         * walk for auto conversion // we have to separete auto from running constraints. because we are not sure of cross reference dependability
+         * walk for running conversion constraints
+         * walk for running defaulting constraints
+         * walk for running validation constraints
+         * we can compress the above into few walks by the following
+         * Alpha: Missing and extra keys as part of the auto conversion (-2 walks)
+         * beta: surface hasPropertiesWith*Constraints() (where *=>conversion, defaulting, validation) on complex objects, and walk *only* when this value is true.
+         * gama: (long term)
+         * we currently separate the walks because we want spec author to assume that *autoAction* is done. e.g if i am defaulting then i can saftely
+         * assume that all the auto conversion and auto defaulting has ran. eg: i can saftely read other parts of the object graph. if we can limit this
+         * supportability. then we can compress the 3 walks into one. but it will take away a big -important - feature for perf.
+         * the decision on gama must depend on our performance goals.
+         */
+
         // missing keys
         const missingKeys = new Map<string, adltypes.fieldDesc>();
         this.buildMissingKeys(versionedTyped, versionedTypeModel, rootField, missingKeys);

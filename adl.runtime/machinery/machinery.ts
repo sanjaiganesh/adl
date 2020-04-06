@@ -7,9 +7,9 @@ import * as runtime from  './runtime'
 import * as conformance from './conformance/module'
 import * as constraints from './constraints/module'
 
+import { api_manager } from './apimanager'
 
-
-export class apiMachinery implements machinerytypes.Machinery{
+export class api_machinery implements machinerytypes.ApiMachinery{
     private _runtimes = new Map<string, machinerytypes.machineryLoadableRuntime>();
 
     private _defaulting_implementations = new Map<string, machinerytypes.DefaultingConstraintImpl>();
@@ -50,7 +50,6 @@ export class apiMachinery implements machinerytypes.Machinery{
             this._generators.set(k,v);
         }
 
-
         this._runtimes.set(r.Name, r);
         this.opts.logger.info(`adl machinery registered runtime: ${r.Name}`);
     }
@@ -87,6 +86,7 @@ export class apiMachinery implements machinerytypes.Machinery{
     }
 
     constructor(private opts: modeltypes.apiProcessingOptions){
+            // load core runtime
             const coreRuntime = this.buildAdlRuntime();
             this.registerRuntime(coreRuntime);
     }
@@ -190,7 +190,7 @@ export class apiMachinery implements machinerytypes.Machinery{
        return this._generators.has(name);
     }
 
-    runGeneratorFor(apiManager: modeltypes.ApiManager, name:string, config: any | undefined):void{
+    runGeneratorFor(apiManager: machinerytypes.ApiManager, name:string, config: any | undefined):void{
         if(!this.hasGenerator(name)) throw new Error(`generator ${name} does not exist`);
 
         const generator = this._generators.get(name) as machinerytypes.Generator;
@@ -199,7 +199,11 @@ export class apiMachinery implements machinerytypes.Machinery{
     }
 
     // create runtime for an entire store
-    createRuntime(store: modeltypes.ApiManager): machinerytypes.ApiRuntime{
+    createRuntime(store: machinerytypes.ApiManager): machinerytypes.ApiRuntime{
         return new runtime.apiRuntime(store,this, this.opts);
+    }
+
+    createApiManager(): machinerytypes.ApiManager{
+        return new api_manager(this);
     }
 }
