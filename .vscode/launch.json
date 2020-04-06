@@ -8,12 +8,42 @@
       "type": "node",
       "protocol": "inspector",
       "request": "launch",
-      "name": "list",
+      "name": "normalize",
       "program": "f:/adl/cli/dist/index.js",
-      "args": ["list"],
-      "smartStep": true,
-      "skipFiles": ["<node_internals>/**/*.js"],
+      "args": [
+        "machinery",
+        "--api-name=computeapi",
+        "--action=normalize",
+        "--api-version=2018-10-01",
+        "--versioned-api-type-name=vmscaleset20181001",
+        "--source=f:/adl/docs_ex/compute-rp-sample-data/vmscaleset_2018-10-01.json"
+      ],
+      "smartStep": false,
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
       "cwd": "${workspaceRoot}"
-    }
+    },
+    {
+      "type": "node",
+      "protocol": "inspector",
+      "request": "launch",
+      "name": "denormalize",
+      "program": "f:/adl/cli/dist/index.js",
+      "args": [
+        "machinery",
+        "--api-name=computeapi",
+        "--action=denormalize",
+        "--target-api-version=2018-10-01",
+        "--target-versioned-api-type-name=vmscaleset20181001",
+        "--versioned-api-type-name=vmscaleset20181001",
+        "--source=f:/adl/docs_ex/compute-rp-sample-data/vmscaleset-normalized.json"
+      ],
+      "smartStep": false,
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
+      "cwd": "${workspaceRoot}"
+    } //cairo machinery --api-name=computeapi --action=denormalize --target-api-version=2018-10-01 --target-versioned-api-type-name=vmscaleset20181001 --source=./docs_ex/sample-rp-sample-data/compute_rp/vmscaleset-normalized.json                                                                                                                                                                                                                                                                
   ]
 }
