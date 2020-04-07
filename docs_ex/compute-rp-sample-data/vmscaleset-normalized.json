@@ -24,10 +24,6 @@
         "maxUnhealthyInstancePercent": 20,
         "maxUnhealthyUpgradedInstancePercent": 20,
         "pauseTimeBetweenBatches": "PT0S"
-      },
-      "automaticOSUpgrade": false,
-      "autoOSUpgradePolicy": {
-        "disableAutoRollback": false
       }
     },
     "virtualMachineProfile": {
