@@ -103,7 +103,7 @@ export interface VirtualMachineScaleSetOSProfile {
 	 * "backup", "console", "david", "guest", "john", "owner", "root", "server", "sql", "support",
 	 * "support_388945a0", "sys", "test2", "test3", "user4", "user5". 
 	 * >>> [sanjai] Linux  1-64, Windows 1-20. <<
-	 * [TODO-Feature] Add conditional constratints
+	 * [Sanjai-Feature] Add conditional constratints
 	 * sanjai-TODO : add imperative support
 	 */
 	adminUsername?: string &
@@ -125,7 +125,7 @@ export interface VirtualMachineScaleSetOSProfile {
 	 * <br><br> For resetting root password, see [Manage users, SSH, and check or repair disks on
 	 * Azure Linux VMs using the VMAccess
 	 * Extension](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-linux-using-vmaccess-extension?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json#reset-root-password)
-	 * [TODO-Feature] Add conditional constratints
+	 * [Sanjai-Feature] Add conditional constratints
 	 * sanjai-TODO : add imperative support
 	 */
 	adminPassword?: string &
@@ -139,7 +139,7 @@ export interface VirtualMachineScaleSetOSProfile {
 		adltypes.MaxLength<65535>;
 
 	/**
-	 * >>> [TODO-Feature] Mutually exclusive propeperty constraint ??  <<
+	 * >>> [Sanjai-Feature] Mutually exclusive propeperty constraint ??  <<
 	 */
 	windowsConfiguration?: WindowsConfiguration;
 	linuxConfiguration?: LinuxConfiguration;
@@ -151,16 +151,17 @@ export interface VirtualMachineScaleSetOSProfile {
  * Specifies Windows operating system settings on the virtual machine.
  */
 export interface WindowsConfiguration {
-	/**
-	 * >>> [sanjai]  default true <<
-	 */
-	provisionVMAgent?: boolean;
-	enableAutomaticUpdates?: boolean;
+  provisionVMAgent?: boolean &
+    adltypes.DefaultValue<true>;
+
+  enableAutomaticUpdates?: boolean;
+  
 	/**
 	 * Specifies the time zone of the virtual machine. e.g. "Pacific Standard Time"
 	 * >>> [sanjai] Validate timezone ?  <<
 	 */
-	timeZone?: string;
+  timeZone?: string;
+  
 	/**
 	 * >>> [sanjai] base-64 encoded XML to be included in the Unattend.xml file, which is used by Windows Setup.
 	 * WINDOWS ONLY
@@ -190,7 +191,7 @@ export interface AdditionalUnattendContent {
 	/**
 	 * >>> [sanjai] base-64 encoded XML to be included in the Unattend.xml file, which is used by Windows Setup.
 	 */
-	content?: string;
+  content?: string & adltypes.base64;
 }
 
 /**
@@ -233,8 +234,9 @@ export interface WinRMListener {
 	 * your certificate needs to be It is the Base64 encoding of the following JSON Object which is
 	 * encoded in UTF-8: <br><br> {<br>  "data":"<Base64-encoded-certificate>",<br>
 	 * "dataType":"pfx",<br>  "password":"<pfx-file-password>"<br>}
+   * [sanjai-feature]: x-ms-secret
 	 */
-	certificateUrl?: string;
+	certificateUrl?: string; // [sanjai-feature] & adltypes.uri;
 }
 
 /**
@@ -248,11 +250,7 @@ export type ProtocolTypes = string & adltypes.OneOf<["Http", "Https"]>;
 export interface LinuxConfiguration {
 	disablePasswordAuthentication?: boolean;
 	ssh?: SshConfiguration;
-	/**
-	 * >>> [sanjai]  default true <<
-	 * Indicates whether VM agent should be provisioned so that extensions can be added
-	 */
-	provisionVMAgent?: boolean;
+	provisionVMAgent?: boolean & adltypes.DefaultValue<true>;
 }
 
 /**
@@ -265,6 +263,7 @@ export interface SshConfiguration {
 /**
  * Contains information about SSH certificate public key and the path on the Linux VM where the
  * public key is placed.
+ * [sanjai-feature]: x-ms-secret
  */
 export interface SshPublicKey {
 	path?: string;
@@ -290,7 +289,9 @@ export interface VaultCertificate {
  * Describes a set of certificates which are all in the same Key Vault.
  */
 export interface VaultSecretGroup {
-	sourceVault?: SubResource;
+  sourceVault?: SubResource;
+  
+  // [sanjai-feature]: x-ms-secret
 	vaultCertificates?: VaultCertificate[];
 }
 
@@ -324,7 +325,7 @@ export interface ImageReference extends SubResource {
 	 * [sanjai] regex ?? allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are
 	 * decimal numbers.
 	 */
-	version?: string;
+	version?: string & adltypes.MustMatch<"^\b([0-9]+\.[0-9]+\.[0-9]+?|latest)\b$">;
 }
 
 /**
@@ -333,7 +334,8 @@ export interface ImageReference extends SubResource {
 export interface VirtualMachineScaleSetOSDisk {
 	name?: string;
 	/**
-	 * [sanjai]  enum. only values 'None', 'ReadOnly', 'ReadWrite'
+	 * [sanjai-feature] Conditional defaults
+   *  enum. only values 'None', 'ReadOnly', 'ReadWrite'
 	 *  Default:  Standard storage => None
 	 *  Premium storage => ReadOnly
 	 */
@@ -344,29 +346,13 @@ export interface VirtualMachineScaleSetOSDisk {
 	 */
 	createOption: DiskCreateOptionTypes;
 	diffDiskSettings?: DiffDiskSettings;
-	/**
-	 * Specifies the size of the operating system disk in gigabytes. This element can be used to
-	 * overwrite the size of the disk in a virtual machine image. <br><br> This value cannot be
-	 * larger than 1023 GB
-	 */
-	diskSizeGB?: number;
-	/**
-	 * This property allows you to specify the type of the OS that is included in the disk if
-	 * creating a VM from user-image or a specialized VHD. <br><br> Possible values are: <br><br>
-	 * **Windows** <br><br> **Linux**. Possible values include: 'Windows', 'Linux'
-	 */
+  diskSizeGB?: number & adltypes.Maximum<1023>;
+  
 	osType?: OperatingSystemTypes;
-	/**
-	 * Specifies information about the unmanaged user image to base the scale set on.
-	 */
 	image?: VirtualHardDisk;
-	/**
-	 * Specifies the container urls that are used to store operating system disks for the scale set.
-	 */
-	vhdContainers?: string[];
-	/**
-	 * The managed disk parameters.
-	 */
+  vhdContainers?: string[]; // [sanjai-feature] & adltypes.uri;
+  
+  // [sanjai-feature]  Disallowed value: UltraSSD_LRS can only be used
 	managedDisk?: VirtualMachineScaleSetManagedDiskParameters;
 }
 
@@ -374,7 +360,6 @@ export interface VirtualMachineScaleSetOSDisk {
 export type CachingTypes = string &
 	adltypes.OneOf<["None", "ReadOnly", "ReadWrite"]>;
 
-// ENum modelasstring=true;
 export type DiskCreateOptionTypes = string &
 	adltypes.OneOf<["FromImage", "Empty", "Attach"]>;
 
@@ -383,13 +368,9 @@ export type DiskCreateOptionTypes = string &
  * disk. <br><br> NOTE: The ephemeral disk settings can only be specified for managed disk.
  */
 export interface DiffDiskSettings {
-	/**
-	 // ENum modelasstring=true; Possible values include: 'Local'
-	 */
 	option?: DiffDiskOptions;
 }
 
-// ENum modelasstring=true;
 export type DiffDiskOptions = string &
 	adltypes.OneOf<["Local"]>;
 
@@ -401,7 +382,7 @@ export type OperatingSystemTypes = string &
  * Describes the uri of a disk.
  */
 export interface VirtualHardDisk {
-	uri?: string;
+	uri?: string; // [sanjai-feature] & adltypes.uri;
 }
 
 /**
@@ -416,7 +397,6 @@ export interface VirtualMachineScaleSetManagedDiskParameters {
 	storageAccountType?: StorageAccountTypes;
 }
 
-// ENum modelasstring=true;
 export type StorageAccountTypes = string &
 	adltypes.OneOf<
 		["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"]
@@ -429,20 +409,16 @@ export interface VirtualMachineScaleSetDataDisk {
 	name?: string;
 	lun: number;
 	/**
-	 * [sanjai]  enum. only values 'None', 'ReadOnly', 'ReadWrite'
+	 *  enum. only values 'None', 'ReadOnly', 'ReadWrite'
+   * [sanjai-feature]  Conditional defaults.
 	 *  Default:  Standard storage => None
-	 *  Premium storage => ReadOnly
+	 *            Premium storage => ReadOnly
 	 */
 	caching?: CachingTypes;
 	writeAcceleratorEnabled?: boolean;
-	/**
-	 * [sanjai]modelAsString = true. Allowed values 'FromImage', 'Empty', 'Attach'
-	 */
 	createOption: DiskCreateOptionTypes;
-	/**
-	 * [sanjai] max  1023 GB
-	 */
-	diskSizeGB?: number;
+  diskSizeGB?: number & adltypes.Maximum<1023>;
+  
 	managedDisk?: VirtualMachineScaleSetManagedDiskParameters;
 }
 
@@ -466,14 +442,12 @@ export interface VirtualMachineScaleSetIdentity {
 	type?: ResourceIdentityType;
 	
 	/**
-	 * [TODO-feature] Add the property. adltypes.Dictionary<string> and also additional constraint on the armtypes.ArmResourceId
+   * [sanjai-feature] Awaiting support for Maps.
 	 * The list of user identities associated with the virtual machine scale set. The user identity
 	 * dictionary key references will be ARM resource ids in the form:
 	 * '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'.
 	 */
-	// userAssignedIdentities?: {
-	// 	[propertyName: string]: VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue;
-	// };
+   // userAssignedIdentities?: adltypes.AdlMap<string & armtypes.ArmResourceId, VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue>;
 }
 
 // [sanjai] Model as string false
