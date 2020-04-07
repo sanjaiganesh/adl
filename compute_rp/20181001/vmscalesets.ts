@@ -17,9 +17,10 @@ export interface VirtualMachineScaleSet20181001Properties extends version2018060
   doNotRunExtensionsOnOverprovisionedVMs?: boolean; // New property
 }
 
-export interface UpgradePolicy {
-  mode?: normalizedModule.UpgradeMode;
-  rollingUpgradePolicy?: normalizedModule.RollingUpgradePolicy;
+export interface UpgradePolicy extends normalizedModule.UpgradePolicy {
+	// Two properties in previous api version are merged into one and got renamed.
+  automaticOSUpgrade?: boolean & adltypes.Removed;
+	autoOSUpgradePolicy?: normalizedModule.AutoOSUpgradePolicy & adltypes.Removed;
   automaticOSUpgradePolicy?: AutomaticOSUpgradePolicy;
 }
 
@@ -90,20 +91,20 @@ export class VirtualMachineScaleSet20181001Versioner implements
 
           // [sanjai-bug]: Can't do this because, if the normalized schema doesn't have automaticOSUpgradePolicy (set to {}),
           //  runtime is initializing it and setting both booleans to true. So, initialize it only if required.
-          // versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
+          versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
 
           // For boolean values, explicitly check for undefined
           if (upgradePolicy.automaticOSUpgrade != undefined)
           {
 						// Ensure to use versionedUpgradePolicy.automaticOSUpgradePolicy if it is defaulted. if the versioned is defaulte
-						versionedUpgradePolicy.automaticOSUpgradePolicy = {} as AutomaticOSUpgradePolicy;
+						//versionedUpgradePolicy.automaticOSUpgradePolicy = {} as AutomaticOSUpgradePolicy;
             versionedUpgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade = upgradePolicy.automaticOSUpgrade;
           }
 
           if (upgradePolicy.autoOSUpgradePolicy)
           {
 						// Use versionedUpgradePolicy.automaticOSUpgradePolicy if it is initialized previously in this method.
-						versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
+						//versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
             versionedUpgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback = upgradePolicy.autoOSUpgradePolicy.disableAutoRollback;
           }
 

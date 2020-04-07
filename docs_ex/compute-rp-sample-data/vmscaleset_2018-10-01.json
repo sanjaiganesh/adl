@@ -27,14 +27,14 @@
       },
       "automaticOSUpgradePolicy": {
         "enableAutomaticOSUpgrade": true,
-        "disableAutomaticRollback": true
+        "disableAutomaticRollback": false
       }
     },
     "virtualMachineProfile": {
       "osProfile": {
-        "computerNamePrefix": "",
-        "adminUsername": "",
-        "adminPassword": "",
+        "computerNamePrefix": "compName-",
+        "adminUsername": "admin",
+        "adminPassword": "Pa$$word",
         "customData": "",
         "windowsConfiguration": {
           "timeZone": "",
