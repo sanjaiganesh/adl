@@ -26,13 +26,13 @@
         "pauseTimeBetweenBatches": "PT0S"
       },
       "automaticOSUpgradePolicy": {
-        "enableAutomaticOSUpgrade": true,
-        "disableAutomaticRollback": false
+        "disableAutomaticRollback": true,
+        "enableAutomaticOSUpgrade": false
       }
     },
     "virtualMachineProfile": {
       "osProfile": {
-        "computerNamePrefix": "compName-",
+        "computerNamePrefix": "compname-",
         "adminUsername": "admin",
         "adminPassword": "Pa$$word",
         "customData": "",
@@ -73,7 +73,8 @@
                 "certificateUrl": ""
               }
             ]
-          }
+          },
+          "provisionVMAgent": true
         },
         "linuxConfiguration": {
           "ssh": {
@@ -91,7 +92,8 @@
                 "keyData": ""
               }
             ]
-          }
+          },
+          "provisionVMAgent": true
         },
         "secrets": [
           {
