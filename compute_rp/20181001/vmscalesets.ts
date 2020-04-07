@@ -89,22 +89,17 @@ export class VirtualMachineScaleSet20181001Versioner implements
         {
           const versionedUpgradePolicy = versioned.properties.upgradePolicy || {} as UpgradePolicy;
 
-          // [sanjai-bug]: Can't do this because, if the normalized schema doesn't have automaticOSUpgradePolicy (set to {}),
-          //  runtime is initializing it and setting both booleans to true. So, initialize it only if required.
+          // Ensure to use versionedUpgradePolicy.automaticOSUpgradePolicy if it is defaulted. if the versioned is defaulte
           versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
 
           // For boolean values, explicitly check for undefined
           if (upgradePolicy.automaticOSUpgrade != undefined)
           {
-						// Ensure to use versionedUpgradePolicy.automaticOSUpgradePolicy if it is defaulted. if the versioned is defaulte
-						//versionedUpgradePolicy.automaticOSUpgradePolicy = {} as AutomaticOSUpgradePolicy;
             versionedUpgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade = upgradePolicy.automaticOSUpgrade;
           }
 
           if (upgradePolicy.autoOSUpgradePolicy)
           {
-						// Use versionedUpgradePolicy.automaticOSUpgradePolicy if it is initialized previously in this method.
-						//versionedUpgradePolicy.automaticOSUpgradePolicy = versionedUpgradePolicy.automaticOSUpgradePolicy || {} as AutomaticOSUpgradePolicy;
             versionedUpgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback = upgradePolicy.autoOSUpgradePolicy.disableAutoRollback;
           }
 
