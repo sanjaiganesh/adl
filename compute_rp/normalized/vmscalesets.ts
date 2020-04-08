@@ -174,7 +174,8 @@ export interface VirtualMachineScaleSetOSProfile {
 	windowsConfiguration?: WindowsConfiguration;
 	linuxConfiguration?: LinuxConfiguration;
 
-	secrets?: VaultSecretGroup[];
+  // [sanjai-feature]: x-ms-secret
+	secrets?: VaultSecretGroup[] & adltypes.Secret;
 }
 
 /**
@@ -266,7 +267,7 @@ export interface WinRMListener {
 	 * "dataType":"pfx",<br>  "password":"<pfx-file-password>"<br>}
    * [sanjai-feature]: x-ms-secret
 	 */
-	certificateUrl?: string; // [sanjai-feature] & adltypes.uri;
+	certificateUrl?: string & adltypes.Secret; // [sanjai-feature] & adltypes.uri;
 }
 
 /**
@@ -287,7 +288,7 @@ export interface LinuxConfiguration {
  * SSH configuration for Linux based VMs running on Azure
  */
 export interface SshConfiguration {
-	publicKeys?: SshPublicKey[];
+	publicKeys?: SshPublicKey[] & adltypes.Secret;
 }
 
 /**
@@ -320,8 +321,6 @@ export interface VaultCertificate {
  */
 export interface VaultSecretGroup {
   sourceVault?: SubResource;
-  
-  // [sanjai-feature]: x-ms-secret
 	vaultCertificates?: VaultCertificate[];
 }
 
