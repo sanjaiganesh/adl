@@ -64,11 +64,11 @@ export class VirtualMachineScaleSet20181001Versioner implements
         const versionedUpgradePolicy = versioned.properties.upgradePolicy;
         if (versionedUpgradePolicy && versionedUpgradePolicy.automaticOSUpgradePolicy)
         {
-          const upgradePolicy = {} as normalizedModule.UpgradePolicy;    
+          const upgradePolicy = normalized.properties.upgradePolicy || {} as normalizedModule.UpgradePolicy;    
           upgradePolicy.automaticOSUpgrade = versionedUpgradePolicy.automaticOSUpgradePolicy.enableAutomaticOSUpgrade;
 
           // Disable rollback conversion
-          upgradePolicy.autoOSUpgradePolicy = {} as normalizedModule.AutoOSUpgradePolicy;
+          upgradePolicy.autoOSUpgradePolicy = upgradePolicy.autoOSUpgradePolicy || {} as normalizedModule.AutoOSUpgradePolicy;
           upgradePolicy.autoOSUpgradePolicy.disableAutoRollback = versionedUpgradePolicy.automaticOSUpgradePolicy.disableAutomaticRollback;
 
           normalized.properties.upgradePolicy = upgradePolicy;
