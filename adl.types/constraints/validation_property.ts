@@ -53,3 +53,6 @@ export interface Unique extends PropertyConstraint {}
 
 /** indicates this property value is only valid if it is one of these values  */
 export interface OneOf<v extends any[]> extends PropertyConstraint {}
+
+/** indicates this property is a secret */
+export interface Secret extends PropertyConstraint{};
