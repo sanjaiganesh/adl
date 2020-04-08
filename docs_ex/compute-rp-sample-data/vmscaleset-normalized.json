@@ -24,13 +24,17 @@
         "maxUnhealthyInstancePercent": 20,
         "maxUnhealthyUpgradedInstancePercent": 20,
         "pauseTimeBetweenBatches": "PT0S"
+      },
+      "automaticOSUpgrade": true,
+      "autoOSUpgradePolicy": {
+        "disableAutoRollback": true
       }
     },
     "virtualMachineProfile": {
       "osProfile": {
-        "computerNamePrefix": "",
-        "adminUsername": "",
-        "adminPassword": "",
+        "computerNamePrefix": "compname-",
+        "adminUsername": "admin",
+        "adminPassword": "Pa$$word",
         "customData": "",
         "windowsConfiguration": {
           "timeZone": "",
@@ -69,7 +73,8 @@
                 "certificateUrl": ""
               }
             ]
-          }
+          },
+          "provisionVMAgent": true
         },
         "linuxConfiguration": {
           "ssh": {
@@ -87,7 +92,8 @@
                 "keyData": ""
               }
             ]
-          }
+          },
+          "provisionVMAgent": true
         },
         "secrets": [
           {
