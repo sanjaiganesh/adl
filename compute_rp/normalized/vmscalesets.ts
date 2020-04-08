@@ -595,8 +595,13 @@ export interface VirtualMachineScaleSetPublicIPAddressConfiguration {
   publicIPPrefix?: SubResource;
 }
 
+/**
+* IP Address types
+*  @enum_IPv4 IPv4 address
+*  @enum_IPv6 IPv6 address
+*/
 export type IPVersion = string &
-  adltypes.OneOf<["IPv4" | "IPv6"]>;
+  adltypes.OneOf<["IPv4", "IPv6"]>;
 
 /**
  * Describes a virtual machines scale sets network configuration's DNS settings.

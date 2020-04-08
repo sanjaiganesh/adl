@@ -1,9 +1,9 @@
 {
-  "name": "",
-  "id": "",
-  "resourceGroup": "",
-  "location": "",
-  "type": "",
+  "name": "vmscaleset-resource-1",
+  "id": "/subscriptions/8a18a404-ef6c-48d5-9ca2-0f80a5ecb9b6/resourcegroups/rg-test/providers/Microsoft.Compute/virtualMachineScaleSets/vmscaletest-resource-1",
+  "resourceGroup": "rg-test",
+  "location": "WestUS",
+  "type": "Microsoft.Compute/virtualMachineScaleSets",
   "etag": "",
   "properties": {
     "sku": {
@@ -26,8 +26,8 @@
         "pauseTimeBetweenBatches": "PT0S"
       },
       "automaticOSUpgradePolicy": {
-        "disableAutomaticRollback": true,
-        "enableAutomaticOSUpgrade": true
+        "enableAutomaticOSUpgrade": true,
+        "disableAutomaticRollback": true
       }
     },
     "virtualMachineProfile": {
@@ -98,7 +98,7 @@
         "secrets": [
           {
             "sourceVault": {
-              "id": ""
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
             },
             "vaultCertificates": [
               {
@@ -117,7 +117,7 @@
           },
           {
             "sourceVault": {
-              "id": ""
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
             },
             "vaultCertificates": [
               {
@@ -136,7 +136,7 @@
           },
           {
             "sourceVault": {
-              "id": ""
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
             },
             "vaultCertificates": [
               {
@@ -157,11 +157,11 @@
       },
       "storageProfile": {
         "imageReference": {
-          "id": "",
+          "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/Microsoft.Compute/images/imageName",
           "publisher": "",
           "offer": "",
           "sku": "",
-          "version": ""
+          "version": "4.5.6"
         },
         "osDisk": {
           "name": "",
@@ -220,726 +220,26 @@
       "additionalCapabilities": {},
       "networkProfile": {
         "healthProbe": {
-          "id": ""
+          "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/loadBalancers/loadBalancerName/probes/probeName"
         },
         "networkInterfaceConfigurations": [
           {
-            "id": "",
+            "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkInterfaceConfig/configName",
             "name": "",
             "networkSecurityGroup": {
-              "id": ""
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
             },
             "dnsSettings": {
               "dnsServers": []
             },
             "ipConfigurations": [
               {
-                "id": "",
+                "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup",
                 "name": "",
                 "subnet": {
-                  "id": ""
+                  "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
                 },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "id": "",
-            "name": "",
-            "networkSecurityGroup": {
-              "id": ""
-            },
-            "dnsSettings": {
-              "dnsServers": []
-            },
-            "ipConfigurations": [
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "id": "",
-            "name": "",
-            "networkSecurityGroup": {
-              "id": ""
-            },
-            "dnsSettings": {
-              "dnsServers": []
-            },
-            "ipConfigurations": [
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
-              },
-              {
-                "id": "",
-                "name": "",
-                "subnet": {
-                  "id": ""
-                },
-                "publicIPAddressConfiguration": {
-                  "name": "",
-                  "idleTimeoutInMinutes": 0,
-                  "dnsSettings": {
-                    "domainNameLabel": ""
-                  },
-                  "ipTags": [
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    },
-                    {
-                      "ipTagType": "",
-                      "tag": ""
-                    }
-                  ],
-                  "publicIPPrefix": {
-                    "id": ""
-                  }
-                },
-                "privateIPAddressVersion": "IPv4",
-                "applicationGatewayBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "applicationSecurityGroups": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerBackendAddressPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ],
-                "loadBalancerInboundNatPools": [
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  },
-                  {
-                    "id": ""
-                  }
-                ]
+                "privateIPAddressVersion": "IPv6"
               }
             ]
           }
@@ -953,35 +253,7 @@
       "extensionProfile": {
         "extensions": [
           {
-            "id": "",
-            "name": "",
-            "forceUpdateTag": "",
-            "publisher": "",
-            "type": "",
-            "typeHandlerVersion": "",
-            "provisioningState": "",
-            "provisionAfterExtensions": [
-              "",
-              "",
-              ""
-            ]
-          },
-          {
-            "id": "",
-            "name": "",
-            "forceUpdateTag": "",
-            "publisher": "",
-            "type": "",
-            "typeHandlerVersion": "",
-            "provisioningState": "",
-            "provisionAfterExtensions": [
-              "",
-              "",
-              ""
-            ]
-          },
-          {
-            "id": "",
+            "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup",
             "name": "",
             "forceUpdateTag": "",
             "publisher": "",
@@ -1004,7 +276,7 @@
     "uniqueId": "",
     "platformFaultDomainCount": 0,
     "proximityPlacementGroup": {
-      "id": ""
+      "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
     },
     "identity": {
       "principalId": "",
