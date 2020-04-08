@@ -6,7 +6,7 @@ export interface VirtualMachineScaleSetProperties extends
   VirtualMachineScaleSetBaseProperties,
   VirtualMachineScaleSet20180601Properties {
 }
-  
+
 export interface VirtualMachineScaleSetBaseProperties {
 	sku?: normalized.Sku;
 	plan?: normalized.Plan;
