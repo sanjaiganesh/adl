@@ -8,8 +8,14 @@ export interface VirtualMachineScaleSetNormalizedProperties {
 	sku?: Sku;
 	plan?: Plan;
 	upgradePolicy?: UpgradePolicy;
-	virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
-	readonly provisioningState?: string;
+  virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
+  
+  /**
+  * //[sanjai-?] is ReadOnlyType the right usage here? 
+  * The provisioning state, which only appears in the response.
+  * **NOTE: This property will not be serialized. It can only be populated by the server.**
+  */
+	readonly provisioningState?: string & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
 	overprovision?: boolean;
 	readonly uniqueId?: string;
 	singlePlacementGroup?: boolean;
@@ -19,6 +25,31 @@ export interface VirtualMachineScaleSetNormalizedProperties {
 	identity?: VirtualMachineScaleSetIdentity;
 	zones?: string[];
 }
+
+export class VirtualMachineScaleSetNormalizer implements adltypes.Normalizer<armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>>{
+    // *** THE BELOW IS AN EXAMPLE OF CUSTOM VALIDATOR AND DEFAULTER. THIS IS NOT THE NORMAL
+    // *** APIS DESIGNER WILL NEED TO DO THAT ONLY IF THEY NEED CUSTOM BEHAVIOR. IN OTHER
+    // *** WORDS IF THE ANNOTATIONS (INTERSECTIONS) ARE NOT PROVIDING THE BEHAVIOR NEEDED.
+    Default(obj: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
+      errors: adltypes.errorList) {
+        // call arm normalizer on the envelop
+        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
+        armNormalizer.Default(obj, errors);
+        if(errors.length > 0) return;
+    }
+
+    Validate (old: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties> | undefined,
+      newObject: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
+      errors: adltypes.errorList) {
+        // call arm normalizer on the envelop
+        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
+        armNormalizer.Validate(old, newObject, errors);
+        if(errors.length > 0) return;
+    }
+}
+
+// Wrap in ARM envelope to make it an ARM resource
+export type VirtualMachineScaleSetNormalized = armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>;
 
 /**
  * Describes a virtual machine scale set sku.
@@ -82,13 +113,12 @@ export interface VirtualMachineScaleSetVMProfile {
 	osProfile?: VirtualMachineScaleSetOSProfile;
 	storageProfile?: VirtualMachineScaleSetStorageProfile;
 	additionalCapabilities?: AdditionalCapabilities;
-	/** networkProfile?: VirtualMachineScaleSetNetworkProfile;
-	 * diagnosticsProfile?: DiagnosticsProfile;
-	 * extensionProfile?: VirtualMachineScaleSetExtensionProfile;
-	 * licenseType?: string;
-	 * priority?: VirtualMachinePriorityTypes;
-	 * evictionPolicy?: VirtualMachineEvictionPolicyTypes;
-	 */
+	networkProfile?: VirtualMachineScaleSetNetworkProfile;
+	diagnosticsProfile?: DiagnosticsProfile;
+	extensionProfile?: VirtualMachineScaleSetExtensionProfile;
+	licenseType?: string;
+	priority?: VirtualMachinePriorityTypes;
+	evictionPolicy?: VirtualMachineEvictionPolicyTypes;
 }
 
 export interface VirtualMachineScaleSetOSProfile {
@@ -310,6 +340,10 @@ export interface VirtualMachineScaleSetStorageProfile {
 	osDisk?: VirtualMachineScaleSetOSDisk;
 	dataDisks?: VirtualMachineScaleSetDataDisk[];
 }
+/**
+	 * Allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers.
+*/
+export type imageReferenceVersion = string & adltypes.MustMatch<"^\b([0-9]+\.[0-9]+\.[0-9]+?|latest)\b$">;
 
 /**
  * Specifies information about the image to use. You can specify information about platform images,
@@ -321,11 +355,7 @@ export interface ImageReference extends SubResource {
 	publisher?: string;
 	offer?: string;
 	sku?: string;
-	/**
-	 * [sanjai] regex ?? allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are
-	 * decimal numbers.
-	 */
-	version?: string & adltypes.MustMatch<"^\b([0-9]+\.[0-9]+\.[0-9]+?|latest)\b$">;
+	version?: imageReferenceVersion;
 }
 
 /**
@@ -464,27 +494,195 @@ export interface VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue {
 	readonly clientId?: string;
 }
 
-export class VirtualMachineScaleSetNormalizer implements adltypes.Normalizer<armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>>{
-    // *** THE BELOW IS AN EXAMPLE OF CUSTOM VALIDATOR AND DEFAULTER. THIS IS NOT THE NORMAL
-    // *** APIS DESIGNER WILL NEED TO DO THAT ONLY IF THEY NEED CUSTOM BEHAVIOR. IN OTHER
-    // *** WORDS IF THE ANNOTATIONS (INTERSECTIONS) ARE NOT PROVIDING THE BEHAVIOR NEEDED.
-    Default(obj: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
-      errors: adltypes.errorList) {
-        // call arm normalizer on the envelop
-        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
-        armNormalizer.Default(obj, errors);
-        if(errors.length > 0) return;
-    }
-
-    Validate (old: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties> | undefined,
-      newObject: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
-      errors: adltypes.errorList) {
-        // call arm normalizer on the envelop
-        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
-        armNormalizer.Validate(old, newObject, errors);
-        if(errors.length > 0) return;
-    }
+/**
+ * Describes a virtual machine scale set network profile.
+ */
+export interface VirtualMachineScaleSetNetworkProfile {
+  healthProbe?: ApiEntityReference;
+  networkInterfaceConfigurations?: VirtualMachineScaleSetNetworkConfiguration[];
 }
 
-// Wrap in ARM envelope to make it an ARM resource
-export type VirtualMachineScaleSetNormalized = armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>;
+/**
+ * The API entity reference.
+ */
+export interface ApiEntityReference {
+  /**
+   * The ARM resource id in the form of
+   * /subscriptions/{SubscriptionId}/resourceGroups/{ResourceGroupName}/...
+   */
+  id?: armtypes.ArmResourceId;
+}
+
+/**
+ * Describes a virtual machine scale set network profile's network configurations.
+ */
+export interface VirtualMachineScaleSetNetworkConfiguration extends SubResource {
+  name: string;
+  primary?: boolean;
+  enableAcceleratedNetworking?: boolean;
+  networkSecurityGroup?: SubResource;
+  dnsSettings?: VirtualMachineScaleSetNetworkConfigurationDnsSettings;
+  ipConfigurations: VirtualMachineScaleSetIPConfiguration[];
+  enableIPForwarding?: boolean;
+}
+
+/**
+ * Describes a virtual machines scale sets network configuration's DNS settings.
+ */
+export interface VirtualMachineScaleSetNetworkConfigurationDnsSettings {
+  /**
+   * List of DNS servers IP addresses
+   */
+  dnsServers?: adltypes.ipaddress[];
+}
+
+/**
+ * Describes a virtual machine scale set network profile's IP configuration.
+ */
+export interface VirtualMachineScaleSetIPConfiguration extends SubResource {
+  name: string;
+  subnet?: ApiEntityReference;
+  primary?: boolean;
+  publicIPAddressConfiguration?: VirtualMachineScaleSetPublicIPAddressConfiguration;
+  privateIPAddressVersion?: IPVersion & adltypes.DefaultValue<"IPv4">;
+  /**
+   * Specifies an array of references to backend address pools of application gateways. A scale set
+   * can reference backend address pools of multiple application gateways. Multiple scale sets
+   * cannot use the same application gateway.
+   */
+  applicationGatewayBackendAddressPools?: SubResource[];
+  /**
+   * Specifies an array of references to application security group.
+   */
+  applicationSecurityGroups?: SubResource[];
+  /**
+   * Specifies an array of references to backend address pools of load balancers. A scale set can
+   * reference backend address pools of one public and one internal load balancer. Multiple scale
+   * sets cannot use the same load balancer.
+   */
+  loadBalancerBackendAddressPools?: SubResource[];
+  /**
+   * Specifies an array of references to inbound Nat pools of the load balancers. A scale set can
+   * reference inbound nat pools of one public and one internal load balancer. Multiple scale sets
+   * cannot use the same load balancer
+   */
+  loadBalancerInboundNatPools?: SubResource[];
+}
+
+
+/**
+ * Describes a virtual machines scale set IP Configuration's PublicIPAddress configuration
+ */
+export interface VirtualMachineScaleSetPublicIPAddressConfiguration {
+  /**
+   * The publicIP address configuration name.
+   */
+  name: string;
+  /**
+   * The idle timeout of the public IP address.
+   */
+  idleTimeoutInMinutes?: number;
+  /**
+   * The dns settings to be applied on the publicIP addresses .
+   */
+  dnsSettings?: VirtualMachineScaleSetPublicIPAddressConfigurationDnsSettings;
+  /**
+   * The list of IP tags associated with the public IP address.
+   */
+  ipTags?: VirtualMachineScaleSetIpTag[];
+  /**
+   * The PublicIPPrefix from which to allocate publicIP addresses.
+   */
+  publicIPPrefix?: SubResource;
+}
+
+export type IPVersion = string &
+  adltypes.OneOf<["IPv4" | "IPv6"]>;
+
+/**
+ * Describes a virtual machines scale sets network configuration's DNS settings.
+ */
+export interface VirtualMachineScaleSetPublicIPAddressConfigurationDnsSettings {
+  domainNameLabel: string;
+}
+
+/**
+ * Contains the IP tag associated with the public IP address.
+ */
+export interface VirtualMachineScaleSetIpTag {
+  ipTagType?: string;
+  tag?: string;
+}
+
+/**
+ * Boot Diagnostics is a debugging feature which allows you to view Console Output and Screenshot
+ * to diagnose VM status. <br><br> You can easily view the output of your console log. <br><br>
+ * Azure also enables you to see a screenshot of the VM from the hypervisor.
+ */
+export interface BootDiagnostics {
+  enabled?: boolean;
+  storageUri?: string; // [sanjai-feature] & adltypes.uri;
+}
+
+/**
+ * Specifies the boot diagnostic settings state. <br><br>Minimum api-version: 2015-06-15.
+ */
+export interface DiagnosticsProfile {
+  bootDiagnostics?: BootDiagnostics;
+}
+/**
+ * Describes a virtual machine scale set extension profile.
+ */
+export interface VirtualMachineScaleSetExtensionProfile {
+  /**
+   * [sanjai-?modelling]: Embedding extension resource in a tracked? 
+   * The virtual machine scale set child extension resources.
+   */
+  extensions?: VirtualMachineScaleSetExtension[];
+}
+
+/**
+ * Describes a Virtual Machine Scale Set Extension.
+ */
+export interface VirtualMachineScaleSetExtension extends SubResourceReadOnly {
+  name?: string;
+  forceUpdateTag?: string;
+  publisher?: string;
+  type?: string;
+  typeHandlerVersion?: string;
+  autoUpgradeMinorVersion?: boolean;
+  /**
+   * [sanjai-?modelling]  any/object
+   * Json formatted public settings for the extension.
+   */
+  //settings?: any;
+  /**
+   * [sanjai-?modelling]  any/object
+   * The extension can contain either protectedSettings or protectedSettingsFromKeyVault or no
+   * protected settings at all.
+   */
+  //protectedSettings?: any;
+  /**
+   * [sanjai-?] is ReadOnlyType the right usage here? 
+   * The provisioning state, which only appears in the response.
+   * **NOTE: This property will not be serialized. It can only be populated by the server.**
+   */
+  provisioningState?: string & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
+  provisionAfterExtensions?: string[];
+}
+
+export interface SubResourceReadOnly {
+  /** [sanjai-?] why to have adltypes.Readonly instead of using 'readonly' ? is this to make it easy and consistency in how constraints are handled ?
+   * Resource Id
+   * **NOTE: This property will not be serialized. It can only be populated by the server.**
+   */
+  id?: armtypes.ArmResourceId & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
+}
+
+// "modelAsString": true
+export type VirtualMachinePriorityTypes = string &
+  adltypes.OneOf<["Regular", "Low"]>;
+
+// "modelAsString": true
+export type VirtualMachineEvictionPolicyTypes = string &
+  adltypes.OneOf<["Deallocate", "Delete"]>;
