@@ -43,7 +43,7 @@ export type unixtime = number  & DataType<"unixtime">;
 /** a universally unique ID */
 export type uuid = string &
                    DataType<"uuid"> &
-                   adlconstraints.MustMatch<'^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}$'>;
+                   adlconstraints.MustMatch<'^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}$', /*ignoreCase*/ true>;
 
 /** A Uniform Resource Identifier (URI) is a string of characters that unambiguously identifies a particular resource.
  *
@@ -51,7 +51,7 @@ export type uuid = string &
 */
 export type uri = string &
                   DataType<"uri"> &
-                  adlconstraints.MustMatch<'^[A-Za-z][A-Za-z0-9+\-.]*:.*^'>;
+                  adlconstraints.MustMatch<'^[A-Za-z][A-Za-z0-9+\-.]*:.*^', /*ignoreCase*/ true>;
 
 /** a single character  */
 export type char = string &

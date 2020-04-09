@@ -10,9 +10,9 @@ export type ResourceGroup = string;
 // Arm common data types.
 
 export type ArmResourceId = string & adltypes.DataType<'ArmResourceId'> &
-                            adltypes.MustMatch<'\\/subscriptions\\/[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\/resourcegroups\\/[-\\w\\._\\(\\)]+\\/[-\\w\\._\\(\\)]+\\/*.'>
-export type ResourceType = string & adltypes.MustMatch<'^[-\\w\\._\\(\\)]+'>
-export type ArmResourceName = string & adltypes.MustMatch<'^[-\\w\\._\\(\\)]+'>;
+                            adltypes.MustMatch<'\\/subscriptions\\/[0-9A-Fa-f]{8}-([0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\/resourcegroups\\/[-\\w\\._\\(\\)]+\\/[-\\w\\._\\(\\)]+\\/*.', /*ignoreCase*/ true>
+export type ResourceType = string & adltypes.MustMatch<'^[-\\w\\._\\(\\)]+', /*ignoreCase*/ true>
+export type ArmResourceName = string & adltypes.MustMatch<'^[-\\w\\._\\(\\)]+', /*ignoreCase*/ true>;
 
 
 // Arm envelop for normalized resource

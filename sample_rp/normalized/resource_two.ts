@@ -13,7 +13,10 @@ export class ResourceTwoProps{
                  adltypes.Immutable;
 
     prop2: string &
-                 adltypes.MustMatch<'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'>;
+                 adltypes.MustMatch<'^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$', /*ignoreCase*/ true>;
+
+    prop3: string &
+                adltypes.MustMatch<'^[A-Z0-9_\\-\\.]+$', /*ignoreCase*/ false>;
 }
 
 // because we work with wrapped resouce our normalizer needs to work with wrapped resources as well

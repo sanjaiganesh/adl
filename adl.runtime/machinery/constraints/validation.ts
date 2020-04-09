@@ -16,8 +16,9 @@ export class MustMatchImpl implements machinerytypes.ValidationConstraintImpl{
        const propVal = leveledTyped[context.propertyName];
        let regExp = context.ConstraintArgs[0];
        regExp = regExp.replace(/\\\\/g, '\\');
-       const re = new RegExp(regExp);
-       context.opts.logger.verbose(`constraint: MustMatch prop:${context.propertyName} with value (${propVal}) applying compiled regExp:${re.source}`);
+       let ignoreCase = JSON.parse(context.ConstraintArgs[1]);
+       const re = ignoreCase ? new RegExp(regExp, 'i') : new RegExp(regExp);
+       context.opts.logger.verbose(`constraint: MustMatch prop:${context.propertyName} with value (${propVal}) applying compiled regExp:${re.source} with ignore case set to ${ignoreCase}`);
 
        if(!re.test(propVal)){
          const propModel = leveledApiTypeModel.getProperty(context.propertyName) as modeltypes.ApiTypePropertyModel;
