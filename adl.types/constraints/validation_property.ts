@@ -33,7 +33,7 @@ export interface MustMatch<doubleEscapedRE extends string, ignoreCase extends bo
 
 
 /** a number value that is a multiple of a given number */
-export interface MultipleOf<N extends number> extends PropertyConstraint {}
+export interface MultipleOf<N extends number> extends ValidationConstraint {}
 
 
 /** the maximum number of items in an Array */

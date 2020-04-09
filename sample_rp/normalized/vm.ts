@@ -26,6 +26,10 @@ interface VirtualMachineProps{
     v2Prop?: string &
              adltypes.DefaultValue<'defaulted  declartively'>;
 
+  v3Prop?: adltypes.int64 &
+           adltypes.MultipleOf<3> &
+           adltypes.MultipleOf<5>;
+
     /**
     *  this is another property documentation, i can here describe the property for user facing doc. I can also
     *  provide tags. the farmework can help in asserting that certain tags are exposed. make sure that docs

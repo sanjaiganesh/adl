@@ -88,6 +88,9 @@ export class api_machinery implements machinerytypes.ApiMachinery{
         const val6i = new constraints.MustMatchImpl();
         adlcore.validationImplementations.set("MustMatch", val6i);
 
+        const val7i = new constraints.MultipleOfImpl();
+        adlcore.validationImplementations.set("MultipleOf", val7i);
+
         const conv1i = new constraints.MapToImpl();
         adlcore.conversionImplementations.set("MapTo", conv1i);
 
