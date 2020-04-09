@@ -8,9 +8,6 @@ import * as version20180601 from '../20180601/vmscalesets'
  */
 export interface VirtualMachineScaleSet20181001Properties extends version20180601.VirtualMachineScaleSetBaseProperties {
 
-  // [sanjai-feature] I couldn't use adltypes.Removed, because the new version also has the property with the same name, but schema updated
-  // upgradePolicy?: normalizedModule.UpgradePolicy &
-  //   adltypes.Removed;
   upgradePolicy?: UpgradePolicy; // Schema changed in this version
 
   automaticRepairsPolicy?: AutomaticRepairsPolicy; // New property

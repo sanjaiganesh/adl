@@ -11,13 +11,12 @@ export interface VirtualMachineScaleSetNormalizedProperties {
   virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
   
   /**
-  * //[sanjai-?] is ReadOnlyType the right usage here? 
   * The provisioning state, which only appears in the response.
   * **NOTE: This property will not be serialized. It can only be populated by the server.**
   */
-	readonly provisioningState?: string & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
+	readonly provisioningState?: string & adltypes.ReadOnly;
 	overprovision?: boolean;
-	readonly uniqueId?: string;
+	readonly uniqueId?: adltypes.uuid;
 	singlePlacementGroup?: boolean;
 	zoneBalance?: boolean;
 	platformFaultDomainCount?: number;
@@ -174,7 +173,6 @@ export interface VirtualMachineScaleSetOSProfile {
 	windowsConfiguration?: WindowsConfiguration;
 	linuxConfiguration?: LinuxConfiguration;
 
-  // [sanjai-feature]: x-ms-secret
 	secrets?: VaultSecretGroup[] & adltypes.Secret;
 }
 
@@ -265,9 +263,8 @@ export interface WinRMListener {
 	 * your certificate needs to be It is the Base64 encoding of the following JSON Object which is
 	 * encoded in UTF-8: <br><br> {<br>  "data":"<Base64-encoded-certificate>",<br>
 	 * "dataType":"pfx",<br>  "password":"<pfx-file-password>"<br>}
-   * [sanjai-feature]: x-ms-secret
 	 */
-	certificateUrl?: string & adltypes.Secret; // [sanjai-feature] & adltypes.uri;
+	certificateUrl?: adltypes.uri & adltypes.Secret;
 }
 
 /**
@@ -294,7 +291,6 @@ export interface SshConfiguration {
 /**
  * Contains information about SSH certificate public key and the path on the Linux VM where the
  * public key is placed.
- * [sanjai-feature]: x-ms-secret
  */
 export interface SshPublicKey {
 	path?: string;
@@ -379,7 +375,7 @@ export interface VirtualMachineScaleSetOSDisk {
   
 	osType?: OperatingSystemTypes;
 	image?: VirtualHardDisk;
-  vhdContainers?: string[]; // [sanjai-feature] & adltypes.uri;
+  vhdContainers?: adltypes.uri[];
   
   // [sanjai-feature]  Disallowed value: UltraSSD_LRS can only be used
 	managedDisk?: VirtualMachineScaleSetManagedDiskParameters;
@@ -411,7 +407,7 @@ export type OperatingSystemTypes = string &
  * Describes the uri of a disk.
  */
 export interface VirtualHardDisk {
-	uri?: string; // [sanjai-feature] & adltypes.uri;
+	uri?: adltypes.uri;
 }
 
 /**
@@ -462,8 +458,8 @@ export interface AdditionalCapabilities {
  * Identity for the virtual machine scale set.
  */
 export interface VirtualMachineScaleSetIdentity {
-	readonly principalId?: string;
-	readonly tenantId?: string;
+	readonly principalId?: adltypes.uuid;
+	readonly tenantId?: adltypes.uuid;
 	/**
 	 * [sanjai] Model as string false: 'SystemAssigned', 'UserAssigned', 'SystemAssigned, UserAssigned',
 	 * 'None'
@@ -471,12 +467,12 @@ export interface VirtualMachineScaleSetIdentity {
 	type?: ResourceIdentityType;
 	
 	/**
-   * [sanjai-feature] Awaiting support for Maps.
-	 * The list of user identities associated with the virtual machine scale set. The user identity
+   * The list of user identities associated with the virtual machine scale set. The user identity
 	 * dictionary key references will be ARM resource ids in the form:
 	 * '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'.
+   * sanjai-bug: not allowing resourceid as key. fails with Error: Cannot read property 'isAliasDataType' of undefined
 	 */
-   // userAssignedIdentities?: adltypes.AdlMap<string & armtypes.ArmResourceId, VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue>;
+   userAssignedIdentities?: adltypes.AdlMap<string, VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue>;
 }
 
 // [sanjai] Model as string false
@@ -489,8 +485,8 @@ export type ResourceIdentityType = string &
  * An interface representing VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue.
  */
 export interface VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue {
-	readonly principalId?: string;
-	readonly clientId?: string;
+	readonly principalId?: adltypes.uuid;
+	readonly clientId?: adltypes.uuid;
 }
 
 /**
@@ -625,7 +621,7 @@ export interface VirtualMachineScaleSetIpTag {
  */
 export interface BootDiagnostics {
   enabled?: boolean;
-  storageUri?: string; // [sanjai-feature] & adltypes.uri;
+  storageUri?: adltypes.uri;
 }
 
 /**
@@ -639,7 +635,6 @@ export interface DiagnosticsProfile {
  */
 export interface VirtualMachineScaleSetExtensionProfile {
   /**
-   * [sanjai-?modelling]: Embedding extension resource in a tracked? 
    * The virtual machine scale set child extension resources.
    */
   extensions?: VirtualMachineScaleSetExtension[];
@@ -667,20 +662,19 @@ export interface VirtualMachineScaleSetExtension extends SubResourceReadOnly {
    */
   //protectedSettings?: any;
   /**
-   * [sanjai-?] is ReadOnlyType the right usage here? 
    * The provisioning state, which only appears in the response.
    * **NOTE: This property will not be serialized. It can only be populated by the server.**
    */
-  provisioningState?: string & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
+  provisioningState?: string & adltypes.ReadOnly;
   provisionAfterExtensions?: string[];
 }
 
 export interface SubResourceReadOnly {
-  /** [sanjai-?] why to have adltypes.Readonly instead of using 'readonly' ? is this to make it easy and consistency in how constraints are handled ?
+  /**
    * Resource Id
    * **NOTE: This property will not be serialized. It can only be populated by the server.**
    */
-  id?: armtypes.ArmResourceId & adltypes.ReadOnly; // [sanjai-todo]  & adltypes.ReadOnlyType;
+  id?: armtypes.ArmResourceId & adltypes.ReadOnly;
 }
 
 // "modelAsString": true
