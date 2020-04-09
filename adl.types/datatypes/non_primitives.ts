@@ -52,7 +52,7 @@ export type uuid = string &
 */
 export type uri = string &
                   DataType<"uri"> &
-                  adlconstraints.MustMatch<'^[A-Za-z][A-Za-z0-9+\-.]*:.*^', /*ignoreCase*/ true>;
+                  adlconstraints.MustMatch<'^[A-Za-z][A-Za-z0-9+\\-.]*:.*$', /*ignoreCase*/ true>;
 
 /** a single character  */
 export type char = string &
