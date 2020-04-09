@@ -14,6 +14,7 @@ import * as normalized from '../normalized/module'
 class ResourceTwo{
     prop1: number;
     prop2: string;
+    prop3: string;
 }
 
 // because we work with arm wrapped resources, our versioner need to work with them as well

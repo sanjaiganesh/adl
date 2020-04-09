@@ -1,12 +1,13 @@
 {
-    "etag": "",
-    "id": "",
-    "location": "",
-    "name": "",
-    "properties": {
-        "prop1": 199,
-        "prop2": "prop2"
-    },
-    "resourceGroup": "",
-    "type": ""
+  "etag": "",
+  "id": "/SUBSCRIPTIONS/d3f20976-17ab-4f77-a99b-a64552938998/RESOURCEGROUPS/cairo/providers/microsoft.Foo/resource_two/vm1",
+  "name": "resourcetwo-test",
+  "location": "",
+  "properties": {
+    "prop1": 199,
+    "prop2": "prop2",
+    "prop3": "PROP"
+  },
+  "resourceGroup": "",
+  "type": "resource_two"
 }

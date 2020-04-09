@@ -37,7 +37,7 @@ An apis spec author can use validation constraints to define how property value 
 ```
 person{
 	firstName: string & MinLength<4> & MaxLength<24>; /* min and max length of name property*/
-	email: string & MustMatch<'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'> & Immutable; /* email property must match a regular expression and is immutable*/
+	email: string & MustMatch<'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$',  /*ignoreCase*/ true> & Immutable; /* email property must match a regular expression and is immutable*/
 	addresses: address[]; & MaxEntries<32> /*max element count of address array is 32 */
 	children: person[];
 	motherMaidenName: string;
@@ -63,7 +63,7 @@ adl supports composability and extensibility in multiple ways. Below are some ex
 A spec author can define custom data types that can be reused within api types
 ```typescripe
 // typically defined
-type zipcode = number & MustMatch<'(^\d{5}$)|(^\d{9}$)|(^\d{5}-\d{4}$)'>;
+type zipcode = number & MustMatch<'(^\d{5}$)|(^\d{9}$)|(^\d{5}-\d{4}$)',  /*ignoreCase*/ true>;
 
 // it can be then used as the following
 interface Address{
