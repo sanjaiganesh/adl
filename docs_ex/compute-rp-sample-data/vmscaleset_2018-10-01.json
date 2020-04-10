@@ -143,7 +143,9 @@
           "image": {
             "uri": "https://catech123.blob.core.windows.net/vhds/TestRGVM2.vhd"
           },
-          "vhdContainers": [],
+          "vhdContainers": [
+            "https://catech123.blob.core.windows.net/vhds"
+          ],
           "managedDisk": {
             "storageAccountType": ""
           }
@@ -194,7 +196,11 @@
               "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
             },
             "dnsSettings": {
-              "dnsServers": []
+              "dnsServers": [
+                "10.10.200.2",
+                "::1",
+                "fe80::6cd1:143e:d833:a102%23"
+              ]
             },
             "ipConfigurations": [
               {
