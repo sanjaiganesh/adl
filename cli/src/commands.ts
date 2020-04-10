@@ -85,7 +85,7 @@ export class adlCliParser extends CommandLineParser {
         if(runtimes.length == 0){
             //TODO: for demo purposes, we are loading arm runtime
             ctx.opts.logger.info(`auto loading arm runtime`);
-            await ctx.machinery.loadRuntime("f:/adl/arm.adl", runtimeConfig, creatorTypeName);
+            await ctx.machinery.loadRuntime("/home/khenidak/go/src/github.com/khenidak/adl/arm.adl", runtimeConfig, creatorTypeName);
         }else{
             // if there are values provided in command line then load from there
             for(const runtime of runtimes){
@@ -117,11 +117,8 @@ export class adlCliParser extends CommandLineParser {
             // endpoint to load the data.
             ctx.opts.logger.info(`auto loading sample_rp apis`);
             await ctx.store.addApi(ctx.opts,
-                                 "sample_rp",
-                                 "sample_rp");
-            await ctx.store.addApi(ctx.opts,
-                                "computeapi",
-                                "compute_rp");
+                                "sample_rp",
+                                "/home/khenidak/go/src/github.com/khenidak/adl/sample_rp" );
         }else{
             // if there are values provided in command line then load from there
             for(const api of loadApis){

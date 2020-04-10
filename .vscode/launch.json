@@ -44,6 +44,6 @@
         "<node_internals>/**/*.js"
       ],
       "cwd": "${workspaceRoot}"
-    } //cairo machinery --api-name=computeapi --action=denormalize --target-api-version=2018-10-01 --target-versioned-api-type-name=vmscaleset20181001 --source=./docs_ex/sample-rp-sample-data/compute_rp/vmscaleset-normalized.json                                                                                                                                                                                                                                                                
+    }
   ]
 }
