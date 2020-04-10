@@ -7,8 +7,7 @@ import * as armtypes from "@azure-tools/arm.adl";
 export interface VirtualMachineScaleSetBaseProperties {
 	sku?: Sku;
 	plan?: Plan;
-	upgradePolicy?: UpgradePolicy;
-  virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
+	virtualMachineProfile?: VirtualMachineScaleSetVMProfile;
   
   /**
   * The provisioning state, which only appears in the response.
