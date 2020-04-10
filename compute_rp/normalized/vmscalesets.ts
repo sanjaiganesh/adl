@@ -610,7 +610,7 @@ export interface VirtualMachineScaleSetStorageProfile {
 /**
 	 * Allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers.
 */
-export type imageReferenceVersion = string & adltypes.MustMatch<"^\\b([0-9]+\\.[0-9]+\\.[0-9]+?|latest)\\b$">;
+export type imageReferenceVersion = string & adltypes.MustMatch<"^\\b([0-9]+\\.[0-9]+\\.[0-9]+?|latest)\\b$", /*ignoreCase*/ true>;
 
 /**
  * Specifies information about the image to use. You can specify information about platform images,
