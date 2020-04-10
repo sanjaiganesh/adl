@@ -1,0 +1,263 @@
+{
+  "name": "vmscaleset-resource-1",
+  "id": "/subscriptions/8a18a404-ef6c-48d5-9ca2-0f80a5ecb9b6/resourcegroups/rg-test/providers/Microsoft.Compute/virtualMachineScaleSets/vmscaletest-resource-1",
+  "resourceGroup": "rg-test",
+  "location": "WestUS",
+  "type": "Microsoft.Compute/virtualMachineScaleSets",
+  "etag": "",
+  "properties": {
+    "sku": {
+      "name": "",
+      "tier": "",
+      "capacity": 0
+    },
+    "plan": {
+      "name": "",
+      "publisher": "",
+      "product": "",
+      "promotionCode": ""
+    },
+    "upgradePolicy": {
+      "mode": "",
+      "rollingUpgradePolicy": {
+        "maxBatchInstancePercent": 20,
+        "maxUnhealthyInstancePercent": 20,
+        "maxUnhealthyUpgradedInstancePercent": 20,
+        "pauseTimeBetweenBatches": "PT0S"
+      },
+      "automaticOSUpgrade": true,
+      "autoOSUpgradePolicy": {
+        "disableAutoRollback": true
+      }
+    },
+    "virtualMachineProfile": {
+      "osProfile": {
+        "computerNamePrefix": "compname-",
+        "adminUsername": "admin",
+        "adminPassword": "Pa$$word",
+        "customData": "",
+        "windowsConfiguration": {
+          "timeZone": "",
+          "additionalUnattendContent": [
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            },
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            },
+            {
+              "passName": "",
+              "componentName": "",
+              "settingName": "",
+              "content": ""
+            }
+          ],
+          "winRM": {
+            "listeners": [
+              {
+                "protocol": "",
+                "certificateUrl": "https://management.azure.com/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault/certificates/certificate-name-1/certificate-version-v99?api-version=7.0"
+              }
+            ]
+          },
+          "provisionVMAgent": true
+        },
+        "linuxConfiguration": {
+          "ssh": {
+            "publicKeys": [
+              {
+                "path": "",
+                "keyData": ""
+              },
+              {
+                "path": "",
+                "keyData": ""
+              },
+              {
+                "path": "",
+                "keyData": ""
+              }
+            ]
+          },
+          "provisionVMAgent": true
+        },
+        "secrets": [
+          {
+            "sourceVault": {
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "https://management.azure.com/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault/certificates/certificate-name-1/certificate-version-v99?api-version=7.0",
+                "certificateStore": ""
+              }
+            ]
+          },
+          {
+            "sourceVault": {
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "https://management.azure.com/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault/certificates/certificate-name-1/certificate-version-v99?api-version=7.0",
+                "certificateStore": ""
+              }
+            ]
+          },
+          {
+            "sourceVault": {
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault"
+            },
+            "vaultCertificates": [
+              {
+                "certificateUrl": "https: //management.azure.com/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault/certificates/certificate-name-1/certificate-version-v99?api-version=7.0",
+                "certificateStore": ""
+              }
+            ]
+          }
+        ]
+      },
+      "storageProfile": {
+        "imageReference": {
+          "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/Microsoft.Compute/images/imageName",
+          "publisher": "",
+          "offer": "",
+          "sku": "",
+          "version": "4.5.6"
+        },
+        "osDisk": {
+          "name": "",
+          "caching": "",
+          "createOption": "",
+          "diffDiskSettings": {
+            "option": ""
+          },
+          "diskSizeGB": 0,
+          "osType": "",
+          "image": {
+            "uri": "https://catech123.blob.core.windows.net/vhds/TestRGVM2.vhd"
+          },
+          "vhdContainers": [
+            "https://catech123.blob.core.windows.net/vhds"
+          ],
+          "managedDisk": {
+            "storageAccountType": ""
+          }
+        },
+        "dataDisks": [
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          },
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          },
+          {
+            "name": "",
+            "lun": 0,
+            "caching": "",
+            "createOption": "",
+            "diskSizeGB": 0,
+            "managedDisk": {
+              "storageAccountType": ""
+            }
+          }
+        ]
+      },
+      "additionalCapabilities": {},
+      "networkProfile": {
+        "healthProbe": {
+          "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/loadBalancers/loadBalancerName/probes/probeName"
+        },
+        "networkInterfaceConfigurations": [
+          {
+            "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkInterfaceConfig/configName",
+            "name": "",
+            "networkSecurityGroup": {
+              "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
+            },
+            "dnsSettings": {
+              "dnsServers": [
+                "10.10.200.2",
+                "::1",
+                "fe80::6cd1:143e:d833:a102%23"
+              ]
+            },
+            "ipConfigurations": [
+              {
+                "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup",
+                "name": "",
+                "subnet": {
+                  "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
+                },
+                "privateIPAddressVersion": "IPv6"
+              }
+            ]
+          }
+        ]
+      },
+      "extensionProfile": {
+        "extensions": [
+          {
+            "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup",
+            "name": "",
+            "forceUpdateTag": "",
+            "publisher": "",
+            "type": "",
+            "typeHandlerVersion": "",
+            "provisioningState": "",
+            "provisionAfterExtensions": [
+              "",
+              "",
+              ""
+            ]
+          }
+        ]
+      },
+      "licenseType": "",
+      "priority": "",
+      "evictionPolicy": ""
+    },
+    "provisioningState": "",
+    "uniqueId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
+    "platformFaultDomainCount": 0,
+    "proximityPlacementGroup": {
+      "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.Network/networkSecurityGroup/securityGroup"
+    },
+    "identity": {
+      "principalId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
+      "tenantId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
+      "type": "",
+      "userAssignedIdentities": {
+        "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourceGroups/rg-test/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customIdentityName": {
+          "principalId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
+          "clientId": "a51967b5-271e-4f12-810e-e7fa20c8828d"
+        }
+      }
+    },
+    "zones": [
+      "",
+      "",
+      ""
+    ]
+  }
+}

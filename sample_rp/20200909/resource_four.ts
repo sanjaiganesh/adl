@@ -41,6 +41,7 @@ export class ResourceFourVersioner_20200909 implements adltypes.Versioner<normal
         var n : normalized.ResourceFourProps = {} as  normalized.ResourceFourProps;
 
         n.prop6[0] = versioned.prop6; // set first field
+
         return n;
     }
 
