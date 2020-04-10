@@ -7,42 +7,73 @@ import * as version20180601 from '../20180601/vmscalesets'
  * Describes a Virtual Machine Scale Set.
  */
 export interface VirtualMachineScaleSet20181001Properties extends normalizedModule.VirtualMachineScaleSetBaseProperties {
-
   /**
    * The upgrade policy.
    */
   upgradePolicy?: UpgradePolicy; // Schema changed in this version
 
+  /**
+   * Policy for automatic repairs.
+   */
   automaticRepairsPolicy?: AutomaticRepairsPolicy; // New property
+  /**
+   * When Overprovision is enabled, extensions are launched only on the requested number of VMs
+   * which are finally kept. This property will hence ensure that the extensions do not run on the
+   * extra overprovisioned VMs.
+   */
   doNotRunExtensionsOnOverprovisionedVMs?: boolean; // New property
 }
 
 export interface UpgradePolicy extends normalizedModule.UpgradePolicy {
-	// Two properties in previous api version are merged into one and got renamed.
+	/**
+   * Whether OS upgrades should automatically be applied to scale set instances in a rolling
+   * fashion when a newer version of the image becomes available.
+   */
   automaticOSUpgrade?: boolean & adltypes.Removed;
-	autoOSUpgradePolicy?: normalizedModule.AutoOSUpgradePolicy & adltypes.Removed;
+	/**
+   * Configuration parameters used for performing automatic OS Upgrade.
+   */
+  autoOSUpgradePolicy?: normalizedModule.AutoOSUpgradePolicy & adltypes.Removed;
+  /**
+   * Configuration parameters used for performing automatic OS Upgrade.
+   */
   automaticOSUpgradePolicy?: AutomaticOSUpgradePolicy;
 }
 
 export interface AutomaticOSUpgradePolicy {
+  /**
+   * Indicates whether OS upgrades should automatically be applied to scale set instances in a
+   * rolling fashion when a newer version of the OS image becomes available. Default value is
+   * false. If this is set to true for Windows based scale sets, recommendation is to set
+   * [enableAutomaticUpdates](https://docs.microsoft.com/dotnet/api/microsoft.azure.management.compute.models.windowsconfiguration.enableautomaticupdates?view=azure-dotnet)
+   * to false.
+   */
   enableAutomaticOSUpgrade?: boolean &
     adltypes.DefaultValue<false>;
 
+  /**
+   * Whether OS image rollback feature should be disabled. Default value is false.
+   */
   disableAutomaticRollback?: boolean &
     adltypes.DefaultValue<false>;
 }
 
 export interface AutomaticRepairsPolicy {
+  /**
+   * Specifies whether automatic repairs should be enabled on the virtual machine scale set. The
+   * default value is false.
+   */
   enabled?: boolean &
     adltypes.DefaultValue<true>;
 
   /**
-   * Duration in ISO 8601 format. Minimum & default is 30 minutes (PT30M).
-	 * [sanjai-feature] How to represent minimum for a string based non-primitive type here.
-   */ 
+   * The amount of time for which automatic repairs are suspended due to a state change on VM. The
+   * grace time starts after the state change has completed. This helps avoid premature or
+   * accidental repairs. The time duration should be specified in ISO 8601 format. The minimum
+   * allowed grace period is 30 minutes (PT30M), which is also the default value.
+   */
   gracePeriod?: adltypes.duration &
 		adltypes.DefaultValue<"PT30M">;
-		// adltypes.minimum<"PT30M">
 }
 
 // Versioner implementation

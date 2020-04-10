@@ -3,6 +3,9 @@ import * as armtypes from "@azure-tools/arm.adl";
 import * as normalizedModule from "../normalized/module";
 
 export interface VirtualMachineScaleSet20180601Properties extends normalizedModule.VirtualMachineScaleSetBaseProperties {
+  /**
+   * The upgrade policy.
+   */
 	upgradePolicy?: normalizedModule.UpgradePolicy;
 }
 
