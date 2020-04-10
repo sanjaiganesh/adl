@@ -2,9 +2,9 @@ import * as adltypes from "@azure-tools/adl.types";
 import * as armtypes from "@azure-tools/arm.adl";
 
 /**
- * Describes a Virtual Machine Scale Set.
+ * Describes a Virtual Machine Scale Set base properties.
  */
-export interface VirtualMachineScaleSetNormalizedProperties {
+export interface VirtualMachineScaleSetBaseProperties {
 	sku?: Sku;
 	plan?: Plan;
 	upgradePolicy?: UpgradePolicy;
@@ -23,6 +23,13 @@ export interface VirtualMachineScaleSetNormalizedProperties {
 	proximityPlacementGroup?: SubResource;
 	identity?: VirtualMachineScaleSetIdentity;
 	zones?: string[];
+}
+
+/**
+ * Describes a Virtual Machine Scale Set normalized resource.
+ */
+export interface VirtualMachineScaleSetNormalizedProperties extends VirtualMachineScaleSetBaseProperties {
+	upgradePolicy?: UpgradePolicy;
 }
 
 export class VirtualMachineScaleSetNormalizer implements adltypes.Normalizer<armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>>{
@@ -458,8 +465,8 @@ export interface AdditionalCapabilities {
  * Identity for the virtual machine scale set.
  */
 export interface VirtualMachineScaleSetIdentity {
-	readonly principalId?: adltypes.uuid;
-	readonly tenantId?: adltypes.uuid;
+	principalId?: adltypes.uuid & adltypes.ReadOnly;
+	tenantId?: adltypes.uuid & adltypes.ReadOnly;
 	/**
 	 * [sanjai] Model as string false: 'SystemAssigned', 'UserAssigned', 'SystemAssigned, UserAssigned',
 	 * 'None'
@@ -485,8 +492,8 @@ export type ResourceIdentityType = string &
  * An interface representing VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue.
  */
 export interface VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue {
-	readonly principalId?: adltypes.uuid;
-	readonly clientId?: adltypes.uuid;
+	principalId?: adltypes.uuid & adltypes.ReadOnly;
+	clientId?: adltypes.uuid & adltypes.ReadOnly;
 }
 
 /**

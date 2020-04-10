@@ -6,8 +6,11 @@ import * as version20180601 from '../20180601/vmscalesets'
 /**
  * Describes a Virtual Machine Scale Set.
  */
-export interface VirtualMachineScaleSet20181001Properties extends version20180601.VirtualMachineScaleSetBaseProperties {
+export interface VirtualMachineScaleSet20181001Properties extends normalizedModule.VirtualMachineScaleSetBaseProperties {
 
+  /**
+   * The upgrade policy.
+   */
   upgradePolicy?: UpgradePolicy; // Schema changed in this version
 
   automaticRepairsPolicy?: AutomaticRepairsPolicy; // New property
