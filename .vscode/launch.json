@@ -8,6 +8,27 @@
       "type": "node",
       "protocol": "inspector",
       "request": "launch",
+      "name": "sample_rp_swagger_generator",
+      "program": "f:/adl/cli/dist/index.js",
+      "args": [
+        "--pre-load-apis=name=sample_rp+path=d:\\adl\\sample_rp",
+        "--pre-load-runtimes=path=d:\\adl\\arm.adl",
+        "-a=verbose",
+        "generators",
+        "--action=run",
+        "--generator-name=arm.swagger",
+        "--config=\"key=value\""
+      ],
+      "smartStep": false,
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "type": "node",
+      "protocol": "inspector",
+      "request": "launch",
       "name": "normalize",
       "program": "f:/adl/cli/dist/index.js",
       "args": [

@@ -1,5 +1,6 @@
 import * as adlruntime from '@azure-tools/adl.runtime'
 import * as adltypes from '@azure-tools/adl.types'
+import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType } from '@azure-tools/adl.runtime';
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
@@ -50,5 +51,76 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         // You are free to write to stdout or file.
         // go..
         console.log("ran arm swagger generator");
+
+        const apiModel = apiManager.getApiInfo("sample_rp");
+        if (apiModel == undefined)
+        {
+          throw new Error(`armSwaggerGenerator failed, expected configuration was not found`)
+        }
+        console.log("sample RP api model loaded");
+
+        const version = apiModel.getVersion("2020-09-09");
+        if (version == undefined)
+        {
+          throw new Error(`armSwaggerGenerator failed, expected configuration was not found`);
+        }
+        console.log("sample RP version 2020-09-09 loaded");
+
+        if (version.Docs != undefined)
+        {
+          console.log(version.Docs.text);
+        }
+
+        console.log(version.ModuleName);
+        console.log(version.Name);
+        console.log("printing types")
+        // for (let type of version.VersionedTypes)
+        // {
+        //   console.log(type.Name);
+        // }
+      
+        // const p = version. as ApiTypePropertyModel;
+        // const docs = p.Docs;
+        // if (docs != undefined)
+        // {
+          
+        // }
+
+        // const dataTypeModel = p.DataTypeModel;
+        // if (adlruntime.isPropertyComplexDataType(dataTypeModel))
+        // {
+        //   dataTypeModel.
+        // }
+        // if (p.DataTypeKind == PropertyDataTypeKind.Complex)
+        // {
+        //   const dataTypeModel = p.DataTypeModel as PropertyComplexDataType;
+
+        // }
+
+        const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
+        console.log(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
+        let apiTypeModelToProcess = new Array<adlruntime.ApiTypeModel>();
+        apiTypeModelToProcess.push(versionedModel as adlruntime.ApiTypeModel);
+        while (apiTypeModelToProcess.length > 0)
+        {
+          const apiTypeModel = apiTypeModelToProcess.pop() as adlruntime.ApiTypeModel;
+          console.log(`====== Create new definition for ${apiTypeModel.Name} with properties...==========`);
+          apiTypeModel.Properties.forEach(apiTypePropertyModel =>
+            {
+              if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
+              {
+                console.log(`============= Add property ${apiTypePropertyModel.Name}  to the definition...==========`);
+              }
+              else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
+              {
+                console.log(`============= Add $ref property ${apiTypePropertyModel.Name}  to the definition and queue for further processing...==========`);
+                apiTypeModelToProcess.push((apiTypePropertyModel.DataTypeModel as PropertyComplexDataType).ComplexDataTypeModel);
+              }
+              else
+              {
+                console.log(`============= Unsupported property (for now) ${apiTypePropertyModel.Name}  ...==========`);
+              }
+            });
+        }
      }
 }
