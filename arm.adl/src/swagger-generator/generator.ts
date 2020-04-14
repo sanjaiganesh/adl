@@ -161,6 +161,11 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       spec.paths = paths;
     }
 
+  private SetCustomValues(obj: any, key: string, value: any)
+  {
+    obj[key] = value;
+  }
+
   private GetCommonParameters() {
     const parameters : { [parameterName: string]: swagger.Parameter } = {};
     
@@ -170,7 +175,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     subscriptionIdParam.in = "path";
     subscriptionIdParam.name = "subscriptionId";
     subscriptionIdParam.type = "string";
-    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
     parameters["SubscriptionIdParameter"] = subscriptionIdParam;
 
     const resourceGroupParam = {} as swagger.PathParameter;
@@ -179,7 +184,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     resourceGroupParam.in = "path";
     resourceGroupParam.name = "resourceGroup";
     resourceGroupParam.type = "string";
-    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
     parameters["ResourceGroupNameParameter"] = resourceGroupParam;
 
     const apiVersionParam = {} as swagger.QueryParameter;
@@ -188,7 +193,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     apiVersionParam.in = "query";
     apiVersionParam.name = "api-version";
     apiVersionParam.type = "string";
-    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
     parameters["ApiVersionParameter"] = apiVersionParam;
 
     return parameters;
