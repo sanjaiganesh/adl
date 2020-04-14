@@ -99,11 +99,13 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         // }
 
         let spec = {} as swagger.Spec;
+        spec.parameters = this.GetCommonParameters();
+
         const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
         console.log(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
         let apiTypeModelToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelToProcess.push(versionedModel as adlruntime.ApiTypeModel);
-        this.AddSwaggerPath(spec, (versionedModel as adlruntime.ApiTypeModel), opts, config);
+        this.AddSwaggerPath(spec, apiModel.Name, (versionedModel as adlruntime.ApiTypeModel), opts, config);
 
         while (apiTypeModelToProcess.length > 0)
         {
@@ -131,17 +133,27 @@ export class armSwaggerGenerator implements adlruntime.Generator{
      }
 
     // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
-    AddSwaggerPath(spec:swagger.Spec, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
+    AddSwaggerPath(spec:swagger.Spec, providerName:string, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
       const resourceTypeName = apiTypeModel.Name;
-      const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/${resourceTypeName}s/${resourceTypeName}Name`;
+      const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}s/${resourceTypeName}Name`;
       let pathObj = {} as swagger.Path;
 
       // PUT
       let putOp = {} as swagger.Operation;
       putOp.operationId = `${resourceTypeName}s_createOrUpdate`;
-      putOp.description = (apiTypeModel.Docs as adlruntime.ApiJsDoc).text;
-      //putOp.tags = (apiTypeModel.Docs as adlruntime.ApiJsDoc).tags;
-      //putOp.
+      if (apiTypeModel.Docs != undefined)
+      {
+        putOp.description = apiTypeModel.Docs.text;
+        // sanjai-TODO keys only
+        if (apiTypeModel.Docs.tags != undefined)
+        {
+          putOp.tags = Array.from(apiTypeModel.Docs.tags.keys());
+        }
+      }
+
+      // sanjai-todo Set common parameters in seaprate method
+      putOp.parameters = {} as swagger.Parameter[];
+      putOp.parameters = this.GetCommonPathParameters();
 
       pathObj.put = putOp;
       const paths: { [pathName: string]: swagger.Path } = {};
@@ -149,8 +161,59 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       spec.paths = paths;
     }
 
-    PrintSwaggerSpec(spec:swagger.Spec)
-    {
-      console.log(JSON.stringify(spec, null, 2));
-    }
+  private GetCommonParameters() {
+    const parameters : { [parameterName: string]: swagger.Parameter } = {};
+    
+    const subscriptionIdParam = {} as swagger.PathParameter;
+    subscriptionIdParam.description = "The subscription identifier";
+    subscriptionIdParam.required = true;
+    subscriptionIdParam.in = "path";
+    subscriptionIdParam.name = "subscriptionId";
+    subscriptionIdParam.type = "string";
+    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    parameters["SubscriptionIdParameter"] = subscriptionIdParam;
+
+    const resourceGroupParam = {} as swagger.PathParameter;
+    resourceGroupParam.description = "The resource group name";
+    resourceGroupParam.required = true;
+    resourceGroupParam.in = "path";
+    resourceGroupParam.name = "resourceGroup";
+    resourceGroupParam.type = "string";
+    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    parameters["ResourceGroupNameParameter"] = resourceGroupParam;
+
+    const apiVersionParam = {} as swagger.QueryParameter;
+    apiVersionParam.description = "The api vesrion";
+    apiVersionParam.required = true;
+    apiVersionParam.in = "query";
+    apiVersionParam.name = "api-version";
+    apiVersionParam.type = "string";
+    // sanjai-TODO custom extensions "ms-parameter-location": "client" 
+    parameters["ApiVersionParameter"] = apiVersionParam;
+
+    return parameters;
+  }
+
+  private GetCommonPathParameters() {
+    const parameters = new Array<swagger.Parameter>();
+    
+    const subscriptionIdParam = {} as swagger.PathParameter;
+    subscriptionIdParam.$ref = "#/parameters/SubscriptionIdParameter";
+    parameters.push(subscriptionIdParam);
+
+    const resourceGroupParam = {} as swagger.Parameter;
+    resourceGroupParam.$ref = "#/parameters/ResourceGroupNameParameter";
+    parameters.push(resourceGroupParam);
+
+    const apiVersionParam = {} as swagger.Parameter;
+    apiVersionParam.$ref = "#/parameters/ApiVersionParameter";
+    parameters.push(apiVersionParam);
+
+    return parameters;
+  }
+
+  PrintSwaggerSpec(spec:swagger.Spec)
+  {
+    console.log(JSON.stringify(spec, null, 2));
+  }
 }

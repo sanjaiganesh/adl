@@ -36,6 +36,7 @@ export interface Header extends BaseSchema {
 }
 
 export interface BaseParameter {
+    $ref?: string;  
     name: string;
     in: string;
     required?: boolean;
@@ -87,7 +88,7 @@ export interface Path {
     options?: Operation;
     head?: Operation;
     patch?: Operation;
-    parameters?: [Parameter];
+    parameters?: Parameter[];
 }
 
 export interface Operation {
@@ -96,13 +97,13 @@ export interface Operation {
     description?: string;
     externalDocs?: ExternalDocs;
     operationId?: string;
-    produces?: [string];
-    consumes?: [string];
-    parameters?: [Parameter];
-    schemes?: [string];
+    produces?: string[];
+    consumes?: string[];
+    parameters?: Parameter[];
+    schemes?: string[];
     deprecated?: boolean;
-    security?: [Security];
-    tags?: [string];
+    security?: Security[];
+    tags?: string[];
 }
 
 export interface Response {
@@ -130,14 +131,14 @@ export interface BaseSchema {
     uniqueItems?: boolean;
     maxProperties?: number;
     minProperties?: number;
-    enum?: [string];
+    enum?: string[];
     type?: string;
-    items?: Schema | [Schema];
+    items?: Schema | Schema[];
 }
 
 export interface Schema extends BaseSchema {
     $ref?: string;
-    allOf?: [Schema];
+    allOf?: Schema[];
     additionalProperties?: boolean | { [ref: string]: string };
     properties?: { [propertyName: string]: Schema };
     discriminator?: string;
@@ -178,18 +179,18 @@ export interface OAuth2ImplicitSecurity extends BaseOAuthSecuirty {
 
 export interface OAuth2PasswordSecurity extends BaseOAuthSecuirty {
     tokenUrl: string;
-    scopes?: [OAuthScope];
+    scopes?: OAuthScope[];
 }
 
 export interface OAuth2ApplicationSecurity extends BaseOAuthSecuirty {
     tokenUrl: string;
-    scopes?: [OAuthScope];
+    scopes?: OAuthScope[];
 }
 
 export interface OAuth2AccessCodeSecurity extends BaseOAuthSecuirty {
     tokenUrl: string;
     authorizationUrl: string;
-    scopes?: [OAuthScope];
+    scopes?: OAuthScope[];
 }
 
 export interface OAuthScope {
@@ -210,14 +211,14 @@ export interface Spec {
     externalDocs?: ExternalDocs;
     host?: string;
     basePath?: string;
-    schemes?: [string];
-    consumes?: [string];
-    produces?: [string];
+    schemes?: string[];
+    consumes?: string[];
+    produces?: string[];
     paths: { [pathName: string]: Path };
     definitions?: { [definitionsName: string]: Schema };
-    parameters?: { [parameterName: string]: BodyParameter | QueryParameter };
+    parameters?: { [parameterName: string]: Parameter };
     responses?: { [responseName: string]: Response };
-    security?: [Security];
+    security?: Security[];
     securityDefinitions?: { [securityDefinitionName: string]: Security };
-    tags?: [Tag];
+    tags?: Tag[];
 }
