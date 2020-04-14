@@ -1,6 +1,7 @@
 import * as adlruntime from '@azure-tools/adl.runtime'
 import * as adltypes from '@azure-tools/adl.types'
 import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType } from '@azure-tools/adl.runtime';
+import * as swagger from './swaggerspec'
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
@@ -97,10 +98,13 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
         // }
 
+        let spec = {} as swagger.Spec;
         const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
         console.log(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
         let apiTypeModelToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelToProcess.push(versionedModel as adlruntime.ApiTypeModel);
+        this.AddSwaggerPath(spec, (versionedModel as adlruntime.ApiTypeModel), opts, config);
+
         while (apiTypeModelToProcess.length > 0)
         {
           const apiTypeModel = apiTypeModelToProcess.pop() as adlruntime.ApiTypeModel;
@@ -122,5 +126,31 @@ export class armSwaggerGenerator implements adlruntime.Generator{
               }
             });
         }
+
+        this.PrintSwaggerSpec(spec);
      }
+
+    // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
+    AddSwaggerPath(spec:swagger.Spec, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
+      const resourceTypeName = apiTypeModel.Name;
+      const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/${resourceTypeName}s/${resourceTypeName}Name`;
+      let pathObj = {} as swagger.Path;
+
+      // PUT
+      let putOp = {} as swagger.Operation;
+      putOp.operationId = `${resourceTypeName}s_createOrUpdate`;
+      putOp.description = (apiTypeModel.Docs as adlruntime.ApiJsDoc).text;
+      //putOp.tags = (apiTypeModel.Docs as adlruntime.ApiJsDoc).tags;
+      //putOp.
+
+      pathObj.put = putOp;
+      const paths: { [pathName: string]: swagger.Path } = {};
+      paths[pathKey] = pathObj;
+      spec.paths = paths;
+    }
+
+    PrintSwaggerSpec(spec:swagger.Spec)
+    {
+      console.log(JSON.stringify(spec, null, 2));
+    }
 }
