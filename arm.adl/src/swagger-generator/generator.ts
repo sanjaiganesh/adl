@@ -2,6 +2,7 @@ import * as adlruntime from '@azure-tools/adl.runtime'
 import * as adltypes from '@azure-tools/adl.types'
 import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType } from '@azure-tools/adl.runtime';
 import * as swagger from './swaggerspec'
+import * as constants from './../constants'
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
@@ -103,9 +104,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
         const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
         console.log(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
+
         let apiTypeModelToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelToProcess.push(versionedModel as adlruntime.ApiTypeModel);
-        this.AddSwaggerPath(spec, apiModel.Name, (versionedModel as adlruntime.ApiTypeModel), opts, config);
+        this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
 
         while (apiTypeModelToProcess.length > 0)
         {
@@ -138,87 +140,140 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}s/${resourceTypeName}Name`;
       let pathObj = {} as swagger.Path;
 
-      // PUT
-      let putOp = {} as swagger.Operation;
-      putOp.operationId = `${resourceTypeName}s_createOrUpdate`;
-      if (apiTypeModel.Docs != undefined)
-      {
-        putOp.description = apiTypeModel.Docs.text;
-        // sanjai-TODO keys only
-        if (apiTypeModel.Docs.tags != undefined)
-        {
-          putOp.tags = Array.from(apiTypeModel.Docs.tags.keys());
-        }
+      let tags = {} as string[] | undefined;
+      if (apiTypeModel.Docs != undefined && apiTypeModel.Docs.tags != undefined) {
+        tags = Array.from(apiTypeModel.Docs.tags.keys());
       }
 
-      // sanjai-todo Set common parameters in seaprate method
-      putOp.parameters = {} as swagger.Parameter[];
-      putOp.parameters = this.GetCommonPathParameters();
-
-      pathObj.put = putOp;
+      pathObj.put = this.BuildPutOperation(apiTypeModel, tags);
+      pathObj.get = this.BuildGetOperation(apiTypeModel, tags);
+      
       const paths: { [pathName: string]: swagger.Path } = {};
       paths[pathKey] = pathObj;
       spec.paths = paths;
     }
 
-  private SetCustomValues(obj: any, key: string, value: any)
-  {
-    obj[key] = value;
-  }
+    private BuildGetOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
+    {
+      const resourceTypeName = apiTypeModel.Name;
+      let operation = {} as swagger.Operation;
+      operation.operationId = `${resourceTypeName}s_Get`;
+      operation.description = `Gets ${apiTypeModel.Name}`;
+      operation.tags = tags;
 
-  private GetCommonParameters() {
-    const parameters : { [parameterName: string]: swagger.Parameter } = {};
-    
-    const subscriptionIdParam = {} as swagger.PathParameter;
-    subscriptionIdParam.description = "The subscription identifier";
-    subscriptionIdParam.required = true;
-    subscriptionIdParam.in = "path";
-    subscriptionIdParam.name = "subscriptionId";
-    subscriptionIdParam.type = "string";
-    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
-    parameters["SubscriptionIdParameter"] = subscriptionIdParam;
+      operation.parameters = {} as swagger.Parameter[];
+      operation.parameters = this.GetCommonPathParameters();
+      // sanjai-todo set resource name parameter
+      
+      // OK response
+      const responses : { [responseName: string]: swagger.Response } = {};
+      const okResponse = {} as swagger.Response;
+      okResponse.description = "OK";
+      okResponse.schema = {} as swagger.Schema;
+      okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
+      responses["200"] = okResponse;
 
-    const resourceGroupParam = {} as swagger.PathParameter;
-    resourceGroupParam.description = "The resource group name";
-    resourceGroupParam.required = true;
-    resourceGroupParam.in = "path";
-    resourceGroupParam.name = "resourceGroup";
-    resourceGroupParam.type = "string";
-    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
-    parameters["ResourceGroupNameParameter"] = resourceGroupParam;
+      // sanjai-TODO: x-ms-examples
+      operation.responses = responses;
 
-    const apiVersionParam = {} as swagger.QueryParameter;
-    apiVersionParam.description = "The api vesrion";
-    apiVersionParam.required = true;
-    apiVersionParam.in = "query";
-    apiVersionParam.name = "api-version";
-    apiVersionParam.type = "string";
-    this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
-    parameters["ApiVersionParameter"] = apiVersionParam;
+      return operation;
+    }
 
-    return parameters;
-  }
+    private BuildPutOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
+    {
+      const resourceTypeName = apiTypeModel.Name;
+      let operation = {} as swagger.Operation;
+      operation.operationId = `${resourceTypeName}s_CreateOrUpdate`;
+      operation.description = `Creates or updates ${apiTypeModel.Name}`;
+      operation.tags = tags;
 
-  private GetCommonPathParameters() {
-    const parameters = new Array<swagger.Parameter>();
-    
-    const subscriptionIdParam = {} as swagger.PathParameter;
-    subscriptionIdParam.$ref = "#/parameters/SubscriptionIdParameter";
-    parameters.push(subscriptionIdParam);
+      // sanjai-todo Set common parameters in seaprate method
+      operation.parameters = {} as swagger.Parameter[];
+      operation.parameters = this.GetCommonPathParameters();
+      // sanjai-todo set resource name parameter
+      // sanjai-todo set resource body parameter
 
-    const resourceGroupParam = {} as swagger.Parameter;
-    resourceGroupParam.$ref = "#/parameters/ResourceGroupNameParameter";
-    parameters.push(resourceGroupParam);
+      // OK response
+      const responses : { [responseName: string]: swagger.Response } = {};
+      const okResponse = {} as swagger.Response;
+      okResponse.description = "Resource creation or update completed.";
+      okResponse.schema = {} as swagger.Schema;
+      okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
+      responses["200"] = okResponse;
 
-    const apiVersionParam = {} as swagger.Parameter;
-    apiVersionParam.$ref = "#/parameters/ApiVersionParameter";
-    parameters.push(apiVersionParam);
+      if (apiTypeModel.hasConstraintByName(constants.INTERFACE_NAME_LONGRUNNINGPUTCONSTRAINT))
+      {
+        const asyncResponse = {} as swagger.Response;
+        asyncResponse.description = "Resource is created.";
+        asyncResponse.schema = {} as swagger.Schema;
+        asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
+        responses["201"] = asyncResponse;
+      }
 
-    return parameters;
-  }
+      // sanjai-TODO: x-ms-examples
+      operation.responses = responses;
 
-  PrintSwaggerSpec(spec:swagger.Spec)
-  {
-    console.log(JSON.stringify(spec, null, 2));
-  }
+      return operation;
+    }
+
+    private SetCustomValues(obj: any, key: string, value: any)
+    {
+      obj[key] = value;
+    }
+
+    private GetCommonParameters() {
+      const parameters : { [parameterName: string]: swagger.Parameter } = {};
+      
+      const subscriptionIdParam = {} as swagger.PathParameter;
+      subscriptionIdParam.description = "The subscription identifier";
+      subscriptionIdParam.required = true;
+      subscriptionIdParam.in = "path";
+      subscriptionIdParam.name = "subscriptionId";
+      subscriptionIdParam.type = "string";
+      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+      parameters["SubscriptionIdParameter"] = subscriptionIdParam;
+
+      const resourceGroupParam = {} as swagger.PathParameter;
+      resourceGroupParam.description = "The resource group name";
+      resourceGroupParam.required = true;
+      resourceGroupParam.in = "path";
+      resourceGroupParam.name = "resourceGroup";
+      resourceGroupParam.type = "string";
+      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+      parameters["ResourceGroupNameParameter"] = resourceGroupParam;
+
+      const apiVersionParam = {} as swagger.QueryParameter;
+      apiVersionParam.description = "The api vesrion";
+      apiVersionParam.required = true;
+      apiVersionParam.in = "query";
+      apiVersionParam.name = "api-version";
+      apiVersionParam.type = "string";
+      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+      parameters["ApiVersionParameter"] = apiVersionParam;
+
+      return parameters;
+    }
+
+    private GetCommonPathParameters() {
+      const parameters = new Array<swagger.Parameter>();
+      
+      const subscriptionIdParam = {} as swagger.PathParameter;
+      subscriptionIdParam.$ref = "#/parameters/SubscriptionIdParameter";
+      parameters.push(subscriptionIdParam);
+
+      const resourceGroupParam = {} as swagger.Parameter;
+      resourceGroupParam.$ref = "#/parameters/ResourceGroupNameParameter";
+      parameters.push(resourceGroupParam);
+
+      const apiVersionParam = {} as swagger.Parameter;
+      apiVersionParam.$ref = "#/parameters/ApiVersionParameter";
+      parameters.push(apiVersionParam);
+
+      return parameters;
+    }
+
+    PrintSwaggerSpec(spec:swagger.Spec)
+    {
+      console.log(JSON.stringify(spec, null, 2));
+    }
 }
