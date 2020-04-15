@@ -136,11 +136,13 @@ export interface BaseSchema {
     items?: Schema | Schema[];
 }
 
+export type Properties = { [propertyName: string]: Schema };
+
 export interface Schema extends BaseSchema {
     $ref?: string;
     allOf?: Schema[];
     additionalProperties?: boolean | { [ref: string]: string };
-    properties?: { [propertyName: string]: Schema };
+    properties?: Properties;
     discriminator?: string;
     readOnly?: boolean;
     xml?: XML;
@@ -205,6 +207,13 @@ export type Security =
     OAuth2PasswordSecurity |
     ApiKeySecurity;
 
+// sanjai-todo for others as well.
+export type Definitions = { [definitionName: string]: Schema };
+
+export type Parameters = { [parameterName: string]: Parameter };
+
+export type Responses = { [responseName: string]: Response };
+
 export interface Spec {
     swagger: string;
     info: Info;
@@ -215,9 +224,9 @@ export interface Spec {
     consumes?: string[];
     produces?: string[];
     paths: { [pathName: string]: Path };
-    definitions?: { [definitionsName: string]: Schema };
-    parameters?: { [parameterName: string]: Parameter };
-    responses?: { [responseName: string]: Response };
+    definitions?: Definitions;
+    parameters?: Parameters;
+    responses?: Responses;
     security?: Security[];
     securityDefinitions?: { [securityDefinitionName: string]: Security };
     tags?: Tag[];
