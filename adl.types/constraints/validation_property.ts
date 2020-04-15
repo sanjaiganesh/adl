@@ -5,10 +5,6 @@
 import { PropertyConstraint, ValidationConstraint } from './types'
 
 
-
-/** property is required */
-export interface Required extends PropertyConstraint{}
-
 /** property is immutable */
 export interface Immutable extends PropertyConstraint {}
 
