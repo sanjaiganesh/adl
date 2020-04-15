@@ -102,37 +102,124 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         let spec = {} as swagger.Spec;
         spec.parameters = this.GetCommonParameters();
 
+        // let versionedModel = {} as adlruntime.VersionedApiTypeModel;
+        // for (let type of version.VersionedTypes) {
+        //   if (type.Name == "virtualmachine"){
+        //     versionedModel = type;
+        //   }
+        // }
+
         const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
         console.log(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
 
-        let apiTypeModelToProcess = new Array<adlruntime.ApiTypeModel>();
-        apiTypeModelToProcess.push(versionedModel as adlruntime.ApiTypeModel);
+        let apiTypeModelsProcessed = new Set<String>();
+        let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
+        apiTypeModelsToProcess.push(versionedModel as adlruntime.ApiTypeModel);
         this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
 
-        while (apiTypeModelToProcess.length > 0)
+        const definitions = {} as swagger.Definitions;
+        while (apiTypeModelsToProcess.length > 0)
         {
-          const apiTypeModel = apiTypeModelToProcess.pop() as adlruntime.ApiTypeModel;
-          console.log(`====== Create new definition for ${apiTypeModel.Name} with properties...==========`);
-          apiTypeModel.Properties.forEach(apiTypePropertyModel =>
-            {
-              if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
-              {
-                console.log(`============= Add property ${apiTypePropertyModel.Name}  to the definition...==========`);
-              }
-              else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
-              {
-                console.log(`============= Add $ref property ${apiTypePropertyModel.Name}  to the definition and queue for further processing...==========`);
-                apiTypeModelToProcess.push((apiTypePropertyModel.DataTypeModel as PropertyComplexDataType).ComplexDataTypeModel);
-              }
-              else
-              {
-                console.log(`============= Unsupported property (for now) ${apiTypePropertyModel.Name}  ...==========`);
-              }
-            });
+          const apiTypeModel = apiTypeModelsToProcess.pop() as adlruntime.ApiTypeModel;
+          const definitionName = apiTypeModel.Name;
+          if (apiTypeModelsProcessed.has(definitionName)) // skip if already processed
+          {
+            continue;
+          }
+
+          let definition = {} as swagger.Schema;
+          console.log(`====== Creating new definition for ${apiTypeModel.Name} with properties...==========`);
+          definitions[definitionName] = this.BuildDefinition(apiTypeModel, apiTypeModelsToProcess);
+          apiTypeModelsProcessed.add(definitionName);
         }
 
+        spec.definitions = definitions;
+
         this.PrintSwaggerSpec(spec);
-     }
+    }
+
+    BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>):swagger.Schema
+    {
+      let definition = {} as swagger.Schema;
+      let properties = {} as swagger.Properties;
+      definition.description  = (apiTypeModel.Docs != undefined)
+        ? definition.description = apiTypeModel.Docs.text
+        : `${apiTypeModel.Name} definition.`;
+
+      // sanjai-todo: What are the type of constraints on apiTypeModel. Process them.
+
+      let requiredProperties = new Array<string>();
+      apiTypeModel.Properties.forEach(apiTypePropertyModel =>
+        {
+          if (apiTypePropertyModel.isRemoved)
+          {
+            console.log(`!!! Removed. skipping property. ${apiTypePropertyModel.Name}- data type name ${apiTypePropertyModel.DataTypeName}`);
+          }
+
+          if (apiTypePropertyModel.isOptional == false)
+          {
+            requiredProperties.push(apiTypePropertyModel.Name);
+          }
+
+          // Proces constraints in individual build methods sanjai-todo
+          // getMapKeyDataTypeNameOrThrow(): string;
+          // getMapValueDataTypeNameOrThrow():string;
+
+          // getDefaultingConstraints(): Array<ConstraintModel>;
+          // getValidationConstraints(): Array<ConstraintModel>;
+          // getConversionConstraints(): Array<ConstraintModel>;
+          // getComplexDataTypeOrThrow(): ApiTypeModel;
+
+          if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
+          {
+            console.log(`============= Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition...==========`);
+            properties[apiTypePropertyModel.Name] = this.BuildScalarProperty(apiTypePropertyModel);
+          }
+          else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
+          {
+            let property = {} as swagger.Schema;
+            let apiTypeModelForComplexProperty = (apiTypePropertyModel.DataTypeModel as PropertyComplexDataType).ComplexDataTypeModel;
+            console.log(`============= Add $ref property ${apiTypePropertyModel.Name} of type ${apiTypeModelForComplexProperty.Name}  to the definition and queue for further processing...==========`);
+            property.$ref = `#/definitions/${apiTypeModelForComplexProperty.Name}`;
+            properties[apiTypePropertyModel.Name] = property;
+
+            apiTypeModelsToProcess.push(apiTypeModelForComplexProperty);
+          }
+          else
+          {
+            console.log(`============= Unsupported property (for now) ${apiTypePropertyModel.Name}  ...==========`);
+          }
+        });
+
+      definition.required = requiredProperties.length > 0 ? requiredProperties : undefined;
+      definition.properties = properties;
+      return definition;
+    }
+    
+    BuildScalarProperty(propertyModel: ApiTypePropertyModel): swagger.Schema
+    {
+      let property = {} as swagger.Schema;
+      property.type = propertyModel.DataTypeName;
+      // sanjai-todo process constraints
+      this.SetConstraints(property, propertyModel);
+      
+      // sanjaiga-todo wth. why doesn't it work.?
+      // if (propertyModel.Docs != undefined)
+      // {
+      //   property.description = propertyModel.Docs.text;
+      // }
+
+      return property;
+    }
+
+    SetConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel): void
+    {
+      // sanjai-todo isAliasDataType and AliasDataTypeName
+      if (propertyModel.isNullable)
+      {
+        this.SetCustomValues(property, "x-nullable", true);
+      }
+    }
 
     // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
     AddSwaggerPath(spec:swagger.Spec, providerName:string, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
@@ -166,7 +253,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       // sanjai-todo set resource name parameter
       
       // OK response
-      const responses : { [responseName: string]: swagger.Response } = {};
+      const responses = {} as swagger.Responses;
       const okResponse = {} as swagger.Response;
       okResponse.description = "OK";
       okResponse.schema = {} as swagger.Schema;
@@ -194,21 +281,22 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       // sanjai-todo set resource body parameter
 
       // OK response
-      const responses : { [responseName: string]: swagger.Response } = {};
+      const responses = {} as swagger.Responses;
       const okResponse = {} as swagger.Response;
       okResponse.description = "Resource creation or update completed.";
       okResponse.schema = {} as swagger.Schema;
       okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
       responses["200"] = okResponse;
 
-      if (apiTypeModel.hasConstraintByName(constants.INTERFACE_NAME_LONGRUNNINGPUTCONSTRAINT))
-      {
-        const asyncResponse = {} as swagger.Response;
-        asyncResponse.description = "Resource is created.";
-        asyncResponse.schema = {} as swagger.Schema;
-        asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
-        responses["201"] = asyncResponse;
-      }
+      // sanjai-todo
+      // if (apiTypeModel.hasConstraintByName(constants.INTERFACE_NAME_LONGRUNNINGPUTCONSTRAINT))
+      // {
+      //   const asyncResponse = {} as swagger.Response;
+      //   asyncResponse.description = "Resource is created.";
+      //   asyncResponse.schema = {} as swagger.Schema;
+      //   asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
+      //   responses["201"] = asyncResponse;
+      // }
 
       // sanjai-TODO: x-ms-examples
       operation.responses = responses;
@@ -222,7 +310,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     }
 
     private GetCommonParameters() {
-      const parameters : { [parameterName: string]: swagger.Parameter } = {};
+      const parameters = {} as swagger.Parameters;
       
       const subscriptionIdParam = {} as swagger.PathParameter;
       subscriptionIdParam.description = "The subscription identifier";
@@ -254,7 +342,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return parameters;
     }
 
-    private GetCommonPathParameters() {
+    private GetCommonPathParameters(): swagger.Parameter[] {
       const parameters = new Array<swagger.Parameter>();
       
       const subscriptionIdParam = {} as swagger.PathParameter;
