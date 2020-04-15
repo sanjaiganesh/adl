@@ -26,7 +26,7 @@ export const CONSTRAINT_NAME_MUSTMATCH:string = "MustMatch";
 export const CONSTRAINT_NAME_MULTIPLEOF:string = "MultipleOf";
 export const CONSTRAINT_NAME_MAXITEMS:string = "MaxItems";
 export const CONSTRAINT_NAME_MINITEMS:string = "MinItems";
-export const CONSTRAINT_NAME_UNIQUE:string = "Unique";
+export const CONSTRAINT_NAME_UNIQUE:string = "Unique"; //uniqueItems
 export const CONSTRAINT_NAME_ONEOF:string = "OneOf";
 export const CONSTRAINT_NAME_SECRET:string = "Secret";
 

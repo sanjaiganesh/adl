@@ -225,6 +225,52 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           isSecret = true;
         }
 
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MUSTMATCH)
+        {
+          // sanjai-todo: pattern is case sensitive https://swagger.io/docs/specification/data-models/data-types/
+          property.pattern = constraint.Arguments[0]
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MINLENGTH)
+        {
+          property.minLength = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MAXLENGTH)
+        {
+          property.maxLength = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MINITEMS)
+        {
+          property.minItems = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MAXITEMS)
+        {
+          property.maxItems = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_RANGE)
+        {
+          property.maximum = Number.parseInt(constraint.Arguments[0]);
+          property.minimum = Number.parseInt(constraint.Arguments[1]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MAXIMUM)
+        {
+          property.maximum = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MINIMUM)
+        {
+          property.minimum = Number.parseInt(constraint.Arguments[0]);
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_MULTIPLEOF)
+        {
+          property.multipleOf = Number.parseInt(constraint.Arguments[0]);
+        }
       });
 
       if (isSecret)
