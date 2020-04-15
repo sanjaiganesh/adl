@@ -3,6 +3,7 @@ import * as adltypes from '@azure-tools/adl.types'
 import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType } from '@azure-tools/adl.runtime';
 import * as swagger from './swaggerspec'
 import * as constants from './../constants'
+import { CONSTRAINT_NAME_APIVERSIONNAME } from '@azure-tools/adl.types';
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
@@ -68,38 +69,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         }
         console.log("sample RP version 2020-09-09 loaded");
 
-        if (version.Docs != undefined)
-        {
-          console.log(version.Docs.text);
-        }
-
-        console.log(version.ModuleName);
-        console.log(version.Name);
-        console.log("printing types")
-        // for (let type of version.VersionedTypes)
-        // {
-        //   console.log(type.Name);
-        // }
-      
-        // const p = version. as ApiTypePropertyModel;
-        // const docs = p.Docs;
-        // if (docs != undefined)
-        // {
-          
-        // }
-
-        // const dataTypeModel = p.DataTypeModel;
-        // if (adlruntime.isPropertyComplexDataType(dataTypeModel))
-        // {
-        //   dataTypeModel.
-        // }
-        // if (p.DataTypeKind == PropertyDataTypeKind.Complex)
-        // {
-        //   const dataTypeModel = p.DataTypeModel as PropertyComplexDataType;
-
-        // }
-
-        let spec = {} as swagger.Spec;
+        let spec = this.BuildSpecWithCommonConfig("sample_rp", "2020-09-09");
         spec.parameters = this.GetCommonParameters();
 
         // let versionedModel = {} as adlruntime.VersionedApiTypeModel;
@@ -114,7 +84,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
         let apiTypeModelsProcessed = new Set<String>();
         let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
-        apiTypeModelsToProcess.push(versionedModel as adlruntime.ApiTypeModel);
+        apiTypeModelsToProcess.push(versionedModel);
         this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
 
         const definitions = {} as swagger.Definitions;
@@ -212,13 +182,100 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return property;
     }
 
-    SetConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel): void
-    {
+    SetConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel): void{
       // sanjai-todo isAliasDataType and AliasDataTypeName
+      console.log(`>>>>>>>>>>>>>>> processing constraints for ${propertyModel.Name}`);
       if (propertyModel.isNullable)
       {
         this.SetCustomValues(property, "x-nullable", true);
       }
+
+      let isSecret = false;
+      let isMutabilitySet = false;
+      propertyModel.Constraints.forEach(constraint =>{
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_READONLY)
+        {
+          // sanjai-feature move this validation into runtime
+          if (!propertyModel.isOptional)
+          {
+            throw new Error("Read only properties cannot be marked as required by a schema.");
+          }
+
+          property.readOnly = true;
+          console.log('    # readonly #');
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONLY)
+        {
+          this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+          isMutabilitySet = true;
+          console.log('    # mutability create update #');
+        }
+
+        // sanjai-todo checking with sdk team on whether there is any 
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_IMMUTABLE)
+        {
+          this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+          isMutabilitySet = true;
+          console.log('    # mutability create update #');
+        }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_SECRET)
+        {
+          isSecret = true;
+        }
+
+      });
+
+      if (isSecret)
+      {
+          this.SetCustomValues(property, "x-ms-secret", true);
+
+          // Default behavior: Secrets must not be returned in GETs. RPs must explicitly add a POST /listKeys* action to return secrets.
+          // sanjai-todo how to model POST action (opt-in /)
+          if (!property.readOnly && !isMutabilitySet)
+          {
+            this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+          }
+          console.log('    # secret #');
+      }
+
+      console.log('printing constraints ');
+      let constraints = propertyModel.Constraints;
+      this.PrintConstraints(constraints);
+
+      console.log('printing validation constraints ');
+      let validationConstraints = propertyModel.getValidationConstraints();
+      this.PrintConstraints(validationConstraints);
+
+      console.log('printing defaulting constraints ');
+      let defaultingConstraints = propertyModel.getDefaultingConstraints();
+      this.PrintConstraints(defaultingConstraints);
+
+      console.log('printing conversion constraints ');
+      let conversionConstraints = propertyModel.getConversionConstraints();
+      this.PrintConstraints(conversionConstraints);
+
+      // console.log('printing array elemement constraints ');
+      // let arrayElemConstraints = propertyModel.getArrayElementValidationConstraints();
+      // this.PrintConstraints(arrayElemConstraints);
+
+      // // sanjai-todo missing get methods for map key and value constraints
+      // console.log('printing map key constraints ');
+      // let mapKeyConstraints = propertyModel.MapKeyConstraints;
+      // this.PrintConstraints(mapKeyConstraints);
+      // console.log('printing map value constraints ');
+      // let mapValueConstraints = propertyModel.MapValueConstraints;
+      // this.PrintConstraints(mapValueConstraints);
+      console.log(`-------------------<<<<<<<<<<<<<<<>>>>>>>>>>>>-------------------`);
+    }
+
+    PrintConstraints(constraints: adlruntime.ConstraintModel[]): void{
+      constraints.forEach(item =>{
+        console.log(item.Name);
+        if (item.Arguments.length > 0){console.log(item.Arguments);}
+      });
+      console.log(`...........`);
     }
 
     // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
@@ -358,6 +415,41 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       parameters.push(apiVersionParam);
 
       return parameters;
+    }
+
+    BuildSpecWithCommonConfig(clientName: string, apiVersion: string): swagger.Spec
+    {
+      let spec = {} as swagger.Spec;
+      spec.swagger = "2.0";
+      spec.info = {} as swagger.Info;
+      spec.info.title = `${clientName}ManagementClient`;
+      spec.info.description = `The ${clientName} Management Client.`;
+      spec.info.version = apiVersion;
+
+      spec.host = "management.azure.com";
+      spec.schemes = ["https"];
+      spec.produces = ["application/json"];
+      spec.consumes = ["application/json"];
+      spec.security = [
+          {
+            "azure_auth": [
+              "user_impersonation"
+            ]
+          }
+        ];
+      spec.securityDefinitions =  {
+          "azure_auth": {
+            "type": "oauth2",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "flow": "implicit",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "scopes": {
+              "user_impersonation": "impersonate your user account"
+            }
+          }
+        };
+
+      return spec;
     }
 
     PrintSwaggerSpec(spec:swagger.Spec)

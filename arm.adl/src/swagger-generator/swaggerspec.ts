@@ -166,6 +166,16 @@ export interface BaseSecurity {
 
 export interface BasicAuthenticationSecurity extends BaseSecurity { }
 
+export interface AzureBasicSecurity {
+  azure_auth: string[];
+}
+
+export interface AzureSecurityDefinition extends BaseSecurity {
+  flow: string;
+  authorizationUrl: string;
+  scopes?: {[scopeName: string]: string};
+}
+
 export interface ApiKeySecurity extends BaseSecurity {
     name: string;
     in: string;
@@ -201,6 +211,8 @@ export interface OAuthScope {
 
 export type Security =
     BasicAuthenticationSecurity |
+    AzureBasicSecurity |
+    AzureSecurityDefinition |
     OAuth2AccessCodeSecurity |
     OAuth2ApplicationSecurity |
     OAuth2ImplicitSecurity |
