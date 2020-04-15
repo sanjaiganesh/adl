@@ -37,10 +37,10 @@ export interface MultipleOf<N extends number> extends ValidationConstraint {}
 
 
 /** the maximum number of items in an Array */
-export interface MaxItems<N extends number> extends PropertyConstraint {}
+export interface MaxItems<N extends number> extends ValidationConstraint {}
 
 /** the minimum number of items in an Array */
-export interface MinItems<N extends number> extends PropertyConstraint {}
+export interface MinItems<N extends number> extends ValidationConstraint {}
 
 /** indicates that a property can be written to but not read */
 export interface WriteOnly extends PropertyConstraint {}

@@ -28,9 +28,13 @@ interface VirtualMachineProps{
     v2Prop?: string &
              adltypes.DefaultValue<'defaulted  declartively'>;
 
-  v3Prop?: adltypes.int64 &
-           adltypes.MultipleOf<3> &
-           adltypes.MultipleOf<5>;
+    v3Prop?: adltypes.int64 &
+             adltypes.MultipleOf<3> &
+             adltypes.MultipleOf<5>;
+
+    v4Prop?: adltypes.int64[] &
+             adltypes.MaxItems<4> &
+             adltypes.MinItems<2>;
 
     /**
     *  this is another property documentation, i can here describe the property for user facing doc. I can also

@@ -97,6 +97,12 @@ export class api_machinery implements machinerytypes.ApiMachinery{
         const val7i = new constraints.MultipleOfImpl();
         adlcore.validationImplementations.set("MultipleOf", val7i);
 
+        const val8i = new constraints.MaxItemsImpl();
+        adlcore.validationImplementations.set("MaxItems", val8i);
+
+        const val9i = new constraints.MinItemsImpl();
+        adlcore.validationImplementations.set("MinItems", val9i);
+
         const conv1i = new constraints.RenameToImpl();
         adlcore.conversionImplementations.set("RenameTo", conv1i);
 

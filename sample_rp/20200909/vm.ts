@@ -40,6 +40,10 @@ export interface VirtualMachineProps{
              adltypes.MultipleOf<3> &
              adltypes.MultipleOf<5>;
 
+    v4Prop?: adltypes.int64[] &
+             adltypes.MaxItems<4> &
+             adltypes.MinItems<2>;
+
     coreCount: number & adltypes.RenameTo<'totalCores'>;
 
     /**
