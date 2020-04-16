@@ -85,7 +85,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelsToProcess.push(versionedModel);
         this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
-        this.SetParameter(
+        this.AddSpecParameter(
           /* parameters*/ spec.parameters,
           /* name */ `${versionedModel.Name}Name`,
           /* required */ true,
@@ -168,7 +168,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       let property = {} as swagger.Schema;
       property.type = propertyModel.DataTypeName;
 
-      this.SetConstraints(property, propertyModel, opts);
+      this.ProcessConstraints(property, propertyModel, opts);
       
       // sanjai-todo why doesn't it work.?
       // if (propertyModel.Docs != undefined)
@@ -179,11 +179,11 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return property;
     }
 
-    SetConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
+    ProcessConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
       opts.logger.info(`[armswaggergen] Processing constraints for ${propertyModel.Name}`);
       if (propertyModel.isNullable)
       {
-        this.SetCustomValues(property, "x-nullable", true);
+        this.SetCustomProperty(property, "x-nullable", true);
       }
 
       let isSecret = false;
@@ -202,13 +202,13 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
         if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONLY)
         {
-          this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+          this.SetCustomProperty(property, "x-ms-mutability", ["create", "update"]);
           isMutabilitySet = true;
         }
 
         if (constraint.Name == adltypes.CONSTRAINT_NAME_IMMUTABLE)
         {
-          this.SetCustomValues(property, "x-ms-mutability", ["create"]);
+          this.SetCustomProperty(property, "x-ms-mutability", ["create"]);
           isMutabilitySet = true;
         }
 
@@ -263,16 +263,36 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         {
           property.multipleOf = Number.parseInt(constraint.Arguments[0]);
         }
+
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_DEFAULTVALUE)
+        {
+          if (propertyModel.DataTypeName == "number")
+          {
+            property.default = Number.parseInt(constraint.Arguments[0]);
+          }
+          else if(propertyModel.DataTypeName == "boolean")
+          {
+            property.default = JSON.parse(constraint.Arguments[0]);
+          }
+          else if(propertyModel.DataTypeName == "string")
+          {
+            property.default = constraint.Arguments[0];
+          }
+          else
+          {
+            throw new Error(`[armswaggergen] Defaulting is unsupported for type ${propertyModel.DataTypeName}`);
+          }
+        }
       });
 
       if (isSecret)
       {
-          this.SetCustomValues(property, "x-ms-secret", true);
+          this.SetCustomProperty(property, "x-ms-secret", true);
 
           // Default behavior: Secrets must not be returned in GETs. RPs must explicitly add a POST /listKeys* action to return secrets.
           if (!property.readOnly && !isMutabilitySet)
           {
-            this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+            this.SetCustomProperty(property, "x-ms-mutability", ["create", "update"]);
           }
           opts.logger.info('    # secret #');
       }
@@ -329,7 +349,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         tags = Array.from(apiTypeModel.Docs.tags.keys());
       }
 
-      pathObj.put = this.BuildPutOperation(apiTypeModel, tags);
+      pathObj.put = this.BuildPutOperation(spec, apiTypeModel, tags);
       pathObj.get = this.BuildGetOperation(apiTypeModel, tags);
       
       const paths: { [pathName: string]: swagger.Path } = {};
@@ -363,8 +383,13 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     }
 
     /** Builds PUT operation */
-    private BuildPutOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
+    private BuildPutOperation(spec: swagger.Spec, apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
     {
+      if (spec.parameters == undefined)
+      {
+        throw new Error("[armswggergen] Spec parameters must be valid");
+      }
+
       const resourceTypeName = apiTypeModel.Name;
       let operation = {} as swagger.Operation;
       operation.operationId = `${resourceTypeName}s_CreateOrUpdate`;
@@ -374,6 +399,14 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       operation.parameters = {} as swagger.Parameter[];
       operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
       this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}NameParameter`);
+      this.AddSpecParameter(
+          /* parameters*/ spec.parameters,
+          /* name */ apiTypeModel.Name,
+          /* required */ true,
+          /* location */ "body",
+          /* description */ `${apiTypeModel.Name} definition parameter`,
+          /* type */ "<unused for body param>");
+      this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}Parameter`);
 
       // OK response
       const responses = {} as swagger.Responses;
@@ -393,8 +426,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
         responses["201"] = asyncResponse;
 
-        this.SetCustomValues(operation, "x-ms-long-running-operation", true);
-        this.SetCustomValues(operation, "x-ms-long-running-operation-options", {
+        this.SetCustomProperty(operation, "x-ms-long-running-operation", true);
+        this.SetCustomProperty(operation, "x-ms-long-running-operation-options", {
           "final-state-via": "azure-async-operation"
         });
       }
@@ -404,7 +437,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     }
 
     /** Used to set any custom x-ms-* properties */
-    private SetCustomValues(obj: any, key: string, value: any)
+    private SetCustomProperty(obj: any, key: string, value: any)
     {
       obj[key] = value;
     }
@@ -427,7 +460,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         subscriptionIdParam.in = "path";
         subscriptionIdParam.name = "subscriptionId";
         subscriptionIdParam.type = "string";
-        this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+        this.SetCustomProperty(subscriptionIdParam, "x-ms-parameter-location", "client");
         parameters["SubscriptionIdParameter"] = subscriptionIdParam;
       }
 
@@ -439,7 +472,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         resourceGroupParam.in = "path";
         resourceGroupParam.name = "resourceGroup";
         resourceGroupParam.type = "string";
-        this.SetCustomValues(resourceGroupParam, "x-ms-parameter-location", "client");
+        this.SetCustomProperty(resourceGroupParam, "x-ms-parameter-location", "client");
         parameters["ResourceGroupNameParameter"] = resourceGroupParam;
       }
 
@@ -449,7 +482,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       apiVersionParam.in = "query";
       apiVersionParam.name = "api-version";
       apiVersionParam.type = "string";
-      this.SetCustomValues(apiVersionParam, "x-ms-parameter-location", "client");
+      this.SetCustomProperty(apiVersionParam, "x-ms-parameter-location", "client");
       parameters["ApiVersionParameter"] = apiVersionParam;
 
       return parameters;
@@ -486,20 +519,59 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return parameters;
     }
 
-    /** Sets given parameter */
-    private SetParameter(parameters: swagger.Parameters, name: string, required: boolean, location: string, description: string, type: string)  {
+    /** Adds a spec parameter */
+    private AddSpecParameter(parameters: swagger.Parameters, name: string, required: boolean, location: string, description: string, type: string)  {
       const parameterKey = `${name}Parameter`;
       if (parameters[parameterKey] == undefined)
       {
-        const subscriptionIdParam = {} as swagger.PathParameter;
-        subscriptionIdParam.description = "The subscription identifier";
-        subscriptionIdParam.required = required;
-        subscriptionIdParam.in = location;
-        subscriptionIdParam.name = name;
-        subscriptionIdParam.type = type;
-        this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "method"); // default is method
-        parameters[parameterKey] = subscriptionIdParam;
+        if (location == "path")
+        {
+        const param = this.BuildPathParameter(
+          /* name */ name,
+          /* required */ required,
+          /* description */ description,
+          /* type */ type);
+          parameters[parameterKey] = param;
+        }
+        else if (location == "body")
+        {
+        const param = this.BuildBodyParameter(
+          /* name */ name,
+          /* required */ required,
+          /* description */ description);
+          parameters[parameterKey] = param;
+        }
+        else
+        {
+          throw new Error(`[armswaggergen] Unsupported parameter location type ${location}`)
+        }
+       
       }
+    }
+
+    /** Builds path parameter with given details */
+    private BuildPathParameter(name: string, required: boolean, description: string, type: string): swagger.PathParameter {
+      const param = {} as swagger.PathParameter;
+      param.description = description;
+      param.required = required;
+      param.in = "path";
+      param.name = name;
+      param.type = type;
+      this.SetCustomProperty(param, "x-ms-parameter-location", "method"); // default is method
+
+      return param;
+    }
+
+    /** Builds body parameter with given details */
+    private BuildBodyParameter(name: string, required: boolean, description: string): swagger.BodyParameter {
+      const param = {} as swagger.BodyParameter;
+      param.description = description;
+      param.required = required;
+      param.in = "body";
+      param.name = name;
+      param.schema = {} as swagger.Schema;
+      param.schema.$ref = `#/definitions/${name}`;
+      return param;
     }
 
     /** Sets the given path parameter */
