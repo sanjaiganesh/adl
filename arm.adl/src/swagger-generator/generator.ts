@@ -163,15 +163,27 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             requiredProperties.push(apiTypePropertyModel.Name);
           }
 
-          if (apiTypePropertyModel.isEnum)
+          if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel) && !apiTypePropertyModel.isEnum)
+          {
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildBasicProperty(apiTypePropertyModel, opts);
+          }
+          else if (apiTypePropertyModel.isEnum)
           {
             opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type enum to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildEnumProperty(apiTypePropertyModel, opts);
           }
-          else if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
+          else if (apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.Map)
           {
-            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
-            properties[apiTypePropertyModel.Name] = this.BuildScalarProperty(apiTypePropertyModel, opts);
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildSimpleMapProperty(apiTypePropertyModel, opts);
+          }
+          else if (apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ComplexMap)
+          {
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildComplexMapProperty(apiTypePropertyModel, opts);
+            const complexMapDataPropertyType = apiTypePropertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
+            apiTypeModelsToProcess.push(complexMapDataPropertyType.ValueComplexDataTypeModel);
           }
           else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
           {
@@ -214,7 +226,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return listDefinition;
     }
 
-    BuildScalarProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    BuildBasicProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
       let property = {} as swagger.Schema;
       property.type = propertyModel.DataTypeName;
@@ -233,8 +245,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     /** Builds enum property */
     BuildEnumProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
-      let property = this.BuildScalarProperty(propertyModel, opts);
-      property.enum = propertyModel.EnumValues;
+      let property = this.BuildBasicProperty(propertyModel, opts);
+      property.enum = [ "sanjai-todo"] ;//propertyModel.EnumValues;
       this.SetCustomProperty(property, "x-ms-enum", {"name": propertyModel.Name, "modelAsString": true })
 
       // Enumerate tags and add documentation under x-ms-enum
@@ -246,6 +258,34 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       //   console.log(docs.tags);
       // }
 
+      return property;
+    }
+
+    /** Builds Map property */
+    BuildSimpleMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    {
+      // sanjai-bug DataTypeName is either string. shouldn't it be object always ?
+      let property = this.BuildBasicProperty(propertyModel, opts);
+      property.type = "object";
+      const simpleMapDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertySimpleMapDataType;
+      
+      let additionalProperties = {} as swagger.Schema;
+      additionalProperties.type = simpleMapDataPropertyType.ValueDataTypeName;
+      property.additionalProperties = additionalProperties;
+      return property;
+    }
+
+    /** Builds Map property */
+    BuildComplexMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    {
+      // sanjai-bug DataTypeName is complexmap. shouldn't it be object always ?
+      let property = this.BuildBasicProperty(propertyModel, opts);
+      property.type = "object";
+      const complexMapDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
+      
+      let additionalProperties = {} as swagger.Schema;
+      additionalProperties.$ref = `#/definitions/${complexMapDataPropertyType.ValueComplexDataTypeName}`;
+      property.additionalProperties = additionalProperties;
       return property;
     }
 

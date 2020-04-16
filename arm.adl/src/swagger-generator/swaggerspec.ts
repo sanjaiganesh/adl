@@ -138,10 +138,12 @@ export interface BaseSchema {
 
 export type Properties = { [propertyName: string]: Schema };
 
+export type AdditionalProperties = boolean | { [ref: string]: any } | Schema;
+
 export interface Schema extends BaseSchema {
     $ref?: string;
     allOf?: Schema[];
-    additionalProperties?: boolean | { [ref: string]: string };
+    additionalProperties?: AdditionalProperties;
     properties?: Properties;
     discriminator?: string;
     readOnly?: boolean;
