@@ -1,6 +1,6 @@
 import * as adlruntime from '@azure-tools/adl.runtime'
 import * as adltypes from '@azure-tools/adl.types'
-import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType } from '@azure-tools/adl.runtime';
+import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType, ApiJsDoc } from '@azure-tools/adl.runtime';
 import * as swagger from './swaggerspec'
 import * as constants from './../constants'
 import { CONSTRAINT_NAME_APIVERSIONNAME } from '@azure-tools/adl.types';
@@ -85,6 +85,15 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelsToProcess.push(versionedModel);
 
+        // Add resource type path parameter to parameter collection of the spec
+        this.AddSpecParameter(
+          /* parameters*/ spec.parameters,
+          /* name */ `${versionedModel.Name}Name`,
+          /* required */ true,
+          /* location */ "path",
+          /* description */ `${versionedModel.Name}Name parameter`,
+          /* type */ "string");
+
         // Adds GET, PUT, PATCH & DELETE operations
         this.AddBasicCrudOperations(spec, apiModel.Name, versionedModel, opts, config);
 
@@ -98,8 +107,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           /* opts */ opts,
           /* config */ config);
 
-          // Adds list operations. Curently it assumes it is resource group level resource.
-          this.AddListOperation(
+        // Adds list operations. Curently it assumes it is resource group level resource.
+        this.AddListOperation(
           /* spec */ spec,
           /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}s`,
           /* apiTypeModel */ versionedModel,
@@ -107,14 +116,6 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           /* description */ `Gets list of ${versionedModel.Name} resources for given subscription`,
           /* opts */ opts,
           /* config */ config);
-
-        this.AddSpecParameter(
-          /* parameters*/ spec.parameters,
-          /* name */ `${versionedModel.Name}Name`,
-          /* required */ true,
-          /* location */ "path",
-          /* description */ `${versionedModel.Name}Name parameter`,
-          /* type */ "string");
         
         const definitions = {} as swagger.Definitions;
         while (apiTypeModelsToProcess.length > 0)
@@ -162,7 +163,12 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             requiredProperties.push(apiTypePropertyModel.Name);
           }
 
-          if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
+          if (apiTypePropertyModel.isEnum)
+          {
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type enum to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildEnumProperty(apiTypePropertyModel, opts);
+          }
+          else if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
           {
             opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildScalarProperty(apiTypePropertyModel, opts);
@@ -179,7 +185,9 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           }
           else
           {
-            opts.logger.info(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name}.`);
+            console.log(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name} with alias= ${apiTypePropertyModel.AliasDataTypeName} and kind=${apiTypePropertyModel.DataTypeKind}.  .`);
+            console.log(`Flag array=${apiTypePropertyModel.isArray()} enum=${apiTypePropertyModel.isEnum} isalis ${apiTypePropertyModel.isAliasDataType} map ${apiTypePropertyModel.isMap()}  .`);
+            //opts.logger.info(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name}.`);
           }
         });
 
@@ -217,6 +225,25 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       // if (propertyModel.Docs != undefined)
       // {
       //   property.description = propertyModel.Docs.text;
+      // }
+
+      return property;
+    }
+
+    /** Builds enum property */
+    BuildEnumProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    {
+      let property = this.BuildScalarProperty(propertyModel, opts);
+      property.enum = propertyModel.EnumValues;
+      this.SetCustomProperty(property, "x-ms-enum", {"name": propertyModel.Name, "modelAsString": true })
+
+      // Enumerate tags and add documentation under x-ms-enum
+      // sanjai-bug same issue. Passes the check, but docs is still undefined.
+      // if (propertyModel.Docs != undefined)
+      // {
+      //   var docs = propertyModel.Docs as ApiJsDoc;
+      //   console.log(docs.text);
+      //   console.log(docs.tags);
       // }
 
       return property;
