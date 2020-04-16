@@ -84,7 +84,30 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         let apiTypeModelsProcessed = new Set<String>();
         let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelsToProcess.push(versionedModel);
-        this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
+
+        // Adds GET, PUT, PATCH & DELETE operations
+        this.AddBasicCrudOperations(spec, apiModel.Name, versionedModel, opts, config);
+
+        // Adds list operations. Curently it assumes it is resource group level resource.
+        this.AddListOperation(
+          /* spec */ spec,
+          /* path */  `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+          /* apiTypeModel */ versionedModel,
+          /* operationId */ `${versionedModel.Name}s_ListByResourceGroup`,
+          /* description */ `Gets list of ${versionedModel.Name} resources for given resource group`,
+          /* opts */ opts,
+          /* config */ config);
+
+          // Adds list operations. Curently it assumes it is resource group level resource.
+          this.AddListOperation(
+          /* spec */ spec,
+          /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+          /* apiTypeModel */ versionedModel,
+          /* operationId */ `${versionedModel.Name}s_ListBySubscription`,
+          /* description */ `Gets list of ${versionedModel.Name} resources for given subscription`,
+          /* opts */ opts,
+          /* config */ config);
+
         this.AddSpecParameter(
           /* parameters*/ spec.parameters,
           /* name */ `${versionedModel.Name}Name`,
@@ -105,16 +128,18 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
           let definition = {} as swagger.Schema;
           opts.logger.info(`[armswaggergen] Creating new definition for ${apiTypeModel.Name} with properties.`);
-          definitions[definitionName] = this.BuildDefinition(apiTypeModel, apiTypeModelsToProcess, opts);
+          definitions[definitionName] = this.BuildDefinitions(apiTypeModel, apiTypeModelsToProcess, opts);
           apiTypeModelsProcessed.add(definitionName);
         }
+        // list definition for currrent versioned model being processed
+        definitions[`${versionedModel.Name}sList`] = this.BuildListDefinition(versionedModel.Name);
 
         spec.definitions = definitions;
-
         this.PrintSwaggerSpec(spec);
     }
 
-    BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
+    /** Walks the types and creates swagger definitions */
+    BuildDefinitions(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
     {
       let definition = {} as swagger.Schema;
       let properties = {} as swagger.Properties;
@@ -163,6 +188,24 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return definition;
     }
     
+    BuildListDefinition(typeName: string): swagger.Schema
+    {
+      let listDefinition = {} as swagger.Schema;
+      listDefinition.properties = {} as swagger.Properties;
+      let value = {} as swagger.Schema;
+      value.type = "array";
+      value.items = {} as swagger.Schema;
+      value.items.$ref = `#/definitions/${typeName}`
+      value.description = `The list of ${typeName}`
+      listDefinition.properties["value"] = value;
+      let nextLink = {} as swagger.Schema;
+      nextLink.type = "string";
+      nextLink.description = `The uri to fetch the next set of items for ${typeName}`;
+      listDefinition.properties["nextLink"] = nextLink;
+      listDefinition.required = ["value"];
+      return listDefinition;
+    }
+
     BuildScalarProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
       let property = {} as swagger.Schema;
@@ -206,7 +249,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           isMutabilitySet = true;
         }
 
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_IMMUTABLE)
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONCREATE)
         {
           this.SetCustomProperty(property, "x-ms-mutability", ["create"]);
           isMutabilitySet = true;
@@ -338,8 +381,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       });
     }
 
-    // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
-    AddSwaggerPath(spec:swagger.Spec, providerName:string, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
+    // Adds basic crud operations (get, put, delete). Curently it assumes the resource type is Tracked (ARM routing type = default)
+    AddBasicCrudOperations(spec:swagger.Spec, providerName:string, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
       const resourceTypeName = apiTypeModel.Name;
       const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}s/${resourceTypeName}Name`;
       let pathObj = {} as swagger.Path;
@@ -356,6 +399,23 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       const paths: { [pathName: string]: swagger.Path } = {};
       paths[pathKey] = pathObj;
       spec.paths = paths;
+    }
+
+    // Adds list operation for given scope
+    AddListOperation(spec: swagger.Spec, path: string, apiTypeModel: adlruntime.ApiTypeModel, operationId:string, description: string, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
+      let pathObj = {} as swagger.Path;
+
+      let tags = {} as string[] | undefined;
+      if (apiTypeModel.Docs != undefined && apiTypeModel.Docs.tags != undefined) {
+        tags = Array.from(apiTypeModel.Docs.tags.keys());
+      }
+
+      pathObj.get = this.BuildListOperation(
+        /* apiTypeModel */ apiTypeModel,
+        /* operationId */ operationId,
+        /* description */ description,
+        /* tags */ tags);
+      spec.paths[path] = pathObj;
     }
 
     private BuildGetOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
@@ -377,6 +437,32 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       okResponse.schema = {} as swagger.Schema;
       okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
       responses["200"] = okResponse;
+
+      operation.responses = responses;
+
+      return operation;
+    }
+
+    /** Builds a list operation for given scope */
+    private BuildListOperation(apiTypeModel: adlruntime.ApiTypeModel, operationId:string, description: string, tags: string[] | undefined):swagger.Operation
+    {
+      const resourceTypeName = apiTypeModel.Name;
+      let operation = {} as swagger.Operation;
+      operation.operationId = operationId;
+      operation.description = description;
+      operation.tags = tags;
+
+      operation.parameters = {} as swagger.Parameter[];
+      operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
+      
+      // OK response
+      const responses = {} as swagger.Responses;
+      const okResponse = {} as swagger.Response;
+      okResponse.description = "OK";
+      okResponse.schema = {} as swagger.Schema;
+      okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}sList`;
+      responses["200"] = okResponse;
+      this.SetCustomProperty(operation, "x-ms-pageable", { "nextLinkName": "nextLink" });
 
       operation.responses = responses;
 

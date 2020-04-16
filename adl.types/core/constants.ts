@@ -16,6 +16,7 @@ export const CONSTRAINT_NAME_NOAUTOCONVERSION: string = "NoAutoConversion";
 export const CONSTRAINT_NAME_NULLABLE:string = "Nullable";
 export const CONSTRAINT_NAME_WRITEONLY:string = "WriteOnly";
 export const CONSTRAINT_NAME_IMMUTABLE:string = "Immutable";
+export const CONSTRAINT_NAME_WRITEONCREATE:string = "WriteOnCreate";
 export const CONSTRAINT_NAME_READONLY:string = "ReadOnly";
 export const CONSTRAINT_NAME_MAXLENGTH:string = "MaxLength";
 export const CONSTRAINT_NAME_MINLENGTH:string = "MinLength";
