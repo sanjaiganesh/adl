@@ -29,6 +29,7 @@ export const CONSTRAINT_NAME_MINITEMS:string = "MinItems";
 export const CONSTRAINT_NAME_UNIQUE:string = "Unique"; //uniqueItems
 export const CONSTRAINT_NAME_ONEOF:string = "OneOf";
 export const CONSTRAINT_NAME_SECRET:string = "Secret";
+export const CONSTRAINT_NAME_DEFAULTVALUE:string = "DefaultValue";
 
 export const AUTO_VERSIONER_NAME: string = "AutoVersioner";
 export const AUTO_NORMALIZER_NAME: string = "AutoNormalizer";
