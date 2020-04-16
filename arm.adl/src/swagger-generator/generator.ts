@@ -351,6 +351,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
       pathObj.put = this.BuildPutOperation(spec, apiTypeModel, tags);
       pathObj.get = this.BuildGetOperation(apiTypeModel, tags);
+      pathObj.delete = this.BuildDeleteOperation(apiTypeModel, tags);
       
       const paths: { [pathName: string]: swagger.Path } = {};
       paths[pathKey] = pathObj;
@@ -408,8 +409,9 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           /* type */ "<unused for body param>");
       this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}Parameter`);
 
-      // OK response
       const responses = {} as swagger.Responses;
+
+      // OK response
       const okResponse = {} as swagger.Response;
       okResponse.description = "Resource creation or update completed.";
       okResponse.schema = {} as swagger.Schema;
@@ -433,6 +435,50 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       }
 
       operation.responses = responses;
+      return operation;
+    }
+
+    private BuildDeleteOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
+    {
+      const resourceTypeName = apiTypeModel.Name;
+      let operation = {} as swagger.Operation;
+      operation.operationId = `${resourceTypeName}s_Delete`;
+      operation.description = `Deletes ${apiTypeModel.Name}`;
+      operation.tags = tags;
+
+      operation.parameters = {} as swagger.Parameter[];
+      operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
+      this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}NameParameter`);
+      
+      const responses = {} as swagger.Responses;
+
+      // OK response
+      const okResponse = {} as swagger.Response;
+      okResponse.description = "OK";
+      responses["200"] = okResponse;
+
+      // 204 response
+      const noContentResponse = {} as swagger.Response;
+      noContentResponse.description = "No content";
+      responses["204"] = noContentResponse;
+
+      // sanjai-feature: armtypes.LongRunningDelete
+      if (apiTypeModel.hasConstraintByName(constants.INTERFACE_NAME_LONGRUNNINGDELETECONSTRAINT))
+      {
+        const asyncResponse = {} as swagger.Response;
+        asyncResponse.description = "Resource deletion accepted.";
+        asyncResponse.schema = {} as swagger.Schema;
+        asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
+        responses["202"] = asyncResponse;
+
+        this.SetCustomProperty(operation, "x-ms-long-running-operation", true);
+        this.SetCustomProperty(operation, "x-ms-long-running-operation-options", {
+          "final-state-via": "location"
+        });
+      }
+
+      operation.responses = responses;
+
       return operation;
     }
 
