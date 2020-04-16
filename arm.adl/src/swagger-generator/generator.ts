@@ -10,7 +10,7 @@ import { CONSTRAINT_NAME_APIVERSIONNAME } from '@azure-tools/adl.types';
 export class armSwaggerGenerator implements adlruntime.Generator{
 
     get description(): string{
-        return "generates arm compliant swagger schema out of adl models";
+        return "Generates ARM compliant swagger schema out of adl models";
     }
 
     private parseConfig(config: any): Map<string, string>{
@@ -20,7 +20,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         const parts = configString.split(",");
         for(const part of parts){
            const def = part.split("=");
-           if(def.length != 2) throw new Error(`armSwaggerGenerator failed, configuration expected in form of 'key=val,key=val'`)
+           if(def.length != 2) throw new Error(`[armswaggergen] Configuration expected in form of 'key=val,key=val'`)
             values.set(def[0], def[1]);
         }
 
@@ -39,7 +39,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
          // first we validate that we can work with configuration
          if(config == undefined){
-            throw new Error(`armSwaggerGenerator failed, expected configuration was not found`)
+            throw new Error(`[armswaggergen] Expected configuration was not found`)
          }
 
         const configMap = this.parseConfig(config);
@@ -47,30 +47,29 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         // TODO: validate that you got minimum the mandotory keys you need
 
         // i can write to stderr from here using opts, which carries the same log level the user expects
-        opts.logger.info(`armSwaggerGenerator got configuration ${configMap}`);
+        opts.logger.info(`[armswaggergen] Got configuration ${configMap}`);
         // use varios logger functions to write what you need it supports err, info, warn, verbose (which is good for debugging).
         // keep in mind user may choose to supress all by setting log level to non.
         // if you want to force a write then use opts.logger.info family of function(highly unrecommended, because we later on use customized cli printers for output).
         // You are free to write to stdout or file.
         // go..
-        opts.logger.info("ran arm swagger generator");
 
         const apiModel = apiManager.getApiInfo("sample_rp");
         if (apiModel == undefined)
         {
-          throw new Error(`armSwaggerGenerator failed, expected configuration was not found`)
+          throw new Error(`[armswaggergen] Expected configuration was not found`)
         }
-        opts.logger.info("sample RP api model loaded");
 
         const version = apiModel.getVersion("2020-09-09");
         if (version == undefined)
         {
-          throw new Error(`armSwaggerGenerator failed, expected configuration was not found`);
+          throw new Error(`[armswaggergen] Expected version was not found`);
         }
-        opts.logger.info("sample RP version 2020-09-09 loaded");
 
-        let spec = this.BuildSpecWithCommonConfig("sample_rp", "2020-09-09");
-        spec.parameters = this.GetCommonParameters();
+        opts.logger.info("[armswaggergen] sample RP version 2020-09-09 loaded");
+
+        let spec = this.GetBaseSwaggerSpecification("sample_rp", "2020-09-09");
+        spec.parameters = this.GetCommonParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
 
         // let versionedModel = {} as adlruntime.VersionedApiTypeModel;
         // for (let type of version.VersionedTypes) {
@@ -80,13 +79,20 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         // }
 
         const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
-        opts.logger.info(`============= PRINT PATH, VERBS FOR ${versionedModel.Name} with normalized name ${versionedModel.NormalizedApiTypeName}. Response schema refers to the underlying ApiTypeModel`);
+        opts.logger.info(`[armswaggergen] Processing the type ${versionedModel.Name} (normalized: ${versionedModel.NormalizedApiTypeName}).`);
 
         let apiTypeModelsProcessed = new Set<String>();
         let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
         apiTypeModelsToProcess.push(versionedModel);
         this.AddSwaggerPath(spec, apiModel.Name, versionedModel, opts, config);
-
+        this.SetParameter(
+          /* parameters*/ spec.parameters,
+          /* name */ `${versionedModel.Name}Name`,
+          /* required */ true,
+          /* location */ "path",
+          /* description */ `${versionedModel.Name}Name parameter`,
+          /* type */ "string");
+        
         const definitions = {} as swagger.Definitions;
         while (apiTypeModelsToProcess.length > 0)
         {
@@ -98,7 +104,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           }
 
           let definition = {} as swagger.Schema;
-          opts.logger.info(`====== Creating new definition for ${apiTypeModel.Name} with properties...==========`);
+          opts.logger.info(`[armswaggergen] Creating new definition for ${apiTypeModel.Name} with properties.`);
           definitions[definitionName] = this.BuildDefinition(apiTypeModel, apiTypeModelsToProcess, opts);
           apiTypeModelsProcessed.add(definitionName);
         }
@@ -123,7 +129,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         {
           if (apiTypePropertyModel.isRemoved)
           {
-            opts.logger.info(`!!! Removed. skipping property. ${apiTypePropertyModel.Name}- data type name ${apiTypePropertyModel.DataTypeName}`);
+            opts.logger.info(`[armswaggergen] Removed from current version. Skipping property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName}`);
           }
 
           if (apiTypePropertyModel.isOptional == false)
@@ -131,25 +137,16 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             requiredProperties.push(apiTypePropertyModel.Name);
           }
 
-          // Proces constraints in individual build methods sanjai-todo
-          // getMapKeyDataTypeNameOrThrow(): string;
-          // getMapValueDataTypeNameOrThrow():string;
-
-          // getDefaultingConstraints(): Array<ConstraintModel>;
-          // getValidationConstraints(): Array<ConstraintModel>;
-          // getConversionConstraints(): Array<ConstraintModel>;
-          // getComplexDataTypeOrThrow(): ApiTypeModel;
-
           if (adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel))
           {
-            opts.logger.info(`============= Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition...==========`);
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildScalarProperty(apiTypePropertyModel, opts);
           }
           else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
           {
             let property = {} as swagger.Schema;
             let apiTypeModelForComplexProperty = (apiTypePropertyModel.DataTypeModel as PropertyComplexDataType).ComplexDataTypeModel;
-            opts.logger.info(`============= Add $ref property ${apiTypePropertyModel.Name} of type ${apiTypeModelForComplexProperty.Name}  to the definition and queue for further processing...==========`);
+            opts.logger.info(`[armswaggergen] Add $ref property ${apiTypePropertyModel.Name} of type ${apiTypeModelForComplexProperty.Name} to the definition and queue for further processing.`);
             property.$ref = `#/definitions/${apiTypeModelForComplexProperty.Name}`;
             properties[apiTypePropertyModel.Name] = property;
 
@@ -157,7 +154,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           }
           else
           {
-            opts.logger.info(`============= Unsupported property (for now) ${apiTypePropertyModel.Name}  ...==========`);
+            opts.logger.info(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name}.`);
           }
         });
 
@@ -170,10 +167,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     {
       let property = {} as swagger.Schema;
       property.type = propertyModel.DataTypeName;
-      // sanjai-todo process constraints
+
       this.SetConstraints(property, propertyModel, opts);
       
-      // sanjaiga-todo wth. why doesn't it work.?
+      // sanjai-todo why doesn't it work.?
       // if (propertyModel.Docs != undefined)
       // {
       //   property.description = propertyModel.Docs.text;
@@ -183,8 +180,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     }
 
     SetConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
-      // sanjai-todo isAliasDataType and AliasDataTypeName
-      opts.logger.info(`>>>>>>>>>>>>>>> processing constraints for ${propertyModel.Name}`);
+      opts.logger.info(`[armswaggergen] Processing constraints for ${propertyModel.Name}`);
       if (propertyModel.isNullable)
       {
         this.SetCustomValues(property, "x-nullable", true);
@@ -198,26 +194,22 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           // sanjai-feature move this validation into runtime
           if (!propertyModel.isOptional)
           {
-            throw new Error("Read only properties cannot be marked as required by a schema.");
+            throw new Error("[armswaggergen] Read only properties cannot be marked as required by a schema.");
           }
 
           property.readOnly = true;
-          opts.logger.info('    # readonly #');
         }
 
         if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONLY)
         {
           this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
           isMutabilitySet = true;
-          opts.logger.info('    # mutability create update #');
         }
 
-        // sanjai-todo checking with sdk team on whether there is any 
         if (constraint.Name == adltypes.CONSTRAINT_NAME_IMMUTABLE)
         {
-          this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
+          this.SetCustomValues(property, "x-ms-mutability", ["create"]);
           isMutabilitySet = true;
-          opts.logger.info('    # mutability create update #');
         }
 
         if (constraint.Name == adltypes.CONSTRAINT_NAME_SECRET)
@@ -278,7 +270,6 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           this.SetCustomValues(property, "x-ms-secret", true);
 
           // Default behavior: Secrets must not be returned in GETs. RPs must explicitly add a POST /listKeys* action to return secrets.
-          // sanjai-todo how to model POST action (opt-in /)
           if (!property.readOnly && !isMutabilitySet)
           {
             this.SetCustomValues(property, "x-ms-mutability", ["create", "update"]);
@@ -286,34 +277,38 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           opts.logger.info('    # secret #');
       }
 
-      opts.logger.info('printing constraints ');
+      opts.logger.info('[armswaggergen] Printing constraints ');
       let constraints = propertyModel.Constraints;
       this.PrintConstraints(constraints, opts);
 
-      opts.logger.info('printing validation constraints ');
+      opts.logger.info('[armswaggergen] printing validation constraints ');
       let validationConstraints = propertyModel.getValidationConstraints();
       this.PrintConstraints(validationConstraints, opts);
 
-      opts.logger.info('printing defaulting constraints ');
+      opts.logger.info('[armswaggergen] printing defaulting constraints ');
       let defaultingConstraints = propertyModel.getDefaultingConstraints();
       this.PrintConstraints(defaultingConstraints, opts);
 
-      opts.logger.info('printing conversion constraints ');
+      opts.logger.info('[armswaggergen] printing conversion constraints ');
       let conversionConstraints = propertyModel.getConversionConstraints();
       this.PrintConstraints(conversionConstraints, opts);
 
-      // opts.logger.info('printing array elemement constraints ');
-      // let arrayElemConstraints = propertyModel.getArrayElementValidationConstraints();
-      // this.PrintConstraints(arrayElemConstraints);
+      if (propertyModel.isArray())
+      {
+        opts.logger.info('[armswaggergen] printing array elemement constraints ');
+        let arrayElemConstraints = propertyModel.getArrayElementValidationConstraints();
+        this.PrintConstraints(arrayElemConstraints, opts);
+      }
 
-      // // sanjai-todo missing get methods for map key and value constraints
-      // opts.logger.info('printing map key constraints ');
-      // let mapKeyConstraints = propertyModel.MapKeyConstraints;
-      // this.PrintConstraints(mapKeyConstraints);
-      // opts.logger.info('printing map value constraints ');
-      // let mapValueConstraints = propertyModel.MapValueConstraints;
-      // this.PrintConstraints(mapValueConstraints);
-      opts.logger.info(`-------------------<<<<<<<<<<<<<<<>>>>>>>>>>>>-------------------`);
+      if (propertyModel.isMap())
+      {
+        opts.logger.info('[armswaggergen] printing map key constraints ');
+        let mapKeyConstraints = propertyModel.MapKeyConstraints;
+        this.PrintConstraints(mapKeyConstraints, opts);
+        opts.logger.info('[armswaggergen] printing map value constraints ');
+        let mapValueConstraints = propertyModel.MapValueConstraints;
+        this.PrintConstraints(mapValueConstraints, opts);
+      }
     }
 
     PrintConstraints(constraints: adlruntime.ConstraintModel[], opts: adlruntime.apiProcessingOptions): void{
@@ -321,7 +316,6 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         opts.logger.info(item.Name);
         if (item.Arguments.length > 0){opts.logger.info(item.Arguments.toString());}
       });
-      opts.logger.info(`...........`);
     }
 
     // Populates the path section of the spec. Curently it assumes the resource type is Tracked (ARM routing type = default)
@@ -352,8 +346,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       operation.tags = tags;
 
       operation.parameters = {} as swagger.Parameter[];
-      operation.parameters = this.GetCommonPathParameters();
-      // sanjai-todo set resource name parameter
+      operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
+      this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}NameParameter`);
       
       // OK response
       const responses = {} as swagger.Responses;
@@ -363,12 +357,12 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
       responses["200"] = okResponse;
 
-      // sanjai-TODO: x-ms-examples
       operation.responses = responses;
 
       return operation;
     }
 
+    /** Builds PUT operation */
     private BuildPutOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
     {
       const resourceTypeName = apiTypeModel.Name;
@@ -377,11 +371,9 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       operation.description = `Creates or updates ${apiTypeModel.Name}`;
       operation.tags = tags;
 
-      // sanjai-todo Set common parameters in seaprate method
       operation.parameters = {} as swagger.Parameter[];
-      operation.parameters = this.GetCommonPathParameters();
-      // sanjai-todo set resource name parameter
-      // sanjai-todo set resource body parameter
+      operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
+      this.SetPathParameter(operation.parameters, `${apiTypeModel.Name}NameParameter`);
 
       // OK response
       const responses = {} as swagger.Responses;
@@ -391,7 +383,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
       responses["200"] = okResponse;
 
-      // sanjai-todo
+      // sanjai-feature: Express 201 or 202 or both (not ideal) and express final-state-via
+      // armtypes.LongRunningPut<201, "azure-async-operation">
       if (apiTypeModel.hasConstraintByName(constants.INTERFACE_NAME_LONGRUNNINGPUTCONSTRAINT))
       {
         const asyncResponse = {} as swagger.Response;
@@ -399,39 +392,56 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         asyncResponse.schema = {} as swagger.Schema;
         asyncResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}`;
         responses["201"] = asyncResponse;
+
+        this.SetCustomValues(operation, "x-ms-long-running-operation", true);
+        this.SetCustomValues(operation, "x-ms-long-running-operation-options", {
+          "final-state-via": "azure-async-operation"
+        });
       }
 
-      // sanjai-TODO: x-ms-examples
       operation.responses = responses;
-
       return operation;
     }
 
+    /** Used to set any custom x-ms-* properties */
     private SetCustomValues(obj: any, key: string, value: any)
     {
       obj[key] = value;
     }
 
-    private GetCommonParameters() {
+    /** Returns most common parameters */
+    private GetCommonParameters(includeSubscription: boolean, includeResourceGroup: boolean):swagger.Parameters  {
+
+      if (!includeSubscription && includeResourceGroup)
+      {
+        throw new Error("[armswaggergen] Resource group resource must have a subscription.")
+      }
+
       const parameters = {} as swagger.Parameters;
       
-      const subscriptionIdParam = {} as swagger.PathParameter;
-      subscriptionIdParam.description = "The subscription identifier";
-      subscriptionIdParam.required = true;
-      subscriptionIdParam.in = "path";
-      subscriptionIdParam.name = "subscriptionId";
-      subscriptionIdParam.type = "string";
-      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
-      parameters["SubscriptionIdParameter"] = subscriptionIdParam;
+      if (includeSubscription)
+      {
+        const subscriptionIdParam = {} as swagger.PathParameter;
+        subscriptionIdParam.description = "The subscription identifier";
+        subscriptionIdParam.required = true;
+        subscriptionIdParam.in = "path";
+        subscriptionIdParam.name = "subscriptionId";
+        subscriptionIdParam.type = "string";
+        this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+        parameters["SubscriptionIdParameter"] = subscriptionIdParam;
+      }
 
-      const resourceGroupParam = {} as swagger.PathParameter;
-      resourceGroupParam.description = "The resource group name";
-      resourceGroupParam.required = true;
-      resourceGroupParam.in = "path";
-      resourceGroupParam.name = "resourceGroup";
-      resourceGroupParam.type = "string";
-      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
-      parameters["ResourceGroupNameParameter"] = resourceGroupParam;
+      if (includeResourceGroup)
+      {
+        const resourceGroupParam = {} as swagger.PathParameter;
+        resourceGroupParam.description = "The resource group name";
+        resourceGroupParam.required = true;
+        resourceGroupParam.in = "path";
+        resourceGroupParam.name = "resourceGroup";
+        resourceGroupParam.type = "string";
+        this.SetCustomValues(resourceGroupParam, "x-ms-parameter-location", "client");
+        parameters["ResourceGroupNameParameter"] = resourceGroupParam;
+      }
 
       const apiVersionParam = {} as swagger.QueryParameter;
       apiVersionParam.description = "The api vesrion";
@@ -439,22 +449,35 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       apiVersionParam.in = "query";
       apiVersionParam.name = "api-version";
       apiVersionParam.type = "string";
-      this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "client");
+      this.SetCustomValues(apiVersionParam, "x-ms-parameter-location", "client");
       parameters["ApiVersionParameter"] = apiVersionParam;
 
       return parameters;
     }
 
-    private GetCommonPathParameters(): swagger.Parameter[] {
+    /** Returns most common path parameters */
+    private GetCommonPathParameters(includeSubscription: boolean, includeResourceGroup: boolean): swagger.Parameter[] {
+       
+      if (!includeSubscription && includeResourceGroup)
+      {
+        throw new Error("[armswaggergen] Resource group resource must have a subscription.")
+      }
+
       const parameters = new Array<swagger.Parameter>();
       
-      const subscriptionIdParam = {} as swagger.PathParameter;
-      subscriptionIdParam.$ref = "#/parameters/SubscriptionIdParameter";
-      parameters.push(subscriptionIdParam);
+      if (includeSubscription)
+      {
+        const subscriptionIdParam = {} as swagger.PathParameter;
+        subscriptionIdParam.$ref = "#/parameters/SubscriptionIdParameter";
+        parameters.push(subscriptionIdParam);
+      }
 
-      const resourceGroupParam = {} as swagger.Parameter;
-      resourceGroupParam.$ref = "#/parameters/ResourceGroupNameParameter";
-      parameters.push(resourceGroupParam);
+      if (includeResourceGroup)
+      {
+        const resourceGroupParam = {} as swagger.Parameter;
+        resourceGroupParam.$ref = "#/parameters/ResourceGroupNameParameter";
+        parameters.push(resourceGroupParam);
+      }
 
       const apiVersionParam = {} as swagger.Parameter;
       apiVersionParam.$ref = "#/parameters/ApiVersionParameter";
@@ -463,7 +486,31 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return parameters;
     }
 
-    BuildSpecWithCommonConfig(clientName: string, apiVersion: string): swagger.Spec
+    /** Sets given parameter */
+    private SetParameter(parameters: swagger.Parameters, name: string, required: boolean, location: string, description: string, type: string)  {
+      const parameterKey = `${name}Parameter`;
+      if (parameters[parameterKey] == undefined)
+      {
+        const subscriptionIdParam = {} as swagger.PathParameter;
+        subscriptionIdParam.description = "The subscription identifier";
+        subscriptionIdParam.required = required;
+        subscriptionIdParam.in = location;
+        subscriptionIdParam.name = name;
+        subscriptionIdParam.type = type;
+        this.SetCustomValues(subscriptionIdParam, "x-ms-parameter-location", "method"); // default is method
+        parameters[parameterKey] = subscriptionIdParam;
+      }
+    }
+
+    /** Sets the given path parameter */
+    private SetPathParameter(parameters: swagger.Parameter[], name: string) {
+      const param = {} as swagger.PathParameter;
+      param.$ref = `#/parameters/${name}`;
+      parameters.push(param);
+    }
+
+    /** Builds base swagger spec with common (to all specs) objects like info, security etc... */
+    GetBaseSwaggerSpecification(clientName: string, apiVersion: string): swagger.Spec
     {
       let spec = {} as swagger.Spec;
       spec.swagger = "2.0";
