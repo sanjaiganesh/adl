@@ -185,6 +185,11 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             const complexMapDataPropertyType = apiTypePropertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
             apiTypeModelsToProcess.push(complexMapDataPropertyType.ValueComplexDataTypeModel);
           }
+          else if (apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ScalarArray)
+          {
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type scalar array to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildScalarArrayProperty(apiTypePropertyModel, opts);
+          }
           else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
           {
             let property = {} as swagger.Schema;
@@ -264,7 +269,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     /** Builds Map property */
     BuildSimpleMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
-      // sanjai-bug DataTypeName is either string. shouldn't it be object always ?
+      // sanjai-todo how to capture constraints on the keys?
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "object";
       const simpleMapDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertySimpleMapDataType;
@@ -275,10 +280,9 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return property;
     }
 
-    /** Builds Map property */
+    /** Builds complex Map property */
     BuildComplexMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
-      // sanjai-bug DataTypeName is complexmap. shouldn't it be object always ?
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "object";
       const complexMapDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
@@ -289,44 +293,23 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return property;
     }
 
-    ProcessConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
-      opts.logger.info(`[armswaggergen] Processing constraints for ${propertyModel.Name}`);
-      if (propertyModel.isNullable)
+    /** Builds scalar property */
+    BuildScalarArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    {
+      let property = this.BuildBasicProperty(propertyModel, opts);
+      property.type = "array";
+      const scalarArrayDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertySimpleArrayDataType;
+      let items = {} as swagger.Schema;
+      items.type = scalarArrayDataPropertyType.ElementDataTypeName;
+      this.ProcessBasicConstraints(items, scalarArrayDataPropertyType.ElementConstraints, opts);
+
+      property.items = items;
+      return property;
+    }
+    
+    ProcessBasicConstraints(property: swagger.Schema, constraints: adlruntime.ConstraintModel[], opts: adlruntime.apiProcessingOptions): void{
+      constraints.forEach(constraint =>
       {
-        this.SetCustomProperty(property, "x-nullable", true);
-      }
-
-      let isSecret = false;
-      let isMutabilitySet = false;
-      propertyModel.Constraints.forEach(constraint =>{
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_READONLY)
-        {
-          // sanjai-feature move this validation into runtime
-          if (!propertyModel.isOptional)
-          {
-            throw new Error("[armswaggergen] Read only properties cannot be marked as required by a schema.");
-          }
-
-          property.readOnly = true;
-        }
-
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONLY)
-        {
-          this.SetCustomProperty(property, "x-ms-mutability", ["create", "update"]);
-          isMutabilitySet = true;
-        }
-
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONCREATE)
-        {
-          this.SetCustomProperty(property, "x-ms-mutability", ["create"]);
-          isMutabilitySet = true;
-        }
-
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_SECRET)
-        {
-          isSecret = true;
-        }
-
         if (constraint.Name == adltypes.CONSTRAINT_NAME_MUSTMATCH)
         {
           // sanjai-todo: pattern is case sensitive https://swagger.io/docs/specification/data-models/data-types/
@@ -373,8 +356,48 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         {
           property.multipleOf = Number.parseInt(constraint.Arguments[0]);
         }
+      });
+    }
 
-        if (constraint.Name == adltypes.CONSTRAINT_NAME_DEFAULTVALUE)
+    ProcessConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
+      opts.logger.info(`[armswaggergen] Processing constraints for ${propertyModel.Name}`);
+      if (propertyModel.isNullable)
+      {
+        this.SetCustomProperty(property, "x-nullable", true);
+      }
+
+      // Process some basic constratints
+      this.ProcessBasicConstraints(property, propertyModel.Constraints, opts);
+
+      let isSecret = false;
+      let isMutabilitySet = false;
+      propertyModel.Constraints.forEach(constraint =>{
+        if (constraint.Name == adltypes.CONSTRAINT_NAME_READONLY)
+        {
+          // sanjai-feature move this validation into runtime
+          if (!propertyModel.isOptional)
+          {
+            throw new Error("[armswaggergen] Read only properties cannot be marked as required by a schema.");
+          }
+
+          property.readOnly = true;
+        }
+        else if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONLY)
+        {
+          this.SetCustomProperty(property, "x-ms-mutability", ["create", "update"]);
+          isMutabilitySet = true;
+        }
+        else if (constraint.Name == adltypes.CONSTRAINT_NAME_WRITEONCREATE)
+        {
+          this.SetCustomProperty(property, "x-ms-mutability", ["create"]);
+          isMutabilitySet = true;
+        }
+
+        else if (constraint.Name == adltypes.CONSTRAINT_NAME_SECRET)
+        {
+          isSecret = true;
+        }
+        else if (constraint.Name == adltypes.CONSTRAINT_NAME_DEFAULTVALUE)
         {
           if (propertyModel.DataTypeName == "number")
           {
