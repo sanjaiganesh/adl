@@ -190,6 +190,13 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type scalar array to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildScalarArrayProperty(apiTypePropertyModel, opts);
           }
+          else if (apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ComplexArray)
+          {
+            opts.logger.info(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type complex array to the definition.`);
+            properties[apiTypePropertyModel.Name] = this.BuildComplexArrayProperty(apiTypePropertyModel, opts);
+            const complexArrayDataPropertyType = apiTypePropertyModel.DataTypeModel as adlruntime.PropertyComplexArrayDataType;
+            apiTypeModelsToProcess.push(complexArrayDataPropertyType.ElementComplexDataTypeModel);
+          }
           else if (adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel))
           {
             let property = {} as swagger.Schema;
@@ -293,7 +300,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return property;
     }
 
-    /** Builds scalar property */
+    /** Builds scalar array property */
     BuildScalarArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
       let property = this.BuildBasicProperty(propertyModel, opts);
@@ -303,6 +310,19 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       items.type = scalarArrayDataPropertyType.ElementDataTypeName;
       this.ProcessBasicConstraints(items, scalarArrayDataPropertyType.ElementConstraints, opts);
 
+      property.items = items;
+      return property;
+    }
+
+    /** Builds complex array property */
+    BuildComplexArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
+    {
+      let property = this.BuildBasicProperty(propertyModel, opts);
+      property.type = "array";
+      const complexArrayDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertyComplexArrayDataType;
+      
+      let items = {} as swagger.Schema;
+      items.$ref = `#/definitions/${complexArrayDataPropertyType.ElementComplexDataTypeName}`;
       property.items = items;
       return property;
     }
