@@ -881,6 +881,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
 
     PrintSwaggerSpec(spec:swagger.Spec)
     {
-      console.log(JSON.stringify(spec, null, 2));
+      var YAML = require('yamljs');
+      console.log(YAML.stringify(spec, 4));
+      //console.log(JSON.stringify(spec, null, 2));
     }
 }

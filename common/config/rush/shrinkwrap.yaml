@@ -11,12 +11,14 @@ dependencies:
   '@rush-temp/compute_rp': 'file:projects/compute_rp.tgz'
   '@rush-temp/sample_rp': 'file:projects/sample_rp.tgz'
   '@types/js-yaml': 3.12.1
+  '@types/yamljs': 0.2.30
   '@typescript-eslint/eslint-plugin': 2.16.0
   '@typescript-eslint/parser': 2.16.0
   eslint: 6.8.0
   source-map-support: 0.5.13
   ts-morph: 6.0.2
   typescript: 3.7.5
+  yamljs: 0.3.0
 packages:
   /@azure-tools/async-io/3.0.211:
     dependencies:
@@ -148,6 +150,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-lAVp+Kj54ui/vLUFxsJTMtWvZraZxum3w3Nwkble2dNuV5VnPA+Mi2oGX9XYJAaIvZi3tn3cbjS/qcJXRb6Bww==
+  /@types/node/12.12.35:
+    dev: false
+    resolution:
+      integrity: sha512-ASYsaKecA7TUsDrqIGPNk3JeEox0z/0XR/WsJJ8BIX/9+SkMSImQXKWfU/yBrSyc7ZSE/NPqLu36Nur0miCFfQ==
   /@types/node/12.7.2:
     dev: false
     resolution:
@@ -156,6 +162,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-Uo4chgKbnPNlxQwoFmYIwctkQVkMMmsAoGGU4JKwLuvBefF0pCq4FybNSnfkfRCpC7ZW7kttcC/TrRtAJsvGtg==
+  /@types/yamljs/0.2.30:
+    dev: false
+    resolution:
+      integrity: sha1-0DTh0ynkbo0Pc3yajbl/aPgbU4I=
   /@typescript-eslint/eslint-plugin/2.16.0:
     dependencies:
       '@typescript-eslint/experimental-utils': 2.16.0
@@ -1717,6 +1727,14 @@ packages:
     dev: false
     resolution:
       integrity: sha1-bRX7qITAhnnA136I53WegR4H+kE=
+  /yamljs/0.3.0:
+    dependencies:
+      argparse: 1.0.10
+      glob: 7.1.6
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-C/FsVVhht4iPQYXOInoxUM/1ELSf9EsgKH34FofQOp6hwCPrW4vG4w5++TED3xRUo8gD7l0P1J1dLlDYzODsTQ==
   /yargs-parser/9.0.2:
     dependencies:
       camelcase: 4.1.0
@@ -1746,7 +1764,7 @@ packages:
     dev: false
     name: '@rush-temp/adl.apis'
     resolution:
-      integrity: sha512-8Y2Wjf763VRmXx08kl3RVNEwfYd9+KmNZa/sU5HeusA3fhDENgF9D/TbjFZ7s96RarSaeg6bdtw+htZ5wMdjUA==
+      integrity: sha512-2tOk/I7Xieo27+XgguXH61z9D5mbMkodlNL/9rlCUxwYhP3j97GPpyEw2mOTEIzp+/rtprc/YU/oYNe/dGgxxw==
       tarball: 'file:projects/adl.apis.tgz'
     version: 0.0.0
   'file:projects/adl.runtime.tgz':
@@ -1770,7 +1788,7 @@ packages:
     dev: false
     name: '@rush-temp/adl.runtime'
     resolution:
-      integrity: sha512-NFB5abJuadyryUtdEVpWy/sRKTlGwYaNhReWHHfmmBOnkCWXDHOWz3VdNnmsptSYNUBDshUES+XWi6cFNEFqGA==
+      integrity: sha512-75IwZFJAoJrSAMauPXTMZYiXnMs1xNFRHayua2H5F2MObryO+MeEHQS0DRvF6le5sDiNfEYWuGouuC2ZpMFfCw==
       tarball: 'file:projects/adl.runtime.tgz'
     version: 0.0.0
   'file:projects/adl.types.tgz':
@@ -1783,20 +1801,22 @@ packages:
     dev: false
     name: '@rush-temp/adl.types'
     resolution:
-      integrity: sha512-xSTD8hkUxuGG4HzP4UobbdA1yEjA13e1wUTW3s/yVxUWu2UkoNqySDL5vRBvhFyLoiqm8iBoxIitpWdfOaYRGQ==
+      integrity: sha512-igpf0cVNGx56xFrqVwAC9oVkMeNX+t7z/1L/pXOclT/5Ju0+wVj9O75EOSrECvg6GD2jDwemN+67uxzMJmELJw==
       tarball: 'file:projects/adl.types.tgz'
     version: 0.0.0
   'file:projects/arm.adl.tgz':
     dependencies:
-      '@types/node': 12.7.2
+      '@types/node': 12.12.35
+      '@types/yamljs': 0.2.30
       '@typescript-eslint/eslint-plugin': /@typescript-eslint/eslint-plugin/2.16.0/894af94b56f455770564ef7826675546
       '@typescript-eslint/parser': /@typescript-eslint/parser/2.16.0/eslint@6.8.0
       eslint: 6.8.0
       typescript: 3.7.5
+      yamljs: 0.3.0
     dev: false
     name: '@rush-temp/arm.adl'
     resolution:
-      integrity: sha512-CGtGLC+61WmOC+sFDc0i5YENZ6f7VvxkcLYk77s50fkEVDRRX94GJ3PkIwDreT/jX5Qiu5k1iZhDmy7n3uT44g==
+      integrity: sha512-zsZsg2jUKIIP83V2b1Hqq5IgWPtl2nu3op0PkU5EKp3JImS2UowKSYrzDk1syQEkiwKFx9h4aywoKf0ngwiQog==
       tarball: 'file:projects/arm.adl.tgz'
     version: 0.0.0
   'file:projects/cli.tgz':
@@ -1806,7 +1826,7 @@ packages:
     dev: false
     name: '@rush-temp/cli'
     resolution:
-      integrity: sha512-6ZL6JUhdNH4TXdXNXyEmIx6b88uQIy4gz6nka4myevYQn+/5zPUvTu8sy6amm3CnDOUX8YczGRM9VKyetkXNZw==
+      integrity: sha512-1e7i1PjeBdKCHfpAkwccD2WAtHKhyVA81GhlflAejLJ5wqtnax/Gp0inJJZ5QB+A2NpQLGprt2+ZWNgv+7dsVg==
       tarball: 'file:projects/cli.tgz'
     version: 0.0.0
   'file:projects/compute_rp.tgz':
@@ -1815,7 +1835,7 @@ packages:
     dev: false
     name: '@rush-temp/compute_rp'
     resolution:
-      integrity: sha512-BVDQQBmBRvDcbnBrdO6TmqbHqXnOug7CQaPcAVQWMnooN4Fikf7mRCZpcsXr43pwjLpfCts0YTFXgx317YEQGw==
+      integrity: sha512-FtxRPYFSFa9NkL9rIDxDpjomRQIspQhJOjqoM/PqTRW5C/9lkNSETvCLEJw3l9n9GsHr12U0tyboc2rKbZjIcQ==
       tarball: 'file:projects/compute_rp.tgz'
     version: 0.0.0
   'file:projects/sample_rp.tgz':
@@ -1824,7 +1844,7 @@ packages:
     dev: false
     name: '@rush-temp/sample_rp'
     resolution:
-      integrity: sha512-/3A28/GrcHoobFTg7YCCjmN0bmeTkxZnu/JoilUgXBom6O1u9TA9HFUPcP6UgJ0f8uy2zcloSCFpDvolSZ8Z4w==
+      integrity: sha512-J0Pd1p1u2AuBUAaN0optfqLwQ9nrZahK/6OnwyVEExXYMf81cZUVAGeN23WpjphylydhYH9fhLQXzDHNdl5Hig==
       tarball: 'file:projects/sample_rp.tgz'
     version: 0.0.0
 registry: 'https://registry.npmjs.org/'
@@ -1843,9 +1863,11 @@ specifiers:
   '@rush-temp/compute_rp': 'file:./projects/compute_rp.tgz'
   '@rush-temp/sample_rp': 'file:./projects/sample_rp.tgz'
   '@types/js-yaml': 3.12.1
+  '@types/yamljs': ^0.2.30
   '@typescript-eslint/eslint-plugin': ~2.16.0
   '@typescript-eslint/parser': ~2.16.0
   eslint: ~6.8.0
   source-map-support: 0.5.13
   ts-morph: 6.0.2
   typescript: ~3.7.4
+  yamljs: ^0.3.0
