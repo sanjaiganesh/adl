@@ -54,93 +54,104 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         // You are free to write to stdout or file.
         // go..
 
-        const apiModel = apiManager.getApiInfo("sample_rp");
-        if (apiModel == undefined)
+//        throw new Error(`[armswaggergen]  Expected configuration was not found`)
+        // NOTE: For now, expect only one model and api version to process, as it prints to console (avoid mangling multiple models/versions)
+        // Later, config takes another parameter to print to files and folder path that would just spit out each version into separate folder
+        const apiModels = Array.from(apiManager.ApiModels);
+        if (apiModels.length == 0)
         {
-          throw new Error(`[armswaggergen] Expected configuration was not found`)
+          throw new Error(`[armswaggergen] No api model to process. Exiting.`)
         }
 
-        const version = apiModel.getVersion("2020-09-09");
-        if (version == undefined)
+        if (apiModels.length > 1)
         {
-          throw new Error(`[armswaggergen] Expected version was not found`);
+          throw new Error(`[armswaggergen] Unexpected.  Only one api model is expected. Received ${apiManager.ApiModels}`);
         }
 
-        opts.logger.info("[armswaggergen] sample RP version 2020-09-09 loaded");
+        const apiVersion = configMap.get("version");
+        if ( apiVersion == undefined)
+        {
+          throw new Error(`[armswaggergen] Invalid config. Api version must be specified, such as 'version=2020-01-01'`);
+        }
 
-        let spec = this.GetBaseSwaggerSpecification("sample_rp", "2020-09-09");
+        // Get the api model
+        const apiModel = apiModels[0];
+        const apiVersionModel = apiModel.getVersion(apiVersion);
+        if (apiVersionModel == undefined)
+        {
+          throw new Error(`armSwaggerGenerator failed, expected configuration was not found`);
+        }
+
+        opts.logger.info(`[armswaggergen] Processing provider (api model) '${apiModel.Name}' of apiVersionModel '${apiVersionModel.Name}'`);
+
+        let spec = this.GetBaseSwaggerSpecification(apiModel.Name, apiVersionModel.Name);
         spec.parameters = this.GetCommonParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
-
-        // let versionedModel = {} as adlruntime.VersionedApiTypeModel;
-        // for (let type of version.VersionedTypes) {
-        //   if (type.Name == "virtualmachine"){
-        //     versionedModel = type;
-        //   }
-        // }
-
-        const versionedModel = version.getVersionedType("virtualmachine") as adlruntime.VersionedApiTypeModel;
-        opts.logger.info(`[armswaggergen] Processing the type ${versionedModel.Name} (normalized: ${versionedModel.NormalizedApiTypeName}).`);
-
-        let apiTypeModelsProcessed = new Set<String>();
-        let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
-        apiTypeModelsToProcess.push(versionedModel);
-
-        // Add resource type path parameter to parameter collection of the spec
-        this.AddSpecParameter(
-          /* parameters*/ spec.parameters,
-          /* name */ `${versionedModel.Name}Name`,
-          /* required */ true,
-          /* location */ "path",
-          /* description */ `${versionedModel.Name}Name parameter`,
-          /* type */ "string");
-
-        // Adds GET, PUT, PATCH & DELETE operations
-        this.AddBasicCrudOperations(spec, apiModel.Name, versionedModel, opts, config);
-
-        // Adds list operations. Curently it assumes it is resource group level resource.
-        this.AddListOperation(
-          /* spec */ spec,
-          /* path */  `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${apiModel.Name}/${versionedModel.Name}s`,
-          /* apiTypeModel */ versionedModel,
-          /* operationId */ `${versionedModel.Name}s_ListByResourceGroup`,
-          /* description */ `Gets list of ${versionedModel.Name} resources for given resource group`,
-          /* opts */ opts,
-          /* config */ config);
-
-        // Adds list operations. Curently it assumes it is resource group level resource.
-        this.AddListOperation(
-          /* spec */ spec,
-          /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}s`,
-          /* apiTypeModel */ versionedModel,
-          /* operationId */ `${versionedModel.Name}s_ListBySubscription`,
-          /* description */ `Gets list of ${versionedModel.Name} resources for given subscription`,
-          /* opts */ opts,
-          /* config */ config);
+        spec.definitions = {} as swagger.Definitions;
+        spec.paths = {} as swagger.Paths;
         
-        const definitions = {} as swagger.Definitions;
-        while (apiTypeModelsToProcess.length > 0)
-        {
-          const apiTypeModel = apiTypeModelsToProcess.pop() as adlruntime.ApiTypeModel;
-          const definitionName = apiTypeModel.Name;
-          if (apiTypeModelsProcessed.has(definitionName)) // skip if already processed
+        Array.from(apiVersionModel.VersionedTypes).forEach(versionedModel => {
+          opts.logger.info(`[armswaggergen] Processing the type ${versionedModel.Name} (normalized: ${versionedModel.NormalizedApiTypeName}).`);
+
+          let apiTypeModelsProcessed = new Set<String>();
+          let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
+          apiTypeModelsToProcess.push(versionedModel);
+
+          // Add resource type path parameter to parameter collection of the spec
+          this.AddSpecParameter(
+            /* parameters*/ spec.parameters,
+            /* name */ `${versionedModel.Name}Name`,
+            /* required */ true,
+            /* location */ "path",
+            /* description */ `${versionedModel.Name}Name parameter`,
+            /* type */ "string");
+
+          // Adds GET, PUT, PATCH & DELETE operations
+          this.AddBasicCrudOperations(spec, apiModel.Name, versionedModel, opts, config);
+
+          // Adds list operations. Curently it assumes it is resource group level resource.
+          this.AddListOperation(
+            /* spec */ spec,
+            /* path */  `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+            /* apiTypeModel */ versionedModel,
+            /* operationId */ `${versionedModel.Name}s_ListByResourceGroup`,
+            /* description */ `Gets list of ${versionedModel.Name} resources for given resource group`,
+            /* opts */ opts,
+            /* config */ config);
+
+          // Adds list operations. Curently it assumes it is resource group level resource.
+          this.AddListOperation(
+            /* spec */ spec,
+            /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+            /* apiTypeModel */ versionedModel,
+            /* operationId */ `${versionedModel.Name}s_ListBySubscription`,
+            /* description */ `Gets list of ${versionedModel.Name} resources for given subscription`,
+            /* opts */ opts,
+            /* config */ config);
+          
+          while (apiTypeModelsToProcess.length > 0)
           {
-            continue;
+            const apiTypeModel = apiTypeModelsToProcess.pop() as adlruntime.ApiTypeModel;
+            const definitionName = apiTypeModel.Name;
+            if (apiTypeModelsProcessed.has(definitionName)) // skip if already processed
+            {
+              continue;
+            }
+
+            let definition = {} as swagger.Schema;
+            opts.logger.info(`[armswaggergen] Creating new definition for ${apiTypeModel.Name} with properties.`);
+            spec.definitions[definitionName] = this.BuildDefinition(apiTypeModel, apiTypeModelsToProcess, opts);
+            apiTypeModelsProcessed.add(definitionName);
           }
+          // list definition for currrent versioned model being processed
+          spec.definitions[`${versionedModel.Name}sList`] = this.BuildListDefinition(versionedModel.Name);
+        });
 
-          let definition = {} as swagger.Schema;
-          opts.logger.info(`[armswaggergen] Creating new definition for ${apiTypeModel.Name} with properties.`);
-          definitions[definitionName] = this.BuildDefinitions(apiTypeModel, apiTypeModelsToProcess, opts);
-          apiTypeModelsProcessed.add(definitionName);
-        }
-        // list definition for currrent versioned model being processed
-        definitions[`${versionedModel.Name}sList`] = this.BuildListDefinition(versionedModel.Name);
-
-        spec.definitions = definitions;
+        // Print the swagger spec
         this.PrintSwaggerSpec(spec);
     }
 
     /** Walks the types and creates swagger definitions */
-    BuildDefinitions(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
+    BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
     {
       let definition = {} as swagger.Schema;
       let properties = {} as swagger.Properties;
@@ -497,7 +508,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}s/${resourceTypeName}Name`;
       let pathObj = {} as swagger.Path;
 
-      let tags = {} as string[] | undefined;
+      let tags = undefined;
       if (apiTypeModel.Docs != undefined && apiTypeModel.Docs.tags != undefined) {
         tags = Array.from(apiTypeModel.Docs.tags.keys());
       }
@@ -506,16 +517,14 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       pathObj.get = this.BuildGetOperation(apiTypeModel, tags);
       pathObj.delete = this.BuildDeleteOperation(apiTypeModel, tags);
       
-      const paths: { [pathName: string]: swagger.Path } = {};
-      paths[pathKey] = pathObj;
-      spec.paths = paths;
+      spec.paths[pathKey] = pathObj;
     }
 
     // Adds list operation for given scope
     AddListOperation(spec: swagger.Spec, path: string, apiTypeModel: adlruntime.ApiTypeModel, operationId:string, description: string, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
       let pathObj = {} as swagger.Path;
 
-      let tags = {} as string[] | undefined;
+      let tags = undefined;
       if (apiTypeModel.Docs != undefined && apiTypeModel.Docs.tags != undefined) {
         tags = Array.from(apiTypeModel.Docs.tags.keys());
       }
@@ -534,7 +543,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       let operation = {} as swagger.Operation;
       operation.operationId = `${resourceTypeName}s_Get`;
       operation.description = `Gets ${apiTypeModel.Name}`;
-      operation.tags = tags;
+      if (tags != undefined)
+      {
+        operation.tags = tags;
+      }
 
       operation.parameters = {} as swagger.Parameter[];
       operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
@@ -560,7 +572,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       let operation = {} as swagger.Operation;
       operation.operationId = operationId;
       operation.description = description;
-      operation.tags = tags;
+      if (tags != undefined)
+      {
+        operation.tags = tags;
+      }
 
       operation.parameters = {} as swagger.Parameter[];
       operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
@@ -591,7 +606,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       let operation = {} as swagger.Operation;
       operation.operationId = `${resourceTypeName}s_CreateOrUpdate`;
       operation.description = `Creates or updates ${apiTypeModel.Name}`;
-      operation.tags = tags;
+      if (tags != undefined)
+      {
+        operation.tags = tags;
+      }
 
       operation.parameters = {} as swagger.Parameter[];
       operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
@@ -640,7 +658,10 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       let operation = {} as swagger.Operation;
       operation.operationId = `${resourceTypeName}s_Delete`;
       operation.description = `Deletes ${apiTypeModel.Name}`;
-      operation.tags = tags;
+      if (tags != undefined)
+      {
+        operation.tags = tags;
+      }
 
       operation.parameters = {} as swagger.Parameter[];
       operation.parameters = this.GetCommonPathParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
