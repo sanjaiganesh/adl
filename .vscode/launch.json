@@ -9,15 +9,15 @@
       "protocol": "inspector",
       "request": "launch",
       "name": "sample_rp_swagger_generator",
-      "program": "f:/adl/cli/dist/index.js",
+      "program": "f:/adl2/cli/dist/index.js",
       "args": [
         "--pre-load-apis=name=sample_rp+path=f:\\adl2\\sample_rp",
         "--pre-load-runtimes=path=f:\\adl2\\arm.adl",
-        //"-a=verbose",
+        "-a=info",
         "generators",
         "--action=run",
         "--generator-name=arm.swagger",
-        "--config=version=2021-09-09,format=yaml"
+        "--config=apimodel=sample_rp,version=2021-09-09,format=yaml"
       ],
       "smartStep": false,
       "skipFiles": [
@@ -34,7 +34,7 @@
       "args": [
         "--pre-load-apis=name=compute_rp+path=f:\\adl\\compute_rp",
         "--pre-load-runtimes=path=f:\\adl\\arm.adl",
-        //"-a=verbose",
+        "-a=info",
         "generators",
         "--action=run",
         "--generator-name=arm.swagger",
