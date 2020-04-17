@@ -159,8 +159,6 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         ? definition.description = apiTypeModel.Docs.text
         : `${apiTypeModel.Name} definition.`;
 
-      // sanjai-todo: What are the type of constraints on apiTypeModel. Process them.
-
       let requiredProperties = new Array<string>();
       for(let apiTypePropertyModel of apiTypeModel.Properties)
       {
