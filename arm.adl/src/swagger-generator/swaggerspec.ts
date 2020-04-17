@@ -221,7 +221,6 @@ export type Security =
     OAuth2PasswordSecurity |
     ApiKeySecurity;
 
-// sanjai-todo for others as well.
 export type Definitions = { [definitionName: string]: Schema };
 
 export type Parameters = { [parameterName: string]: Parameter };
