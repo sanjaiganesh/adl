@@ -242,7 +242,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     BuildEnumProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
     {
       let property = this.BuildBasicProperty(propertyModel, opts);
-      property.enum = [ "sanjai-todo"] ;//propertyModel.EnumValues;
+      property.enum = propertyModel.EnumValues;
       this.SetCustomProperty(property, "x-ms-enum", {"name": propertyModel.Name, "modelAsString": true })
 
       // Enumerate tags and add documentation under x-ms-enum
