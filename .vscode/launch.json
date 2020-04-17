@@ -17,7 +17,7 @@
         "generators",
         "--action=run",
         "--generator-name=arm.swagger",
-        "--config=version=2021-09-09"
+        "--config=version=2021-09-09,format=yaml"
       ],
       "smartStep": false,
       "skipFiles": [

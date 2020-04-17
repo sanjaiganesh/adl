@@ -147,7 +147,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         });
 
         // Print the swagger spec
-        this.PrintSwaggerSpec(spec);
+        this.PrintSwaggerSpec(spec, configMap);
     }
 
     /** Walks the types and creates swagger definitions */
@@ -879,10 +879,27 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return spec;
     }
 
-    PrintSwaggerSpec(spec:swagger.Spec)
+    PrintSwaggerSpec(spec:swagger.Spec, configMap: Map<string, string>)
     {
-      var YAML = require('yamljs');
-      console.log(YAML.stringify(spec, 4));
-      //console.log(JSON.stringify(spec, null, 2));
+      let yamlFormat = false;
+      const format = configMap.get("format");
+      if ( format != undefined)
+      {
+        yamlFormat = (format == "yaml");
+        if (format != "yaml" && format != "json")
+        {
+          throw new Error(`[armswaggergen] Invalid format specified in the config: ${format}. Must be either 'yaml' or 'json' `);
+        }
+      }
+
+      if (yamlFormat)
+      {
+        var YAML = require('yamljs');
+        console.log(YAML.stringify(spec, 4));
+      }
+      else
+      {
+        console.log(JSON.stringify(spec, null, 2));
+      }
     }
 }
