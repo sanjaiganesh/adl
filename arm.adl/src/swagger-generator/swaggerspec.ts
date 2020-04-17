@@ -228,6 +228,8 @@ export type Parameters = { [parameterName: string]: Parameter };
 
 export type Responses = { [responseName: string]: Response };
 
+export type Paths = { [pathName: string]: Path };
+
 export interface Spec {
     swagger: string;
     info: Info;
@@ -237,9 +239,9 @@ export interface Spec {
     schemes?: string[];
     consumes?: string[];
     produces?: string[];
-    paths: { [pathName: string]: Path };
-    definitions?: Definitions;
-    parameters?: Parameters;
+    paths: Paths;
+    definitions: Definitions;
+    parameters: Parameters;
     responses?: Responses;
     security?: Security[];
     securityDefinitions?: { [securityDefinitionName: string]: Security };
