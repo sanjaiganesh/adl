@@ -11,13 +11,34 @@
       "name": "sample_rp_swagger_generator",
       "program": "f:/adl/cli/dist/index.js",
       "args": [
-        "--pre-load-apis=name=sample_rp+path=d:\\adl\\sample_rp",
-        "--pre-load-runtimes=path=d:\\adl\\arm.adl",
+        "--pre-load-apis=name=sample_rp+path=f:\\adl\\sample_rp",
+        "--pre-load-runtimes=path=f:\\adl\\arm.adl",
         "-a=verbose",
         "generators",
         "--action=run",
         "--generator-name=arm.swagger",
-        "--config=\"key=value\""
+        "--config=version=2021-09-09"
+      ],
+      "smartStep": false,
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "type": "node",
+      "protocol": "inspector",
+      "request": "launch",
+      "name": "compute_rp_swagger_generator",
+      "program": "f:/adl/cli/dist/index.js",
+      "args": [
+        "--pre-load-apis=name=compute_rp+path=f:\\adl\\compute_rp",
+        "--pre-load-runtimes=path=f:\\adl\\arm.adl",
+        //"-a=verbose",
+        "generators",
+        "--action=run",
+        "--generator-name=arm.swagger",
+        "--config=version=2018-10-01"
       ],
       "smartStep": false,
       "skipFiles": [

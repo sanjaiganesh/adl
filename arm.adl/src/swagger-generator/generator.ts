@@ -162,11 +162,12 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       // sanjai-todo: What are the type of constraints on apiTypeModel. Process them.
 
       let requiredProperties = new Array<string>();
-      apiTypeModel.Properties.forEach(apiTypePropertyModel =>
-        {
+      for(let apiTypePropertyModel of apiTypeModel.Properties)
+      {
           if (apiTypePropertyModel.isRemoved)
           {
             opts.logger.info(`[armswaggergen] Removed from current version. Skipping property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName}`);
+            continue;
           }
 
           if (apiTypePropertyModel.isOptional == false)
@@ -224,7 +225,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             console.log(`Flag array=${apiTypePropertyModel.isArray()} enum=${apiTypePropertyModel.isEnum} isalis ${apiTypePropertyModel.isAliasDataType} map ${apiTypePropertyModel.isMap()}  .`);
             //opts.logger.info(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name}.`);
           }
-        });
+        }
 
       definition.required = requiredProperties.length > 0 ? requiredProperties : undefined;
       definition.properties = properties;
