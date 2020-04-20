@@ -807,10 +807,10 @@ export class armOpenApiGenerator implements adlruntime.Generator{
 
       if(yamlFormat){
         var YAML = require('yamljs');
-        opts.logger.info(YAML.stringify(spec, 4));
+        opts.logger.info(YAML.stringify(spec, 4).replace(/\\\\/g,'\\'));
       }
       else{
-        opts.logger.info(JSON.stringify(spec, null, 2));
+        opts.logger.info(JSON.stringify(spec, null, 2).replace(/\\\\/g,'\\'));
       }
     }
 }
