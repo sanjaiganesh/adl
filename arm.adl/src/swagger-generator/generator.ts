@@ -7,14 +7,14 @@ import { CONSTRAINT_NAME_APIVERSIONNAME } from '@azure-tools/adl.types';
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
-export class armSwaggerGenerator implements adlruntime.Generator{
+export class armOpenApiGenerator implements adlruntime.Generator{
 
     get description(): string{
-        return "Generates ARM compliant swagger schema out of adl models";
+        return "Generates ARM compliant Open Api schema out of adl models";
     }
 
     private parseConfig(config: any): Map<string, string>{
-        const errorMessage = `[armswaggergen] Configuration expected in form of 'apimodel=sample_rp,version=2020-01-01,format=yaml'`;
+        const errorMessage = `[armOpenApiGenerator] Configuration expected in form of 'apimodel=sample_rp,version=2020-01-01,format=yaml'`;
         if(config == undefined){
           throw new Error(errorMessage);
         }
@@ -39,46 +39,46 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     // or (whatever wraps runtime)=>runtime
     generate(apiManager:adlruntime.ApiManager, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
         // note the input is the entire api manager (not just one api-spec but all loaded in that manager)
-        // that allows swagger to generate multiple spec/cross spec/any funcky stuff we want to do.
+        // that allows Open Api to generate multiple spec/cross spec/any funcky stuff we want to do.
 
         const configMap = this.parseConfig(config);
-        opts.logger.info(`[armswaggergen] Got configuration ${configMap}`);
+        opts.logger.info(`[armOpenApiGenerator] Got configuration ${configMap}`);
 
         if(apiManager.ApiModels == undefined){
-          throw new Error(`[armswaggergen] No api model to process. Exiting.`)
+          throw new Error(`[armOpenApiGenerator] No api model to process. Exiting.`)
         }
 
         const apiModelName = configMap.get("apimodel");
         if(apiModelName == undefined){
-          throw new Error(`[armswaggergen] Invalid config. Api model must be specified, such as 'apimodel=sample_rp'`);
+          throw new Error(`[armOpenApiGenerator] Invalid config. Api model must be specified, such as 'apimodel=sample_rp'`);
         }
 
         // Get the api model
         const apiModel = apiManager.getApiInfo(apiModelName);
         if(apiModel == undefined){
-          throw new Error(`[armswaggergen] Failed to find requested api model.`);
+          throw new Error(`[armOpenApiGenerator] Failed to find requested api model.`);
         }
 
         const apiVersion = configMap.get("version");
         if( apiVersion == undefined){
-          throw new Error(`[armswaggergen] Invalid config. Api version must be specified, such as 'version=2020-01-01'`);
+          throw new Error(`[armOpenApiGenerator] Invalid config. Api version must be specified, such as 'version=2020-01-01'`);
         }
 
         // Get versioned model
         const apiVersionModel = apiModel.getVersion(apiVersion);
         if(apiVersionModel == undefined){
-          throw new Error(`[armswaggergen] Failed to find requested version in the api model.`);
+          throw new Error(`[armOpenApiGenerator] Failed to find requested version in the api model.`);
         }
 
-        opts.logger.info(`[armswaggergen] Processing provider (api model) '${apiModel.Name}' of apiVersionModel '${apiVersionModel.Name}'`);
+        opts.logger.info(`[armOpenApiGenerator] Processing provider (api model) '${apiModel.Name}' of apiVersionModel '${apiVersionModel.Name}'`);
 
-        let spec = this.GetBaseSwaggerSpecification(apiModel.Name, apiVersionModel.Name);
+        let spec = this.GetBaseOpenApiSpecification(apiModel.Name, apiVersionModel.Name);
         spec.parameters = this.GetCommonParameters(/* includeSubscription */ true, /* includeResourceGroup */true);
         spec.definitions = {} as swagger.Definitions;
         spec.paths = {} as swagger.Paths;
         
         for(const versionedModel of apiVersionModel.VersionedTypes){
-          opts.logger.info(`[armswaggergen] Processing the type ${versionedModel.Name} (normalized: ${versionedModel.NormalizedApiTypeName}).`);
+          opts.logger.info(`[armOpenApiGenerator] Processing the type ${versionedModel.Name} (normalized: ${versionedModel.NormalizedApiTypeName}).`);
 
           let apiTypeModelsProcessed = new Set<String>();
           let apiTypeModelsToProcess = new Array<adlruntime.ApiTypeModel>();
@@ -124,7 +124,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             }
 
             let definition = {} as swagger.Schema;
-            opts.logger.verbose(`[armswaggergen] Creating new definition for ${apiTypeModel.Name} with properties.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Creating new definition for ${apiTypeModel.Name} with properties.`);
             spec.definitions[definitionName] = this.BuildDefinition(apiTypeModel, apiTypeModelsToProcess, opts);
             apiTypeModelsProcessed.add(definitionName);
           }
@@ -132,11 +132,11 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           spec.definitions[`${versionedModel.Name}sList`] = this.BuildListDefinition(versionedModel.Name);
         };
 
-        // Print the swagger spec
-        this.PrintSwaggerSpec(spec, configMap, opts);
+        // Print the Open Api spec
+        this.PrintOpenApiSpec(spec, configMap, opts);
     }
 
-    /** Walks the types and creates swagger definitions */
+    /** Walks the types and creates Open Api definitions */
     BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
     {
       let definition = {} as swagger.Schema;
@@ -149,7 +149,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       for(const apiTypePropertyModel of apiTypeModel.Properties)
       {
           if(apiTypePropertyModel.isRemoved){
-            opts.logger.verbose(`[armswaggergen] Removed from current version. Skipping property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName}`);
+            opts.logger.verbose(`[armOpenApiGenerator] Removed from current version. Skipping property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName}`);
             continue;
           }
 
@@ -158,29 +158,29 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           }
 
           if(adlruntime.isPropertyScalarDataType(apiTypePropertyModel.DataTypeModel) && !apiTypePropertyModel.isEnum){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName} to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildBasicProperty(apiTypePropertyModel, opts);
           }
           else if(apiTypePropertyModel.isEnum){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type enum to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type enum to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildEnumProperty(apiTypePropertyModel, opts);
           }
           else if(apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.Map){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildSimpleMapProperty(apiTypePropertyModel, opts);
           }
           else if(apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ComplexMap){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type Simple Map to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildComplexMapProperty(apiTypePropertyModel, opts);
             const complexMapDataPropertyType = apiTypePropertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
             apiTypeModelsToProcess.push(complexMapDataPropertyType.ValueComplexDataTypeModel);
           }
           else if(apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ScalarArray){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type scalar array to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type scalar array to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildScalarArrayProperty(apiTypePropertyModel, opts);
           }
           else if(apiTypePropertyModel.DataTypeKind == PropertyDataTypeKind.ComplexArray){
-            opts.logger.verbose(`[armswaggergen] Adding property ${apiTypePropertyModel.Name} of type complex array to the definition.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Adding property ${apiTypePropertyModel.Name} of type complex array to the definition.`);
             properties[apiTypePropertyModel.Name] = this.BuildComplexArrayProperty(apiTypePropertyModel, opts);
             const complexArrayDataPropertyType = apiTypePropertyModel.DataTypeModel as adlruntime.PropertyComplexArrayDataType;
             apiTypeModelsToProcess.push(complexArrayDataPropertyType.ElementComplexDataTypeModel);
@@ -188,14 +188,14 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           else if(adlruntime.isPropertyComplexDataType(apiTypePropertyModel.DataTypeModel)){
             let property = {} as swagger.Schema;
             let apiTypeModelForComplexProperty = (apiTypePropertyModel.DataTypeModel as PropertyComplexDataType).ComplexDataTypeModel;
-            opts.logger.verbose(`[armswaggergen] Add $ref property ${apiTypePropertyModel.Name} of type ${apiTypeModelForComplexProperty.Name} to the definition and queue for further processing.`);
+            opts.logger.verbose(`[armOpenApiGenerator] Add $ref property ${apiTypePropertyModel.Name} of type ${apiTypeModelForComplexProperty.Name} to the definition and queue for further processing.`);
             property.$ref = `#/definitions/${apiTypeModelForComplexProperty.Name}`;
             properties[apiTypePropertyModel.Name] = property;
 
             apiTypeModelsToProcess.push(apiTypeModelForComplexProperty);
           }
           else{
-            opts.logger.verbose(`[armswaggergen] Unsupported property (for now) ${apiTypePropertyModel.Name} with alias= ${apiTypePropertyModel.AliasDataTypeName} and kind=${apiTypePropertyModel.DataTypeKind}.  .`);
+            opts.logger.verbose(`[armOpenApiGenerator] Unsupported property (for now) ${apiTypePropertyModel.Name} with alias= ${apiTypePropertyModel.AliasDataTypeName} and kind=${apiTypePropertyModel.DataTypeKind}.  .`);
           }
         }
 
@@ -355,7 +355,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     }
 
     ProcessConstraints(property: swagger.Schema, propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): void{
-      opts.logger.verbose(`[armswaggergen] Processing constraints for ${propertyModel.Name}`);
+      opts.logger.verbose(`[armOpenApiGenerator] Processing constraints for ${propertyModel.Name}`);
       if(propertyModel.isNullable){
         this.SetCustomProperty(property, "x-nullable", true);
       }
@@ -369,7 +369,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
         if(constraint.Name == adltypes.CONSTRAINT_NAME_READONLY){
           // sanjai-feature move this validation into runtime
           if(!propertyModel.isOptional){
-            throw new Error("[armswaggergen] Read only properties cannot be marked as required by a schema.");
+            throw new Error("[armOpenApiGenerator] Read only properties cannot be marked as required by a schema.");
           }
 
           property.readOnly = true;
@@ -397,7 +397,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
             property.default = constraint.Arguments[0];
           }
           else{
-            throw new Error(`[armswaggergen] Defaulting is unsupported for type ${propertyModel.DataTypeName}`);
+            throw new Error(`[armOpenApiGenerator] Defaulting is unsupported for type ${propertyModel.DataTypeName}`);
           }
         }
       });
@@ -411,33 +411,33 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           }
       }
 
-      opts.logger.verbose('[armswaggergen] Printing all constraints ');
+      opts.logger.verbose('[armOpenApiGenerator] Printing all constraints ');
       let constraints = propertyModel.Constraints;
       this.PrintConstraints(constraints, opts);
 
-      opts.logger.verbose('[armswaggergen] printing validation constraints ');
+      opts.logger.verbose('[armOpenApiGenerator] printing validation constraints ');
       let validationConstraints = propertyModel.getValidationConstraints();
       this.PrintConstraints(validationConstraints, opts);
 
-      opts.logger.verbose('[armswaggergen] printing defaulting constraints ');
+      opts.logger.verbose('[armOpenApiGenerator] printing defaulting constraints ');
       let defaultingConstraints = propertyModel.getDefaultingConstraints();
       this.PrintConstraints(defaultingConstraints, opts);
 
-      opts.logger.verbose('[armswaggergen] printing conversion constraints ');
+      opts.logger.verbose('[armOpenApiGenerator] printing conversion constraints ');
       let conversionConstraints = propertyModel.getConversionConstraints();
       this.PrintConstraints(conversionConstraints, opts);
 
       if(propertyModel.isArray()){
-        opts.logger.verbose('[armswaggergen] printing array elemement constraints ');
+        opts.logger.verbose('[armOpenApiGenerator] printing array elemement constraints ');
         let arrayElemConstraints = propertyModel.getArrayElementValidationConstraints();
         this.PrintConstraints(arrayElemConstraints, opts);
       }
 
       if(propertyModel.isMap()){
-        opts.logger.verbose('[armswaggergen] printing map key constraints ');
+        opts.logger.verbose('[armOpenApiGenerator] printing map key constraints ');
         let mapKeyConstraints = propertyModel.MapKeyConstraints;
         this.PrintConstraints(mapKeyConstraints, opts);
-        opts.logger.verbose('[armswaggergen] printing map value constraints ');
+        opts.logger.verbose('[armOpenApiGenerator] printing map value constraints ');
         let mapValueConstraints = propertyModel.MapValueConstraints;
         this.PrintConstraints(mapValueConstraints, opts);
       }
@@ -650,7 +650,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     private GetCommonParameters(includeSubscription: boolean, includeResourceGroup: boolean):swagger.Parameters  {
 
       if(!includeSubscription && includeResourceGroup){
-        throw new Error("[armswaggergen] Resource group resource must have a subscription.")
+        throw new Error("[armOpenApiGenerator] Resource group resource must have a subscription.")
       }
 
       const parameters = {} as swagger.Parameters;
@@ -693,7 +693,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
     private GetCommonPathParameters(includeSubscription: boolean, includeResourceGroup: boolean): swagger.Parameter[] {
        
       if(!includeSubscription && includeResourceGroup){
-        throw new Error("[armswaggergen] Resource group resource must have a subscription.")
+        throw new Error("[armOpenApiGenerator] Resource group resource must have a subscription.")
       }
 
       const parameters = new Array<swagger.Parameter>();
@@ -737,7 +737,7 @@ export class armSwaggerGenerator implements adlruntime.Generator{
           parameters[parameterKey] = param;
         }
         else{
-          throw new Error(`[armswaggergen] Unsupported parameter location type ${location}`)
+          throw new Error(`[armOpenApiGenerator] Unsupported parameter location type ${location}`)
         }
        
       }
@@ -775,8 +775,8 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       parameters.push(param);
     }
 
-    /** Builds base swagger spec with common (to all specs) objects like info, security etc... */
-    GetBaseSwaggerSpecification(clientName: string, apiVersion: string): swagger.Spec
+    /** Builds base Open Api spec with common (to all specs) objects like info, security etc... */
+    GetBaseOpenApiSpecification(clientName: string, apiVersion: string): swagger.Spec
     {
       let spec = {} as swagger.Spec;
       spec.swagger = "2.0";
@@ -811,14 +811,14 @@ export class armSwaggerGenerator implements adlruntime.Generator{
       return spec;
     }
 
-    PrintSwaggerSpec(spec:swagger.Spec, configMap: Map<string, string>, opts: adlruntime.apiProcessingOptions)
+    PrintOpenApiSpec(spec:swagger.Spec, configMap: Map<string, string>, opts: adlruntime.apiProcessingOptions)
     {
       let yamlFormat = false;
       const format = configMap.get("format");
       if( format != undefined){
         yamlFormat = (format == "yaml");
         if(format != "yaml" && format != "json"){
-          throw new Error(`[armswaggergen] Invalid format specified in the config: ${format}. Must be either 'yaml' or 'json' `);
+          throw new Error(`[armOpenApiGenerator] Invalid format specified in the config: ${format}. Must be either 'yaml' or 'json' `);
         }
       }
 
