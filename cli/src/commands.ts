@@ -15,7 +15,7 @@ export class adlCliParser extends CommandLineParser {
     private _log_level: CommandLineChoiceParameter;
     private _pre_load_api: CommandLineStringListParameter;
     private _pre_load_runtime: CommandLineStringListParameter;
-
+    private _output_format: CommandLineChoiceParameter;
 
     // TODO: use  printer that can do json/yaml or just pretty print
 
@@ -56,6 +56,15 @@ export class adlCliParser extends CommandLineParser {
             argumentName: 'LIST_RUNTIMES',
         });
 
+        this._output_format = this.defineChoiceParameter({
+            parameterLongName: '--output',
+            parameterShortName: '-o',
+            alternatives: [ 'text', 'table' ],
+            defaultValue: 'text',
+            description: 'output format',
+            required: false,
+        });
+
   }
 
   protected async onExecute(): Promise<void> {
@@ -75,6 +84,8 @@ export class adlCliParser extends CommandLineParser {
         // use it to create an api manager (store)
         ctx.store = machinery.createApiManager();
 
+        // setup output format
+        ctx.opts.outputFormat = this._output_format.value;
 
         // loadable runtimes
         const runtimes = this._pre_load_runtime.values;

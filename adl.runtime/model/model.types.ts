@@ -355,6 +355,7 @@ export class apiProcessingOptions{
     // default log level none
     private _logLevel: apiProcessingLogLevel = apiProcessingLogLevel.err;
     private _logger: apiProcessingLogger;
+    private _outputFormat: string | undefined;
 
     // if true, the machinery will load adl types
     // should be used set if the application is expected to use the macnhinery
@@ -376,5 +377,13 @@ export class apiProcessingOptions{
 
     get logger(): apiProcessingLogger{
         return this._logger;
+    }
+
+    get outputFormat(): string | undefined {
+      return this._outputFormat;
+    }
+
+    set outputFormat(value: string | undefined) {
+      this._outputFormat = value;
     }
 }
