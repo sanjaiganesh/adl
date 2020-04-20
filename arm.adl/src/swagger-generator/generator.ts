@@ -99,9 +99,9 @@ export class armOpenApiGenerator implements adlruntime.Generator{
           // Adds list operations. Curently it assumes it is resource group level resource.
           this.AddListOperation(
             /* spec */ spec,
-            /* path */  `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+            /* path */  `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${apiModel.Name}/${versionedModel.Name}`,
             /* apiTypeModel */ versionedModel,
-            /* operationId */ `${versionedModel.Name}s_ListByResourceGroup`,
+            /* operationId */ `${versionedModel.Name}_ListByResourceGroup`,
             /* description */ `Gets list of ${versionedModel.Name} resources for given resource group`,
             /* opts */ opts,
             /* config */ config);
@@ -109,9 +109,9 @@ export class armOpenApiGenerator implements adlruntime.Generator{
           // Adds list operations. Curently it assumes it is resource group level resource.
           this.AddListOperation(
             /* spec */ spec,
-            /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}s`,
+            /* path */ `/subscriptions/{subscriptionId}/providers/${apiModel.Name}/${versionedModel.Name}`,
             /* apiTypeModel */ versionedModel,
-            /* operationId */ `${versionedModel.Name}s_ListBySubscription`,
+            /* operationId */ `${versionedModel.Name}_ListBySubscription`,
             /* description */ `Gets list of ${versionedModel.Name} resources for given subscription`,
             /* opts */ opts,
             /* config */ config);
@@ -129,7 +129,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
             apiTypeModelsProcessed.add(definitionName);
           }
           // list definition for currrent versioned model being processed
-          spec.definitions[`${versionedModel.Name}sList`] = this.BuildListDefinition(versionedModel.Name);
+          spec.definitions[`${versionedModel.Name}List`] = this.BuildListDefinition(versionedModel.Name);
         };
 
         // Print the Open Api spec
@@ -137,8 +137,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Walks the types and creates Open Api definitions */
-    BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema
-    {
+    BuildDefinition(apiTypeModel: adlruntime.ApiTypeModel, apiTypeModelsToProcess: Array<adlruntime.ApiTypeModel>, opts: adlruntime.apiProcessingOptions):swagger.Schema{
       let definition = {} as swagger.Schema;
       let properties = {} as swagger.Properties;
       definition.description  = (apiTypeModel.Docs != undefined)
@@ -146,8 +145,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
         : `${apiTypeModel.Name} definition.`;
 
       let requiredProperties = new Array<string>();
-      for(const apiTypePropertyModel of apiTypeModel.Properties)
-      {
+      for(const apiTypePropertyModel of apiTypeModel.Properties){
           if(apiTypePropertyModel.isRemoved){
             opts.logger.verbose(`[armOpenApiGenerator] Removed from current version. Skipping property ${apiTypePropertyModel.Name} of type ${apiTypePropertyModel.DataTypeName}`);
             continue;
@@ -204,8 +202,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       return definition;
     }
     
-    BuildListDefinition(typeName: string): swagger.Schema
-    {
+    BuildListDefinition(typeName: string): swagger.Schema{
       let listDefinition = {} as swagger.Schema;
       listDefinition.properties = {} as swagger.Properties;
       let value = {} as swagger.Schema;
@@ -222,8 +219,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       return listDefinition;
     }
 
-    BuildBasicProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildBasicProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       let property = {} as swagger.Schema;
       property.type = propertyModel.DataTypeName;
 
@@ -239,8 +235,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds enum property */
-    BuildEnumProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildEnumProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.enum = propertyModel.EnumValues;
       this.SetCustomProperty(property, "x-ms-enum", {"name": propertyModel.Name, "modelAsString": true })
@@ -258,8 +253,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds Map property */
-    BuildSimpleMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildSimpleMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       // sanjai-todo how to capture constraints on the keys?
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "object";
@@ -272,8 +266,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds complex Map property */
-    BuildComplexMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildComplexMapProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "object";
       const complexMapDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertyComplexMapDataType;
@@ -285,8 +278,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds scalar array property */
-    BuildScalarArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildScalarArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "array";
       const scalarArrayDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertySimpleArrayDataType;
@@ -299,8 +291,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds complex array property */
-    BuildComplexArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema
-    {
+    BuildComplexArrayProperty(propertyModel: ApiTypePropertyModel, opts: adlruntime.apiProcessingOptions): swagger.Schema{
       let property = this.BuildBasicProperty(propertyModel, opts);
       property.type = "array";
       const complexArrayDataPropertyType = propertyModel.DataTypeModel as adlruntime.PropertyComplexArrayDataType;
@@ -312,11 +303,10 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
     
     ProcessBasicConstraints(property: swagger.Schema, constraints: adlruntime.ConstraintModel[], opts: adlruntime.apiProcessingOptions): void{
-      constraints.forEach(constraint =>
-      {
+      constraints.forEach(constraint =>{
         if(constraint.Name == adltypes.CONSTRAINT_NAME_MUSTMATCH){
           // sanjai-todo: pattern is case sensitive https://swagger.io/docs/specification/data-models/data-types/
-          property.pattern = constraint.Arguments[0]
+          property.pattern = constraint.Arguments[0];
         }
 
         if(constraint.Name == adltypes.CONSTRAINT_NAME_MINLENGTH){
@@ -453,7 +443,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     // Adds basic crud operations (get, put, delete). Curently it assumes the resource type is Tracked (ARM routing type = default)
     AddBasicCrudOperations(spec:swagger.Spec, providerName:string, apiTypeModel: adlruntime.ApiTypeModel, opts: adlruntime.apiProcessingOptions, config: any|undefined):void{
       const resourceTypeName = apiTypeModel.Name;
-      const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}s/${resourceTypeName}Name`;
+      const pathKey = `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/${providerName}/${resourceTypeName}/${resourceTypeName}Name`;
       let pathObj = {} as swagger.Path;
 
       let tags = undefined;
@@ -485,11 +475,10 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       spec.paths[path] = pathObj;
     }
 
-    private BuildGetOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
-    {
+    private BuildGetOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation{
       const resourceTypeName = apiTypeModel.Name;
       let operation = {} as swagger.Operation;
-      operation.operationId = `${resourceTypeName}s_Get`;
+      operation.operationId = `${resourceTypeName}_Get`;
       operation.description = `Gets ${apiTypeModel.Name}`;
       if(tags != undefined){
         operation.tags = tags;
@@ -513,8 +502,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds a list operation for given scope */
-    private BuildListOperation(apiTypeModel: adlruntime.ApiTypeModel, operationId:string, description: string, tags: string[] | undefined):swagger.Operation
-    {
+    private BuildListOperation(apiTypeModel: adlruntime.ApiTypeModel, operationId:string, description: string, tags: string[] | undefined):swagger.Operation{
       const resourceTypeName = apiTypeModel.Name;
       let operation = {} as swagger.Operation;
       operation.operationId = operationId;
@@ -531,7 +519,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       const okResponse = {} as swagger.Response;
       okResponse.description = "OK";
       okResponse.schema = {} as swagger.Schema;
-      okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}sList`;
+      okResponse.schema.$ref = `#/definitions/${apiTypeModel.Name}List`;
       responses["200"] = okResponse;
       this.SetCustomProperty(operation, "x-ms-pageable", { "nextLinkName": "nextLink" });
 
@@ -541,15 +529,14 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds PUT operation */
-    private BuildPutOperation(spec: swagger.Spec, apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
-    {
+    private BuildPutOperation(spec: swagger.Spec, apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation{
       if(spec.parameters == undefined){
         throw new Error("[armswggergen] Spec parameters must be valid");
       }
 
       const resourceTypeName = apiTypeModel.Name;
       let operation = {} as swagger.Operation;
-      operation.operationId = `${resourceTypeName}s_CreateOrUpdate`;
+      operation.operationId = `${resourceTypeName}_CreateOrUpdate`;
       operation.description = `Creates or updates ${apiTypeModel.Name}`;
       if(tags != undefined){
         operation.tags = tags;
@@ -595,11 +582,10 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       return operation;
     }
 
-    private BuildDeleteOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation
-    {
+    private BuildDeleteOperation(apiTypeModel: adlruntime.ApiTypeModel, tags: string[] | undefined):swagger.Operation{
       const resourceTypeName = apiTypeModel.Name;
       let operation = {} as swagger.Operation;
-      operation.operationId = `${resourceTypeName}s_Delete`;
+      operation.operationId = `${resourceTypeName}_Delete`;
       operation.description = `Deletes ${apiTypeModel.Name}`;
       if(tags != undefined){
         operation.tags = tags;
@@ -641,13 +627,12 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Used to set any custom x-ms-* properties */
-    private SetCustomProperty(obj: any, key: string, value: any)
-    {
+    private SetCustomProperty(obj: any, key: string, value: any){
       obj[key] = value;
     }
 
     /** Returns most common parameters */
-    private GetCommonParameters(includeSubscription: boolean, includeResourceGroup: boolean):swagger.Parameters  {
+    private GetCommonParameters(includeSubscription: boolean, includeResourceGroup: boolean):swagger.Parameters{
 
       if(!includeSubscription && includeResourceGroup){
         throw new Error("[armOpenApiGenerator] Resource group resource must have a subscription.")
@@ -718,7 +703,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Adds a spec parameter */
-    private AddSpecParameter(parameters: swagger.Parameters, name: string, required: boolean, location: string, description: string, type: string)  {
+    private AddSpecParameter(parameters: swagger.Parameters, name: string, required: boolean, location: string, description: string, type: string){
       const parameterKey = `${name}Parameter`;
       if(parameters[parameterKey] == undefined){
         if(location == "path"){
@@ -744,7 +729,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds path parameter with given details */
-    private BuildPathParameter(name: string, required: boolean, description: string, type: string): swagger.PathParameter {
+    private BuildPathParameter(name: string, required: boolean, description: string, type: string): swagger.PathParameter{
       const param = {} as swagger.PathParameter;
       param.description = description;
       param.required = required;
@@ -757,7 +742,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Builds body parameter with given details */
-    private BuildBodyParameter(name: string, required: boolean, description: string): swagger.BodyParameter {
+    private BuildBodyParameter(name: string, required: boolean, description: string): swagger.BodyParameter{
       const param = {} as swagger.BodyParameter;
       param.description = description;
       param.required = required;
@@ -769,15 +754,14 @@ export class armOpenApiGenerator implements adlruntime.Generator{
     }
 
     /** Sets the given path parameter */
-    private SetPathParameter(parameters: swagger.Parameter[], name: string) {
+    private SetPathParameter(parameters: swagger.Parameter[], name: string){
       const param = {} as swagger.PathParameter;
       param.$ref = `#/parameters/${name}`;
       parameters.push(param);
     }
 
     /** Builds base Open Api spec with common (to all specs) objects like info, security etc... */
-    GetBaseOpenApiSpecification(clientName: string, apiVersion: string): swagger.Spec
-    {
+    GetBaseOpenApiSpecification(clientName: string, apiVersion: string): swagger.Spec{
       let spec = {} as swagger.Spec;
       spec.swagger = "2.0";
       spec.info = {} as swagger.Info;
@@ -811,8 +795,7 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       return spec;
     }
 
-    PrintOpenApiSpec(spec:swagger.Spec, configMap: Map<string, string>, opts: adlruntime.apiProcessingOptions)
-    {
+    PrintOpenApiSpec(spec:swagger.Spec, configMap: Map<string, string>, opts: adlruntime.apiProcessingOptions){
       let yamlFormat = false;
       const format = configMap.get("format");
       if( format != undefined){
