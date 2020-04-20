@@ -30,7 +30,9 @@ import * as core from '../normalized/module'
  *  @tag1 because we are using jsdoc, we can use tags. those are also exposed to whoever consumes the model
  *  @tag2 also, consumer can ensure documentation conformation for example mandatory tags + spell check etc.
  */
-export type vm_resource_20200909 = adltypes.ApiType<'vm', 'virtualmachine', core.VirtualMachineNormalized, VirtualMachine20200909>;
+export type vm_resource_20200909 = adltypes.ApiType<'vm', 'virtualmachine', core.VirtualMachineNormalized, VirtualMachine20200909>
+  & armtypes.LongRunningPut
+  & armtypes.LongRunningDelete;
 
 
 /**

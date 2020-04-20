@@ -20,7 +20,7 @@ import * as core from "../normalized/module";
 // Uses custom versioner for converting one of the properties.
 export type vmscaleset_resource_20181001 = adltypes.CustomApiType<
   "vmscalesetnormalized",
-  "vmscaleset20181001",
+  "virtualMachineScaleSets",
   core.VirtualMachineScaleSetNormalized,
   VirtualMachineScaleSet20181001,
   VirtualMachineScaleSet20181001Versioner

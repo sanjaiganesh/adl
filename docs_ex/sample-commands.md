@@ -6,6 +6,15 @@ API need to be preloaded. Add the following cmdline options with directory updat
 --pre-load-runtimes="path=/home/khenidak/go/src/github.com/khenidak/adl/arm.adl"
 ```
 
+# Generate swagger for api version 2018-06-01
+NOTE: 'format' in --config is optional. Defaults to json if not specified. For yaml, set to 'format=yaml'
+```
+./cairo -a=info generators \
+--action=run \
+--generator-name=arm.openapi \
+--config="apimodel=sample_rp,version=2020-09-09,format=json"
+```
+
 # create an instance of a normalized type
 
 ```

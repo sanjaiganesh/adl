@@ -5,12 +5,11 @@
 import { PropertyConstraint, ValidationConstraint } from './types'
 
 
-
-/** property is required */
-export interface Required extends PropertyConstraint{}
-
 /** property is immutable */
 export interface Immutable extends PropertyConstraint {}
+
+/** property is write on create (during construction) */
+export interface WriteOnCreate extends PropertyConstraint {}
 
 /** The maximum length of a string value */
 export interface MaxLength<N extends number> extends ValidationConstraint {}

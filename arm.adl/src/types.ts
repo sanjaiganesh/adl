@@ -72,3 +72,7 @@ export class ArmVersioner<normalizedProps extends adltypes.Normalized,
     }
     constructor(){}
 }
+
+export interface LongRunningPut extends adltypes.ApiTypeConstraint{};
+export interface LongRunningPost extends adltypes.ApiTypeConstraint{};
+export interface LongRunningDelete extends adltypes.ApiTypeConstraint{};

@@ -22,7 +22,7 @@ import * as core from "../normalized/module";
 // Auto converter can convert between versions based on field names.
 export type vmscaleset_resource_20180601 = adltypes.ApiType<
   "vmscalesetnormalized",
-  "vmscaleset20180601",
+  "virtualMachineScaleSets",
   core.VirtualMachineScaleSetNormalized,
   VirtualMachineScaleSet20180601
 >;
