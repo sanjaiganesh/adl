@@ -1,30 +1,21 @@
-import { printer } from './printer'
+import * as  cliprinter  from './printer_types'
 
 import * as adlruntime from '@azure-tools/adl.runtime'
 
-export class textPrinter implements printer {
-  private readonly _scope: string;
-  private readonly _show_docs: boolean;
+export class textPrinter implements cliprinter.printer {
   private _prefix: string;
 
-  public constructor(scope: string, showDocs: boolean) {
-    this._scope = scope;
-    this._show_docs = showDocs;
+  public constructor(private _scope: cliprinter.printerScope) {
     this._prefix = "";
   }
 
   public printModel(model: adlruntime.ApiModel): void {
     // Print api model name
     this._prefix = "";
-    console.log(`${this._prefix} Api Model: ${model.Name}`);
+    console.log(`${this._prefix} ${cliprinter.emphasis("Api Model:")} ${model.Name}`);
 
-    if (this._scope == "all" || this._scope == "normalized") {
-      this.printNormalizedTypes(model.NormalizedTypes);
-    }
-
-    if (this._scope == "all" || this._scope == "api-versions" || this._scope == "versioned") {
-      this.printApiVersions(model.Versions);
-    }
+    this.printNormalizedTypes(model.NormalizedTypes);
+    this.printApiVersions(model.Versions);
   }
 
   public flushOutput(): void {
@@ -37,64 +28,82 @@ export class textPrinter implements printer {
    */
 
   private printNormalizedTypes(normalizedTypes: Iterable<adlruntime.NormalizedApiTypeModel>): void {
+    if((this._scope & cliprinter.printerScope.normalized ) != cliprinter.printerScope.normalized) return;
     this._prefix = "";
     // normalized types
-    console.log(`${this._prefix} Normalized Types:`);
+    console.log(`${this._prefix} ${cliprinter.emphasis("Normalized Types:")}`);
     for(const normalizedType of normalizedTypes){
         this._prefix = "  ";
         let constraintsAsText = "";
         for(const c of normalizedType.Constraints){
             constraintsAsText = constraintsAsText + c.Name + "\t"
         }
+
         if(constraintsAsText.length > 0){
             constraintsAsText = "> " + constraintsAsText;
         }
-        console.log(`${this._prefix} + Type: ${normalizedType.Name} ${constraintsAsText}`);
-        
+
+        console.log(`${this._prefix} + ${cliprinter.emphasis("Type:")} ${normalizedType.Name} ${constraintsAsText}`);
         this.printDocs(normalizedType.Docs);
-        
         this._prefix = "    ";
-        
         this.printApiTypeModel(normalizedType);
     }
   }
 
   private printApiVersions(apiVersions: Iterable<adlruntime.ApiVersionModel>): void {
-    if(this._scope != "all" && this._scope != "api-versions" && this._scope != "versioned") return;
-    
+    if((this._scope & cliprinter.printerScope.apiversions ) != cliprinter.printerScope.apiversions) return;
+
     // api versions
-    console.log(`${this._prefix} Versions:`);
+    console.log(`${this._prefix} ${cliprinter.emphasis("Versions:")}`);
     for(let apiVersion of apiVersions){
         this._prefix = "  ";
-        console.log(`${this._prefix} + api-version: ${apiVersion.Name}`);
+        console.log(`${this._prefix} + ${cliprinter.emphasis("api-version: ")}${apiVersion.Name}`);
         this.printDocs(apiVersion.Docs);
+
+        if((this._scope & cliprinter.printerScope.versioned) != cliprinter.printerScope.versioned) continue;
         this.printVersionedTypes(apiVersion.VersionedTypes);
     }
   }
 
   private printDocs(docs: adlruntime.ApiJsDoc | undefined): void {
-    if (!this._show_docs) return;
+    if((this._scope & cliprinter.printerScope.docs ) != cliprinter.printerScope.docs) return;
+
     if(docs == undefined) return;
-    console.log(` ${this._prefix}docs:`)
+    console.log(` ${this._prefix}${cliprinter.emphasis("docs:")}`)
     for(const l of docs.text.split("\n")) {
         console.log(`  ${this._prefix}${l}`);
     }
 
-    console.log(` ${this._prefix}tags:`)
+    if(docs.tags.keys.length == 0) return; // no tags
+    console.log(` ${this._prefix}${cliprinter.emphasis("tags:")}`)
     for(const [k,v] of docs.tags){
         console.log(`  ${this._prefix}${k}: ${v}`)
     }
   }
 
   private printApiTypeModel(model:adlruntime.ApiTypeModel): void {
+    if(( this._scope & cliprinter.printerScope.properties) != cliprinter.printerScope.properties) return;
+
     for(const prop  of model.Properties){
       if(prop.isRemoved) return;
-      console.log(`${this._prefix} Property:${prop.Name}(${prop.DataTypeName}/${prop.AliasDataTypeName}) ${this.getPropertiesConstraintsAsText(prop)}`);
+      let dataTypeName = prop.DataTypeName;
+      if(prop.isAliasDataType) 
+        dataTypeName = `(${dataTypeName}/${prop.AliasDataTypeName})` 
+      else
+        dataTypeName = `(${dataTypeName})`
+
+
+      console.log(`${this._prefix} ${cliprinter.emphasis("Property:")} ${prop.Name}${dataTypeName}`);
+      if(( this._scope & cliprinter.printerScope.constraints) ==  cliprinter.printerScope.constraints){
+        console.log(`${this._prefix} ${cliprinter.emphasis("Constraints:")} ${this.getPropertiesConstraintsAsText(prop)}`);
+      }
+
       if(prop.DataTypeKind == adlruntime.PropertyDataTypeKind.Complex ||
           prop.DataTypeKind == adlruntime.PropertyDataTypeKind.ComplexArray ||
           prop.DataTypeKind == adlruntime.PropertyDataTypeKind.ComplexMap){
               this.printDocs(prop.Docs);
               this._prefix += " ";
+              console.log(`${this._prefix}${cliprinter.emphasis("Complex Datatype:")} ${prop.DataTypeName}`);
               this.printApiTypeModel(prop.getComplexDataTypeOrThrow());
               this._prefix = this._prefix.slice(0, -1);
       }
@@ -109,7 +118,7 @@ export class textPrinter implements printer {
 
           constraintAsText = ""
           for(const c of prop.MapValueConstraints){
-              constraintAsText = constraintAsText + `${c.Name}(` + c.Arguments.join(",") +") | ";
+              constraintAsText = constraintAsText + `${c.Name}(` + c.Arguments.join(", ") +") | ";
           }
 
           if(constraintAsText.length > 0)
@@ -122,20 +131,25 @@ export class textPrinter implements printer {
     let constraintsAsText = ""
     if(!p.isEnum){
         for(const c of p.Constraints){
-            constraintsAsText = `${constraintsAsText} | ${c.Name}(${c.Arguments.join(",")})`;
+            if(constraintsAsText.length == 0)
+                constraintsAsText =  `${c.Name}(${c.Arguments.join(",")})`;
+            else
+                constraintsAsText =  `${constraintsAsText} | ${c.Name}(${c.Arguments.join(", ")})`;
         }
+
+        if(constraintsAsText.length == 0 ) return "NONE";
         return constraintsAsText;
     }
-    constraintsAsText = `enum${p.EnumValues}`;
+    constraintsAsText = `enum: ${p.EnumValues.join(",")}`;
     return constraintsAsText;
   }
 
   private printVersionedTypes(versionedTypes: Iterable<adlruntime.VersionedApiTypeModel>): void {
-    if(this._scope != "all" && this._scope != "versioned") return;
-    
+    if((this._scope & cliprinter.printerScope.versioned ) != cliprinter.printerScope.versioned) return;
+
     this._prefix = "";
 
-    // types in version    
+    // types in version
     for(const versionedType of versionedTypes){
         this._prefix = "    ";
         let constraintsAsText = ""
@@ -147,7 +161,7 @@ export class textPrinter implements printer {
             constraintsAsText = "> " + constraintsAsText;
         }
 
-        console.log(`${this._prefix} Type:${versionedType.Name} ${constraintsAsText}`);
+        console.log(`${this._prefix} ${cliprinter.emphasis("Type:")}${versionedType.Name} ${constraintsAsText}`);
         this.printDocs(versionedType.Docs);
         this._prefix = "     ";
         this.printApiTypeModel(versionedType);

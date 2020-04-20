@@ -1,7 +1,6 @@
-import { printer } from './printer'
+import * as cliprinters from './printer_types'
 
 import * as adlruntime from '@azure-tools/adl.runtime'
-import { int64 } from '@azure-tools/adl.types';
 
 class tableRow implements Iterable<[number, string, string]> {
   constructor(
@@ -11,7 +10,7 @@ class tableRow implements Iterable<[number, string, string]> {
     public property: string,
     public dataType: string,
     /*public constraints: string*/) {}
-    
+
   *[Symbol.iterator](): Iterator<[number, string, string]> {
     yield [0, "model", this.model];
     yield [1, "version", this.version];
@@ -22,17 +21,11 @@ class tableRow implements Iterable<[number, string, string]> {
   }
 }
 
-export class tablePrinter implements printer {
-  private readonly _scope: string;
-  private readonly _show_docs: boolean;
-
+export class tablePrinter implements cliprinters.printer {
   private _model : string;
   private _output_cache : Array<tableRow>;
 
-  public constructor(scope: string, showDocs: boolean) {
-    this._scope = scope;
-    this._show_docs = showDocs;
-
+  public constructor(private _scope: cliprinters.printerScope) {
     this._output_cache = new Array<tableRow>();
   }
 
@@ -40,14 +33,14 @@ export class tablePrinter implements printer {
     this._model = model.Name;
 
     // Normalized types
-    if (this._scope == "all" || this._scope == "normalized") {
+    if ((this._scope  & cliprinters.printerScope.normalized) == cliprinters.printerScope.normalized) {
       for (const normalizedType of model.NormalizedTypes) {
         this.printApiTypeModel("normalized", normalizedType.Name, normalizedType, "$.");
       }
     }
 
     // Versioned types
-    if (this._scope == "all" || this._scope == "api-versions" || this._scope == "versioned") {
+    if ((this._scope & cliprinters.printerScope.versioned ) == cliprinters.printerScope.versioned) {
       for (const apiVersion of model.Versions) {
         for (const versionedType of apiVersion.VersionedTypes) {
           this.printApiTypeModel(apiVersion.Name, versionedType.Name, versionedType, "$.");

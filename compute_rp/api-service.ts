@@ -10,14 +10,20 @@ export * from "./normalized/module";
 export * from "./20180601/module";
 export * from "./20181001/module";
 
-export type apiVersion_20180601 = adltypes.ApiVersion<
-  "2018-06-01",
-  "fancy-display-name"
-> &
-  adltypes.ModuleName<"20180601">;
 
-  export type apiVersion_20181001 = adltypes.ApiVersion<
-  "2018-10-01",
-  "fancy-display-name"
-> &
-  adltypes.ModuleName<"20181001">;
+  /**
+   * Project Cairo supports documentation in various places, one of which is "api-version".
+   * for examle we can use this to briefly describe the version, what is new in itt etc.
+   * these docs can go into swagger/open-api or can be end user facing documentation.
+   *
+   * @brief: we also support tags.
+   */
+export type apiVersion_20180601 = adltypes.ApiVersion<"2018-06-01", "fancy-display-name"> & adltypes.ModuleName<"20180601">;
+  /**
+   * Project Cairo supports documentation in various places, one of which is "api-version".
+   * for examle we can use this to briefly describe the version, what is new in itt etc.
+   * these docs can go into swagger/open-api or can be end user facing documentation.
+   *
+   * @brief: we also support tags.
+   */
+export type apiVersion_20181001 = adltypes.ApiVersion<"2018-10-01", "fancy-display-name"> & adltypes.ModuleName<"20181001">;

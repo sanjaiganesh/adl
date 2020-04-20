@@ -8,7 +8,7 @@
   "properties": {
     "sku": {
       "name": "",
-      "tier": "",
+      "tier": "Standard",
       "capacity": 0
     },
     "plan": {
@@ -18,7 +18,7 @@
       "promotionCode": ""
     },
     "upgradePolicy": {
-      "mode": "",
+      "mode": "Automatic",
       "rollingUpgradePolicy": {
         "maxBatchInstancePercent": 20,
         "maxUnhealthyInstancePercent": 20,
@@ -36,38 +36,6 @@
         "adminUsername": "admin",
         "adminPassword": "Pa$$word",
         "customData": "",
-        "windowsConfiguration": {
-          "timeZone": "",
-          "additionalUnattendContent": [
-            {
-              "passName": "",
-              "componentName": "",
-              "settingName": "",
-              "content": ""
-            },
-            {
-              "passName": "",
-              "componentName": "",
-              "settingName": "",
-              "content": ""
-            },
-            {
-              "passName": "",
-              "componentName": "",
-              "settingName": "",
-              "content": ""
-            }
-          ],
-          "winRM": {
-            "listeners": [
-              {
-                "protocol": "",
-                "certificateUrl": "https://management.azure.com/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/providers/Microsoft.KeyVault/vaults/sourceVault/certificates/certificate-name-1/certificate-version-v99?api-version=7.0"
-              }
-            ]
-          },
-          "provisionVMAgent": true
-        },
         "linuxConfiguration": {
           "ssh": {
             "publicKeys": [
@@ -128,18 +96,18 @@
           "id": "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourcegroups/rg-test/Microsoft.Compute/images/imageName",
           "publisher": "",
           "offer": "",
-          "sku": "",
+          "sku": "Standard",
           "version": "4.5.6"
         },
         "osDisk": {
           "name": "",
-          "caching": "",
-          "createOption": "",
+          "caching": "ReadWrite",
+          "createOption": "FromImage",
           "diffDiskSettings": {
-            "option": ""
+            "option": "Local"
           },
           "diskSizeGB": 0,
-          "osType": "",
+          "osType": "Linux",
           "image": {
             "uri": "https://catech123.blob.core.windows.net/vhds/TestRGVM2.vhd"
           },
@@ -147,38 +115,38 @@
             "https://catech123.blob.core.windows.net/vhds"
           ],
           "managedDisk": {
-            "storageAccountType": ""
+            "storageAccountType": "StandardSSD_LRS"
           }
         },
         "dataDisks": [
           {
             "name": "",
             "lun": 0,
-            "caching": "",
-            "createOption": "",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
             "diskSizeGB": 0,
             "managedDisk": {
-              "storageAccountType": ""
+              "storageAccountType": "StandardSSD_LRS"
             }
           },
           {
             "name": "",
             "lun": 0,
-            "caching": "",
-            "createOption": "",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
             "diskSizeGB": 0,
             "managedDisk": {
-              "storageAccountType": ""
+              "storageAccountType": "StandardSSD_LRS"
             }
           },
           {
             "name": "",
             "lun": 0,
-            "caching": "",
-            "createOption": "",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
             "diskSizeGB": 0,
             "managedDisk": {
-              "storageAccountType": ""
+              "storageAccountType": "StandardSSD_LRS"
             }
           }
         ]
@@ -234,8 +202,8 @@
         ]
       },
       "licenseType": "",
-      "priority": "",
-      "evictionPolicy": ""
+      "priority": "Regular",
+      "evictionPolicy": "Deallocate"
     },
     "provisioningState": "",
     "uniqueId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
@@ -246,7 +214,7 @@
     "identity": {
       "principalId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
       "tenantId": "a51967b5-271e-4f12-810e-e7fa20c8828d",
-      "type": "",
+      "type": "UserAssigned",
       "userAssignedIdentities": {
         "/subscriptions/a51967b5-271e-4f12-810e-e7fa20c8828d/resourceGroups/rg-test/providers/Microsoft.ManagedIdentity/userAssignedIdentities/customIdentityName": {
           "principalId": "a51967b5-271e-4f12-810e-e7fa20c8828d",

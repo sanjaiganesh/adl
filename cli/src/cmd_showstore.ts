@@ -2,10 +2,6 @@ import { CommandLineAction, CommandLineChoiceParameter, CommandLineFlagParameter
 import { appContext } from './appContext'
 
 import * as adlruntime from '@azure-tools/adl.runtime'
-import { printer } from './printers/printer';
-import { textPrinter } from './printers/text_printer';
-import { tablePrinter } from './printers/table_printer';
-
 /* shows what is in store
  * in a runtime env, this will connect to rpaas api server
  * and use it as a store, to red api definitions from
@@ -39,20 +35,6 @@ export class showStoreAction extends CommandLineAction {
     });
   }
 
-  private getPrinter(): printer {
-      switch (this.ctx.opts.outputFormat) {
-          case 'text': {
-              return new textPrinter(this._scope.value ?? 'all', this._show_docs.value);
-          }
-          case 'table': {
-              return new tablePrinter(this._scope.value ?? 'all', this._show_docs.value);
-          }
-          default: {
-              return new textPrinter(this._scope.value ?? 'all', this._show_docs.value);
-          }
-      }
-  }
-
   protected onExecute(): Promise<void> {
             // TODO: pretty print, json yaml printing etc.
             return new Promise<void>( () => {
@@ -61,7 +43,7 @@ export class showStoreAction extends CommandLineAction {
                 // dumb print information from store as is
                 var models = this.ctx.store.ApiModels;
 
-                var printer = this.getPrinter();
+                var printer = this.ctx.createPrinter(this._scope.value, this._show_docs.value);
                 // api infos
                 for(let model of models){
                     printer.printModel(model);
@@ -75,7 +57,7 @@ export class showStoreAction extends CommandLineAction {
     this._scope = this.defineChoiceParameter({
       parameterLongName: '--scope',
       parameterShortName: '-s',
-            alternatives: [ 'all', 'normalized', 'api-versions', 'versioned' ],
+            alternatives: [ 'all', 'types', 'normalized', 'apiversions', 'versioned', 'properties', 'constraints', 'docs' ],
             defaultValue: 'all',
       description: 'scope',
             required: false,

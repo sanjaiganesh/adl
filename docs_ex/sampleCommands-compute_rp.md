@@ -2,11 +2,11 @@
 
 API need to be preloaded. Add the following cmdline options with directory updated
 ```
---pre-load-apis="name=Microsoft.Compute+path=f:\adl\compute_rp" \
---pre-load-runtimes="path=f:\adl\arm.adl" 
+--pre-load-apis="name=computeapi+path=f:\adl\compute_rp"
+--pre-load-runtimes="path=f:\adl\arm.adl"
 ```
 
-# Generate swagger for api version 2018-06-01
+# Generate opeapi for api version 2018-06-01
 NOTE: 'format' in --config is optional. Defaults to json if not specified. For yaml, set to 'format=yaml'
 ```
 ./cairo -a=info generators \
@@ -19,71 +19,71 @@ NOTE: 'format' in --config is optional. Defaults to json if not specified. For y
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute
---action=create-normalized-instance
---normalized-api-type-name=vmscalesetnormalized
+--api-name=microsoft.compute \
+--action=create-normalized-instance \
+--normalized-api-type-name=vmscaleset
 ```
 
 # create an instance of a versioned type (2018-06-01)
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute
---action=create-versioned-instance
---api-version="2018-06-01"
---versioned-api-type-name="vmscaleset20180601"
+--api-name=microsoft.compute \
+--action=create-versioned-instance \
+--api-version="2018-06-01" \
+--versioned-api-type-name="virtualmachinescaleset"
 ```
 
-# create an instance of a versioned type (2018-06-01)
+# create an instance of a versioned type (2018-10-01)
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute
---action=create-versioned-instance
---api-version="2018-10-01"
---versioned-api-type-name="vmscaleset20181001"
+--api-name=microsoft.compute \
+--action=create-versioned-instance \
+--api-version="2018-10-01" \
+--versioned-api-type-name="virtualmachinescaleset"
 ```
 
 # normalize 2018-06-01
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute \
+--api-name="microsoft.compute" \
 --action=normalize \
 --api-version="2018-06-01" \
---versioned-api-type-name="vmscaleset20180601" \
+--versioned-api-type-name="virtualmachinescaleset" \
 --source=./docs_ex/compute-rp-sample-data/vmscaleset_2018-06-01.json
+```
+
+# normalize 2018-10-01
+```
+./cairo machinery \
+--api-name="microsoft.compute" \
+--action=normalize \
+--api-version="2018-10-01" \
+--versioned-api-type-name="virtualmachinescaleset" \
+--source=./docs_ex/compute-rp-sample-data/vmscaleset_2018-10-01.json
 ```
 
 # denormalize 2018-06-01
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute \
+--api-name=microsoft.compute \
 --action=denormalize \
 --target-api-version=2018-06-01 \
---target-versioned-api-type-name=vmscaleset20180601 \
---source=./docs_ex/compute-rp-sample-data/vmscaleset-normalized.json \
-```
-
-# normalize 2018-10-01
-```
-./cairo machinery \
---api-name=Microsoft.Compute \
---action=normalize \
---api-version="2018-10-01" \
---versioned-api-type-name="vmscaleset20181001" \
---source=./docs_ex/compute-rp-sample-data/vmscaleset_2018-10-01.json \
+--target-versioned-api-type-name=virtualmachinescaleset \
+--source=./docs_ex/compute-rp-sample-data/vmscaleset-normalized.json
 ```
 
 # denormalize 2018-10-01
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute \
+--api-name=microsoft.compute \
 --action=denormalize \
 --target-api-version=2018-10-01 \
---target-versioned-api-type-name=vmscaleset20181001 \
+--target-versioned-api-type-name=virtualmachinescaleset \
 --source=./docs_ex/compute-rp-sample-data/vmscaleset-normalized.json
 ```
 
@@ -91,11 +91,11 @@ NOTE: 'format' in --config is optional. Defaults to json if not specified. For y
 
 ```
 ./cairo machinery \
---api-name=Microsoft.Compute \
+--api-name=microsoft.compute \
 --action=convert \
 --api-version=2018-06-01 \
---versioned-api-type-name=vmscaleset20180601 \
+--versioned-api-type-name=virtualmachinescaleset \
 --target-api-version=2018-10-01 \
---target-versioned-api-type-name=vmscaleset20181001 \
+--target-versioned-api-type-name=virtualmachinescaleset \
 --source=./docs_ex/compute-rp-sample-data/vmscaleset_2018-06-01.json
 ```

@@ -85,7 +85,7 @@ export class adlCliParser extends CommandLineParser {
         ctx.store = machinery.createApiManager();
 
         // setup output format
-        ctx.opts.outputFormat = this._output_format.value;
+        ctx.outputFormat = this._output_format.value;
 
         // loadable runtimes
         const runtimes = this._pre_load_runtime.values;
@@ -127,10 +127,10 @@ export class adlCliParser extends CommandLineParser {
             //TODO: for demo purposes, we are loading a sample
             // in a typical scneario, user will connect to rpaas
             // endpoint to load the data.
-            ctx.opts.logger.info(`auto loading sample_rp apis`);
+            ctx.opts.logger.info(`auto loading microsoft.compute apis`);
             await ctx.store.addApi(ctx.opts,
-                                "sample_rp",
-                                "/home/khenidak/go/src/github.com/khenidak/adl/sample_rp" );
+                                "microsoft.compute",
+                                "/home/khenidak/go/src/github.com/khenidak/adl/compute_rp" );
         }else{
             // if there are values provided in command line then load from there
             for(const api of loadApis){

@@ -4,6 +4,7 @@ import { ApiTypePropertyModel, PropertyDataTypeKind, PropertyComplexDataType, Ap
 import * as swagger from './swaggerspec'
 import * as constants from './../constants'
 import { CONSTRAINT_NAME_APIVERSIONNAME } from '@azure-tools/adl.types';
+import * as YAML from 'yamljs';
 
 // define types in ./swagger-generator-type.ts
 // anything visible outside this module needs to be re-exported in ./module.ts
@@ -806,7 +807,6 @@ export class armOpenApiGenerator implements adlruntime.Generator{
       }
 
       if(yamlFormat){
-        var YAML = require('yamljs');
         opts.logger.info(YAML.stringify(spec, 4).replace(/\\\\/g,'\\'));
       }
       else{

@@ -282,7 +282,7 @@ export interface VirtualMachineScaleSetOSProfile {
   computerNamePrefix?: string &
   		adltypes.MinLength<1> &
 		adltypes.MaxLength<15>;
-		  
+
 	/**
    * Specifies the name of the administrator account. <br><br> **Windows-only restriction:** Cannot
    * end in "." <br><br> **Disallowed values:** "administrator", "admin", "user", "user1", "test",
@@ -1211,27 +1211,6 @@ export type VirtualMachinePriorityTypes = string &
 export type VirtualMachineEvictionPolicyTypes = string &
   adltypes.OneOf<["Deallocate", "Delete"]>;
 
-  export class VirtualMachineScaleSetNormalizer implements adltypes.Normalizer<armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>>{
-    // *** THE BELOW IS AN EXAMPLE OF CUSTOM VALIDATOR AND DEFAULTER. THIS IS NOT THE NORMAL
-    // *** APIS DESIGNER WILL NEED TO DO THAT ONLY IF THEY NEED CUSTOM BEHAVIOR. IN OTHER
-    // *** WORDS IF THE ANNOTATIONS (INTERSECTIONS) ARE NOT PROVIDING THE BEHAVIOR NEEDED.
-    Default(obj: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
-      errors: adltypes.errorList) {
-        // call arm normalizer on the envelop
-        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
-        armNormalizer.Default(obj, errors);
-        if(errors.length > 0) return;
-    }
-
-    Validate (old: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties> | undefined,
-      newObject: armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>,
-      errors: adltypes.errorList) {
-        // call arm normalizer on the envelop
-        const armNormalizer = new armtypes.ArmNormalizer<VirtualMachineScaleSetNormalizedProperties>();
-        armNormalizer.Validate(old, newObject, errors);
-        if(errors.length > 0) return;
-    }
-}
 
 // Wrap in ARM envelope to make it an ARM resource
 export type VirtualMachineScaleSetNormalized = armtypes.ArmNormalizedResource<VirtualMachineScaleSetNormalizedProperties>;
